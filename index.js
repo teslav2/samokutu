@@ -1227,10 +1227,15 @@ function setupStreamerCallbacks() {
         if (msg.isSystem) {
             msgDiv.innerHTML = `<span class="chat-text">${msg.message}</span>`;
         } else {
+            const userColor = msg.color ? `style="color: ${msg.color}; font-weight: 600;"` : '';
             msgDiv.innerHTML = `
-                <span class="chat-name ${msg.platform}">${msg.name}</span>: 
+                <span class="chat-name ${msg.platform}" ${userColor}>${msg.name}</span>: 
                 <span class="chat-text">${msg.message}</span>
             `;
+        }
+        
+        if (isTrigger && typeof soundManager !== 'undefined' && soundManager.playTone) {
+            soundManager.playTone(880, 'sine', 0.15);
         }
         
         chatMessagesContainer.appendChild(msgDiv);
@@ -1948,6 +1953,8 @@ function syncSettingsFormValues() {
     if (triggerInput) triggerInput.value = settingsConfig.streamerTrigger;
     if (pointsInput) pointsInput.value = settingsConfig.streamerMinLoyalty;
     if (kickChannelInput) kickChannelInput.value = settingsConfig.kickChannel;
+    const kickIdInput = document.getElementById('kick-id-input');
+    if (kickIdInput) kickIdInput.value = settingsConfig.kickChannelId;
     if (ytKeyInput) ytKeyInput.value = settingsConfig.ytApiKey;
     if (ytVideoInput) ytVideoInput.value = settingsConfig.ytVideoId;
 
@@ -2235,6 +2242,18 @@ function initSettingsControls() {
 
     document.getElementById('kick-channel-input')?.addEventListener('input', (e) => {
         settingsConfig.kickChannel = e.target.value.trim();
+        if (typeof streamerMode !== 'undefined') {
+            streamerMode.kickChannelName = settingsConfig.kickChannel;
+            streamerMode.saveConfig();
+        }
+    });
+
+    document.getElementById('kick-id-input')?.addEventListener('input', (e) => {
+        settingsConfig.kickChannelId = e.target.value.trim();
+        if (typeof streamerMode !== 'undefined') {
+            streamerMode.kickChannelId = settingsConfig.kickChannelId;
+            streamerMode.saveConfig();
+        }
     });
 
 

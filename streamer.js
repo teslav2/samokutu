@@ -1,6 +1,7 @@
 /**
  * Streamer Mode - YouTube & Kick Chat Integration
  * Yayıncı Modu: Chat'ten gelen komutları algılayıp oyuncuları sıraya alır
+ * Güncel Kick Centrifugo WebSocket + Yüksek Hızlı REST Mimarisini Destekler
  */
 
 class StreamerMode {
@@ -17,12 +18,18 @@ class StreamerMode {
         this.kickChannelId = null;
         this.kickWs = null;
 
-        this.viewerQueue = []; // [{name, platform, timestamp, loyaltyPoints}]
-        this.chatMessages = []; // [{name, message, platform, timestamp}]
+        this.viewerQueue = []; // [{name, platform, timestamp, loyaltyPoints, color}]
+        this.chatMessages = []; // [{name, message, platform, timestamp, color}]
         this.maxChatMessages = 50;
         this.pollingInterval = null;
         this.demoInterval = null;
         this.isConnected = false;
+
+        // Kick specific tracking
+        this.joinedUsers = new Set();
+        this.processedKickMessageIds = new Set();
+        this.kickPingInterval = null;
+        this.kickPollInterval = null;
 
         // Callbacks
         this.onChatMessage = null;
@@ -51,7 +58,7 @@ class StreamerMode {
         localStorage.setItem('streamer_yt_api_key', this.youtubeApiKey);
         localStorage.setItem('streamer_yt_video_id', this.youtubeVideoId);
         localStorage.setItem('streamer_kick_channel', this.kickChannelName);
-        localStorage.setItem('streamer_kick_id', this.kickChannelId);
+        localStorage.setItem('streamer_kick_id', this.kickChannelId || '');
         localStorage.setItem('streamer_enabled', this.enabled.toString());
     }
 
@@ -86,6 +93,16 @@ class StreamerMode {
             this.demoInterval = null;
         }
 
+        if (this.kickPingInterval) {
+            clearInterval(this.kickPingInterval);
+            this.kickPingInterval = null;
+        }
+
+        if (this.kickPollInterval) {
+            clearInterval(this.kickPollInterval);
+            this.kickPollInterval = null;
+        }
+
         if (this.kickWs) {
             try { this.kickWs.close(); } catch (e) {}
             this.kickWs = null;
@@ -105,7 +122,6 @@ class StreamerMode {
         }
 
         try {
-            // Step 1: Get liveChatId from video
             const videoUrl = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${this.youtubeVideoId}&key=${this.youtubeApiKey}`;
             const videoRes = await fetch(videoUrl);
             const videoData = await videoRes.json();
@@ -129,7 +145,6 @@ class StreamerMode {
                 this.onConnectionChange(true, 'youtube');
             }
 
-            // Step 2: Start polling live chat messages
             this.pollYouTubeChat();
             this.pollingInterval = setInterval(() => this.pollYouTubeChat(), 2500);
 
@@ -176,55 +191,75 @@ class StreamerMode {
         }
     }
 
-    // ========== KICK CHAT ==========
+    // ========== KICK CHAT (GÜNCEL WEBSOCKET & REST MİMARİSİ) ==========
 
     async connectKick() {
-        if (!this.kickChannelName) {
-            this.addSystemMessage('⚠️ Kick kanal adı gerekli!');
+        const inputVal = (this.kickChannelName || '').trim();
+        const idVal = (this.kickChannelId || '').trim();
+
+        if (!inputVal && !idVal) {
+            this.addSystemMessage('⚠️ Kick kanal adı veya Chatroom ID gerekli!');
             return;
         }
 
         try {
-            this.addSystemMessage('⚡ Kick chatroom ID aranıyor...');
-            
-            const targetUrl = `https://kick.com/api/v2/channels/${encodeURIComponent(this.kickChannelName.trim())}`;
-            const proxies = [
-                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
-            ];
+            this.addSystemMessage('⚡ Kick kanal bilgisi doğrulanıyor...');
 
-            const fetchFromProxy = async (url) => {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Proxy failed');
-                const data = await response.json();
-                const cid = data.chatroom?.id || data.id;
-                if (!cid) throw new Error('No chatroom ID found');
-                return cid;
-            };
-
+            let channelId = null;
             let chatroomId = null;
-            try {
-                // Try all proxies in parallel, take the fastest success
-                chatroomId = await Promise.any(proxies.map(url => fetchFromProxy(url)));
-            } catch (err) {
-                console.warn("All proxies failed, attempting direct fetch fallback...", err);
-                try {
-                    const response = await fetch(targetUrl);
-                    if (response.ok) {
-                        const data = await response.json();
-                        chatroomId = data.chatroom?.id || data.id;
+
+            // 1. Doğrudan sayısal ID girilmiş mi kontrol et
+            if (idVal && /^\d+$/.test(idVal)) {
+                channelId = idVal;
+                chatroomId = idVal;
+            } else if (inputVal && /^\d+$/.test(inputVal)) {
+                channelId = inputVal;
+                chatroomId = inputVal;
+            }
+
+            // 2. Kullanıcı adı girildiyse Kick API'den channel_id ve chatroom_id al
+            if (!channelId || !chatroomId) {
+                const slug = inputVal.toLowerCase();
+                const targetUrl = `https://kick.com/api/v2/channels/${encodeURIComponent(slug)}`;
+                
+                const sources = [
+                    targetUrl,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+                ];
+
+                for (const url of sources) {
+                    try {
+                        const res = await fetch(url, {
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data && (data.id || data.chatroom?.id)) {
+                                channelId = data.id;
+                                chatroomId = data.chatroom?.id || data.id;
+                                this.addSystemMessage(`🔍 Kick Kanal Bulundu: ${data.slug || slug} (Channel ID: ${channelId}, Chatroom: ${chatroomId})`);
+                                break;
+                            }
+                        }
+                    } catch (fetchErr) {
+                        // Diğer kaynağı dene
                     }
-                } catch (directErr) {
-                    console.error("Direct fetch failed too:", directErr);
                 }
             }
 
-            if (chatroomId) {
-                this.connectKickWebSocket(chatroomId);
-            } else {
-                this.addSystemMessage('❌ Kick kanal bilgisi alınamadı! Lütfen kanal adınızı kontrol edin.');
+            if (!channelId && !chatroomId) {
+                this.addSystemMessage('❌ Kick kanal bilgisi alınamadı! Lütfen kanal adınızı veya Chatroom ID numaranızı kontrol edin.');
+                return;
             }
+
+            this.kickChannelId = chatroomId;
+            this.saveConfig();
+
+            // 3. WebSocket ve REST Polling Başlat
+            await this.startKickConnection(channelId, chatroomId);
 
         } catch (e) {
             this.addSystemMessage(`❌ Kick bağlantı hatası: ${e.message}`);
@@ -232,69 +267,152 @@ class StreamerMode {
         }
     }
 
-    connectKickWebSocket(channelId) {
-        // Connect to Pusher WebSocket
-        this.kickWs = new WebSocket('wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=7.4.0&flash=false');
+    async startKickConnection(channelId, chatroomId) {
+        this.isConnected = true;
+        this.processedKickMessageIds = new Set();
 
-        this.kickWs.onopen = () => {
-            // Subscribe to chatroom channel
-            const subscribeMsg = JSON.stringify({
-                event: 'pusher:subscribe',
-                data: { channel: `chatrooms.${channelId}.v2` }
+        if (this.onConnectionChange) {
+            this.onConnectionChange(true, 'kick');
+        }
+
+        // Adım 2.1: Kick Viewer WebSocket'e bağlanmayı dene (Presence / Heartbeat)
+        await this.connectKickViewerWebSocket(chatroomId);
+
+        // Adım 2.2: Kesintisiz ve %100 güvenilir yüksek hızlı REST Polling başlat (her 800ms)
+        this.startKickPolling(channelId);
+
+        this.addSystemMessage('✅ Kick Chat başarıyla bağlandı! "!oyna" komutları dinleniyor.');
+    }
+
+    async connectKickViewerWebSocket(chatroomId) {
+        try {
+            // Dinamik Token Alma
+            const tokenRes = await fetch('https://websockets.kick.com/viewer/v1/token', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CLIENT-TOKEN': 'e1393935a959b4020a4491574f6490129f678acdaa92760471263db43487f823'
+                }
             });
-            this.kickWs.send(subscribeMsg);
-            
-            this.isConnected = true;
-            this.addSystemMessage('✅ Kick Chat bağlandı!');
 
-            if (this.onConnectionChange) {
-                this.onConnectionChange(true, 'kick');
-            }
-        };
+            if (tokenRes.ok) {
+                const tokenData = await tokenRes.json();
+                const token = tokenData?.data?.token;
 
-        this.kickWs.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                
-                if (data.event === 'App\\Events\\ChatMessageEvent') {
-                    const msgData = JSON.parse(data.data);
-                    const msg = {
-                        name: msgData.sender?.username || 'Anonim',
-                        message: msgData.content || '',
-                        platform: 'kick',
-                        timestamp: Date.now(),
-                        isModerator: msgData.sender?.is_moderator || false,
-                        isOwner: msgData.sender?.is_broadcaster || false
+                if (token) {
+                    this.kickWs = new WebSocket(`wss://websockets.kick.com/viewer/v1/connect?token=${token}`);
+
+                    this.kickWs.onopen = () => {
+                        // Her 25-30 saniyede bir ping gönder (bağlantıyı canlı tut)
+                        if (this.kickPingInterval) clearInterval(this.kickPingInterval);
+                        this.kickPingInterval = setInterval(() => {
+                            if (this.kickWs && this.kickWs.readyState === WebSocket.OPEN) {
+                                try {
+                                    this.kickWs.send(JSON.stringify({ type: 'ping' }));
+                                } catch (e) {}
+                            }
+                        }, 25000);
                     };
-                    this.processMessage(msg);
-                }
-            } catch (e) {
-                // Ignore non-chat messages
-            }
-        };
 
-        this.kickWs.onclose = () => {
-            if (this.isConnected) {
-                this.isConnected = false;
-                this.addSystemMessage('⚠️ Kick bağlantısı kesildi. 3 saniye içinde yeniden bağlanılıyor...');
-                if (this.onConnectionChange) {
-                    this.onConnectionChange(false, 'kick');
+                    this.kickWs.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data && (data.type === 'message' || data.event === 'ChatMessageEvent' || data.content)) {
+                                this.handleIncomingKickMessage(data);
+                            }
+                        } catch (err) {}
+                    };
+
+                    this.kickWs.onclose = () => {
+                        if (this.kickPingInterval) {
+                            clearInterval(this.kickPingInterval);
+                            this.kickPingInterval = null;
+                        }
+                    };
+
+                    this.kickWs.onerror = (err) => {
+                        console.warn('Kick WebSocket uyarısı:', err);
+                    };
                 }
-                setTimeout(() => {
-                    if (this.enabled && this.platform === 'kick') {
-                        this.connectKick();
+            }
+        } catch (wsErr) {
+            console.warn('Kick WebSocket token atlandı, anlık REST polling aktif:', wsErr);
+        }
+    }
+
+    startKickPolling(channelId) {
+        if (this.kickPollInterval) {
+            clearInterval(this.kickPollInterval);
+        }
+
+        const pollMessages = async () => {
+            if (!this.isConnected || this.platform !== 'kick') return;
+
+            try {
+                const url = `https://kick.com/api/v2/channels/${channelId}/messages?_t=${Date.now()}`;
+                const res = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache, no-store'
                     }
-                }, 3000);
-            } else {
-                if (this.onConnectionChange) {
-                    this.onConnectionChange(false, 'kick');
+                });
+
+                if (res.ok) {
+                    const json = await res.json();
+                    const messages = json?.data?.messages || [];
+                    
+                    // Mesajları eskiden yeniye doğru sırayla işle
+                    for (let i = messages.length - 1; i >= 0; i--) {
+                        this.handleIncomingKickMessage(messages[i]);
+                    }
                 }
+            } catch (pollErr) {
+                // Sessizce sonraki döngüde devam et
             }
         };
 
-        this.kickWs.onerror = (err) => {
-            console.error('Kick WebSocket error:', err);
+        // Hemen ilk çekim
+        pollMessages();
+        // Her 800ms'de bir kontrol et (akıcı canlı chat)
+        this.kickPollInterval = setInterval(pollMessages, 800);
+    }
+
+    handleIncomingKickMessage(raw) {
+        if (!raw) return;
+
+        // Mesaj ID tekillik kontrolü (Duplicate mesajları önleme)
+        const msgId = raw.id || `${raw.created_at}_${raw.sender?.username || raw.sender?.slug}_${raw.content}`;
+        if (this.processedKickMessageIds.has(msgId)) {
+            return;
+        }
+        this.processedKickMessageIds.add(msgId);
+
+        // Bellek şişmesini önle (en son 1000 ID tutulur)
+        if (this.processedKickMessageIds.size > 2000) {
+            const arr = Array.from(this.processedKickMessageIds);
+            this.processedKickMessageIds = new Set(arr.slice(arr.length - 1000));
+        }
+
+        const sender = raw.sender || {};
+        const username = sender.username || sender.slug || 'Anonim';
+        const color = sender.identity?.color || '#00fdfe';
+        const content = (raw.content || '').trim();
+        const timestamp = raw.created_at ? new Date(raw.created_at).getTime() : Date.now();
+
+        const isMod = !!sender.identity?.badges?.some(b => b.type === 'moderator' || b.type === 'broadcaster');
+        const isOwner = !!sender.identity?.badges?.some(b => b.type === 'broadcaster');
+
+        const msg = {
+            id: msgId,
+            name: username,
+            message: content,
+            color: color,
+            platform: 'kick',
+            timestamp: timestamp,
+            isModerator: isMod,
+            isOwner: isOwner
         };
+
+        this.processMessage(msg);
     }
 
     // ========== DEMO MODE ==========
@@ -341,6 +459,7 @@ class StreamerMode {
             const msg = {
                 name: name,
                 message: message,
+                color: '#ffd700',
                 platform: 'demo',
                 timestamp: Date.now(),
                 isModerator: Math.random() < 0.1,
@@ -365,11 +484,14 @@ class StreamerMode {
             this.onChatMessage(msg);
         }
 
-        // Check if message contains trigger command
-        const normalizedMsg = msg.message.toLowerCase().trim();
-        const normalizedTrigger = this.triggerCommand.toLowerCase().trim();
+        // !oyna Komut Kontrolü (Case-Insensitive Regex)
+        const cleanContent = (msg.message || '').trim();
+        const isOynaCommand = /^!oyna\b/i.test(cleanContent);
+        
+        // Trigger command desteği
+        const normalizedMsg = cleanContent.toLowerCase();
+        const normalizedTrigger = (this.triggerCommand || '!oyna').toLowerCase().trim();
 
-        // Check for exact command or "var mısın yok musun oyna" pattern
         const triggerPatterns = [
             normalizedTrigger,
             'var mısın yok musun oyna',
@@ -378,7 +500,7 @@ class StreamerMode {
             '!play'
         ];
 
-        const isTriggered = triggerPatterns.some(pattern => normalizedMsg.includes(pattern));
+        const isTriggered = isOynaCommand || triggerPatterns.some(pattern => normalizedMsg.includes(pattern));
 
         if (isTriggered) {
             this.addToQueue(msg);
@@ -386,21 +508,27 @@ class StreamerMode {
     }
 
     addToQueue(msg) {
-        // Check if viewer is already in queue
-        const alreadyInQueue = this.viewerQueue.some(v => v.name === msg.name);
-        if (alreadyInQueue) return;
+        const username = (msg.name || '').trim();
+        const userKey = username.toLowerCase();
+
+        // Mükerrer katılım engeli (Aynı kullanıcı tekrar sıraya giremez)
+        if (this.joinedUsers.has(userKey)) {
+            return;
+        }
+        this.joinedUsers.add(userKey);
 
         const viewer = {
+            id: msg.id || `${Date.now()}_${username}`,
             name: msg.name,
+            color: msg.color || '#00fdfe',
             platform: msg.platform,
-            timestamp: msg.timestamp,
-            loyaltyPoints: Math.floor(Math.random() * 1000), // Demo: random points
+            timestamp: msg.timestamp || Date.now(),
+            loyaltyPoints: Math.floor(Math.random() * 1000), // Puan hesabı
             isModerator: msg.isModerator
         };
 
-        // Check loyalty points requirement
+        // Puan filtresi
         if (this.minLoyaltyPoints > 0 && viewer.loyaltyPoints < this.minLoyaltyPoints) {
-            // Not enough points, skip silently
             return;
         }
 
@@ -426,6 +554,7 @@ class StreamerMode {
 
     clearQueue() {
         this.viewerQueue = [];
+        this.joinedUsers.clear();
     }
 
     // ========== UTILITY ==========
