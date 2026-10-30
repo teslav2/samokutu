@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kutumda Büyük Hissediyorum</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body oncontextmenu="return false;">
+
+    <!-- MENU MUSIC (Hidden Audio - Never reloads) -->
+    <audio id="menu-music-audio" src="musicmenu.mp3" loop preload="auto"></audio>
+    <audio id="game-music-audio" src="gamebm.mp3" loop preload="auto"></audio>
+    <audio id="call-music-audio" src="callbm.mp3" loop preload="auto"></audio>
+
+    <!-- ============ PRE-INTRO CLICK SCREEN ============ -->
+    <div id="pre-intro-screen" class="screen active">
+        <div class="pre-intro-hazard-top"></div>
+        <div class="pre-intro-hazard-bottom"></div>
+        <div class="pre-intro-glow-1"></div>
+        <div class="pre-intro-glow-2"></div>
+        <div class="pre-intro-overlay"></div>
+        <div class="pre-intro-card">
+            <h1 class="pre-intro-title">KUTUMDA BÜYÜK HİSSEDİYORUM</h1>
+            <p class="pre-intro-subtitle">Cezaya Var mısın Yok musun?</p>
+            <button id="pre-intro-play-btn" class="pre-intro-btn">Oynamak İçin Tıklayın</button>
+        </div>
+    </div>
+
+    <!-- ============ INTRO SCREEN ============ -->
+    <div id="intro-screen" class="screen">
+        <video id="intro-video-element" muted playsinline>
+            <source src="intro.mp4" type="video/mp4">
+        </video>
+        <button id="intro-skip-btn">Geçmek için Tıklayın</button>
+    </div>
+
+    <!-- ============ MENU SCREEN (GTA 4 STYLE) ============ -->
+    <div id="menu-screen" class="screen">
+        <div class="menu-overlay"></div>
+        
+        <div class="gta-menu-container">
+            <!-- Separate Floating Logo from logo.png -->
+            <div class="gta-logo-img-container">
+                <img id="gta-logo" src="logo.png" alt="Oyun Logosu">
+            </div>
+            
+            <!-- Bottom Menu Bar, exactly like GTA 4 -->
+            <div class="gta-bottom-bar">
+                <div class="gta-bottom-content">
+                    <div class="gta-horizontal-menu">
+                        <button id="start-btn" class="gta-menu-link active">Oyna</button>
+                        <button id="settings-btn" class="gta-menu-link">Ayarlar</button>
+                    </div>
+                    <div class="gta-bottom-right">
+                        <button id="gta-fullscreen-btn" class="gta-sound-icon-btn">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <span class="gta-version">v1.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ BANKER NAME ENTRY SCREEN ============ -->
+    <div id="name-screen" class="screen">
+        <div class="menu-overlay"></div>
+        <div class="gta-menu-container">
+            <div class="name-entry-container">
+                <h1 class="name-entry-title" id="name-entry-title">Bankacı İsmini Gir</h1>
+                <input type="text" id="banker-name-input" class="name-input" placeholder="Bankacı Adı..." autocomplete="off" maxlength="25">
+                <div class="name-entry-buttons">
+                    <button id="name-submit-btn" class="name-btn">Oyuna Başla</button>
+                    <button id="name-back-btn" class="name-btn name-btn-secondary">Geri Dön</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SETTINGS SCREEN (SPA - No page reload) ============ -->
+    <div id="settings-screen" class="screen">
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="back-link" id="settings-back-btn">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </button>
+                <h1 class="page-title" id="page-title-text">Ayarlar</h1>
+            </div>
+
+            <!-- TABS NAVIGATION -->
+            <div class="settings-tabs">
+                <button class="tab-btn active" id="btn-tab-gameplay" data-tab="tab-gameplay">
+                    <i class="fas fa-gamepad"></i> Oynanış
+                </button>
+                <button class="tab-btn" id="btn-tab-streamer" data-tab="tab-streamer">
+                    <i class="fas fa-broadcast-tower"></i> Yayıncı Modu
+                </button>
+                <button class="tab-btn" id="btn-tab-audio-video" data-tab="tab-audio-video">
+                    <i class="fas fa-sliders-h"></i> Ekran &amp; Ses
+                </button>
+                <button class="tab-btn" id="btn-tab-credits" data-tab="tab-credits">
+                    <i class="fas fa-user-friends"></i> Yapanlar
+                </button>
+            </div>
+        </div>
+
+        <!-- SETTINGS CONTENT -->
+        <div class="settings-container">
+
+            <!-- TAB: OYNANIS -->
+            <div id="tab-gameplay" class="tab-content active">
+                <!-- GAMEPLAY SETTINGS -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <i class="fas fa-gamepad"></i>
+                        <h2 id="gameplay-settings-title">Oynanış Ayarları</h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- Toggle for Minimalist Mode (Kutu İçi Metinler) -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="minimalist-label">Minimal Kutu Açılışı</h3>
+                                <p id="minimalist-desc">Kutular açılırken kutu sahibinin esprili metin konuşma balonunu gizler, daha sade bir görünüm sağlar.</p>
+                            </div>
+                            <button id="minimalist-toggle" class="action-btn">
+                                <i class="fas fa-eye-slash"></i> <span id="minimalist-toggle-txt">Metinleri Gizle</span>
+                            </button>
+                        </div>
+
+                        <!-- Toggle for Fast Animations -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="fast-anim-label">Hızlı Animasyonlar</h3>
+                                <p id="fast-anim-desc">Kutu açma bekleme sürelerini ve geçiş animasyonlarını kısaltarak oyunu hızlandırır.</p>
+                            </div>
+                            <button id="fast-anim-toggle" class="action-btn">
+                                <i class="fas fa-bolt"></i> <span id="fast-anim-toggle-txt">Hızlandırılmış</span>
+                            </button>
+                        </div>
+
+                        <!-- Dare elimination / reveal speed -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="dare-speed-label">Elenen Ceza Animasyon Hızı</h3>
+                                <p id="dare-speed-desc">Kutu açılınca sidebar'daki ceza kutucuğunun kaybolma ve ekrandaki ceza kartının gösterim süresini ayarlar.</p>
+                            </div>
+                            <div class="settings-range-wrap">
+                                <input type="range" id="dare-reveal-speed-slider" min="1" max="10" value="5">
+                                <span class="settings-range-val" id="dare-reveal-speed-val">5</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Toggle for Allow Box Swap -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="box-swap-label">Kutu Değiştirme</h3>
+                                <p id="box-swap-desc">Oyun sonunda kendi seçtiğiniz kutu ile son kalan kutuyu değiştirme teklifini etkinleştirir.</p>
+                            </div>
+                            <button id="box-swap-toggle" class="action-btn">
+                                <i class="fas fa-exchange-alt"></i> <span id="box-swap-toggle-txt">Aktif</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Toggle for X-Ray Vision -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="xray-label">Röntgen Modu</h3>
+                                <p id="xray-desc">Kutuların içindeki cezaları hafif bir şekilde üzerlerinde gösterir (X-Ray Vision).</p>
+                            </div>
+                            <button id="xray-toggle" class="action-btn">
+                                <i class="fas fa-search"></i> <span id="xray-toggle-txt">Aktif</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Dropdown for Banker Personality -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="banker-personality-label">Banker Kişiliği</h3>
+                                <p id="banker-personality-desc">Hamdi Bey'in teklif verirken ne kadar cömert veya cimri olacağını belirler.</p>
+                            </div>
+                            <select id="banker-personality-select" class="select-input">
+                                <option value="generous" id="banker-opt-generous">Cömert</option>
+                                <option value="balanced" id="banker-opt-balanced" selected>Dengeli</option>
+                                <option value="stingy" id="banker-opt-stingy">Cimri</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Reset All Data -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="reset-label">Tüm Verileri Sıfırla</h3>
+                                <p id="reset-desc">Oyunun tüm ayarlarını, kayıtlı ses ve yayıncı ayarlarını sıfırlayarak varsayılana döndürür.</p>
+                            </div>
+                            <button id="reset-data-btn" class="action-btn btn-danger">
+                                <i class="fas fa-trash-alt"></i> Sıfırla
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- TAB: YAYINCI MODU -->
+            <div id="tab-streamer" class="tab-content">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <i class="fas fa-broadcast-tower"></i>
+                        <h2 id="streamer-title">Canlı Yayın Entegrasyonu (YouTube / Kick)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="streamer-enable-label">Yayıncı Modunu Aktifleştir</h3>
+                                <p id="streamer-enable-desc">İzleyicilerinizin chat'ten komut yazarak sıraya girmesini ve kendi isimleriyle kutu açmasını sağlar.</p>
+                            </div>
+                            <button id="streamer-toggle" class="action-btn">
+                                <i class="fas fa-power-off"></i> <span id="streamer-toggle-txt">Kapalı</span>
+                            </button>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="streamer-platform-label">Platform Seçimi</h3>
+                                <p id="streamer-platform-desc">Canlı yayını yaptığınız platformu seçin. (Demo modu test amaçlıdır)</p>
+                            </div>
+                            <select id="streamer-platform-select" class="select-input">
+                                <option value="demo" id="platform-opt-demo">Demo (Simülasyon)</option>
+                                <option value="kick" id="platform-opt-kick">Kick</option>
+                                <option value="youtube" id="platform-opt-youtube">YouTube Live</option>
+                            </select>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="streamer-trigger-label">Sıraya Girme Komutu</h3>
+                                <p id="streamer-trigger-desc">İzleyicilerin sıraya girmesi için yazması gereken chat komutu.</p>
+                            </div>
+                            <input type="text" id="streamer-trigger-input" class="text-input" placeholder="!oyna" value="!oyna">
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="streamer-points-label">Minimum Sadakat Puanı / Seviye</h3>
+                                <p id="streamer-points-desc">Sıraya girebilmek için gerekli minimum sadakat puanı/seviyesi (0 = Herkes katılabilir).</p>
+                            </div>
+                            <input type="number" id="streamer-points-input" class="text-input" min="0" placeholder="0" value="0">
+                        </div>
+
+                        <!-- Platform Specific Inputs -->
+                        <div id="kick-settings-group" class="platform-settings-group hidden">
+                            <div class="control-row">
+                                <div class="control-info">
+                                    <h3 id="kick-channel-label">Kick Kanal Adı</h3>
+                                    <p id="kick-channel-desc">Chat'e bağlanmak için Kick kullanıcı adınızı yazın.</p>
+                                </div>
+                                <input type="text" id="kick-channel-input" class="text-input" placeholder="örn: samoisgamer">
+                            </div>
+                        </div>
+
+                        <div id="youtube-settings-group" class="platform-settings-group hidden">
+                            <div class="control-row">
+                                <div class="control-info">
+                                    <h3 id="yt-key-label">YouTube API Anahtarı</h3>
+                                    <p id="yt-key-desc">YouTube Canlı Yayın chat'ini okuyabilmek için Google Developer API Key.</p>
+                                </div>
+                                <input type="password" id="yt-key-input" class="text-input" placeholder="AIzaSy...">
+                            </div>
+                            <div class="control-row">
+                                <div class="control-info">
+                                    <h3 id="yt-video-label">YouTube Video / Canlı Yayın ID</h3>
+                                    <p id="yt-video-desc">Yayınınızın URL'sindeki v= parametresi (örn: youtube.com/watch?v=XXXXXX).</p>
+                                </div>
+                                <input type="text" id="yt-video-input" class="text-input" placeholder="Video ID">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: EKRAN & SES -->
+            <div id="tab-audio-video" class="tab-content">
+                <!-- DISPLAY SETTINGS -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <i class="fas fa-tv"></i>
+                        <h2 id="display-title">Görüntü Ayarları</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="fs-label">Tam Ekran Modu</h3>
+                                <p id="fs-desc">Oyunu daha gerçekçi bir modda oynamak için tam ekrana geçin.</p>
+                            </div>
+                            <button id="fullscreen-toggle" class="action-btn">
+                                <i class="fas fa-expand"></i> Tam Ekran Yap
+                            </button>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="font-label">Yazı Boyutu</h3>
+                                <p id="font-desc">Oyun arayüzündeki metinlerin boyutunu değiştirin.</p>
+                            </div>
+                            <select id="font-size-select" class="select-input">
+                                <option value="small" id="font-opt-small">Küçük</option>
+                                <option value="normal" id="font-opt-normal" selected>Normal</option>
+                                <option value="large" id="font-opt-large">Büyük</option>
+                            </select>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="lang-label">Dil / Language</h3>
+                                <p id="lang-desc">Oyunun dilini değiştirin.</p>
+                            </div>
+                            <select id="lang-select" class="select-input">
+                                <option value="tr">Türkçe</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="theme-color-label">Tema Renk Vurgusu</h3>
+                                <p id="theme-color-desc">Arayüzün vurgu rengini kişiselleştirin.</p>
+                            </div>
+                            <div class="theme-picker-container">
+                                <div class="theme-presets">
+                                    <div class="preset-color active" style="background-color: #ffd700;" data-color="#ffd700" title="Gold"></div>
+                                    <div class="preset-color" style="background-color: #00bfff;" data-color="#00bfff" title="Cyan"></div>
+                                    <div class="preset-color" style="background-color: #ff3344;" data-color="#ff3344" title="Red"></div>
+                                    <div class="preset-color" style="background-color: #00ff88;" data-color="#00ff88" title="Green"></div>
+                                    <div class="preset-color" style="background-color: #af47ff;" data-color="#af47ff" title="Purple"></div>
+                                    <input type="color" id="accent-color-picker" class="color-picker-input" value="#ffd700" title="Özel Renk Seç">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AUDIO SETTINGS -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <i class="fas fa-volume-up"></i>
+                        <h2 id="audio-title">Ses Ayarları</h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- Music Volume Slider -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="music-vol-label">Müzik Sesi</h3>
+                                <p id="music-vol-desc">Arka plan müzik ses seviyesini ayarlar.</p>
+                            </div>
+                            <div class="volume-container">
+                                <i id="music-volume-icon" class="fas fa-music clickable-volume-icon" title="Sustur/Aç"></i>
+                                <input type="range" id="music-volume-slider" class="slider-input" min="0" max="100" value="60">
+                                <span id="music-volume-val-label" class="volume-value">60%</span>
+                            </div>
+                        </div>
+
+                        <!-- SFX Volume Slider -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="sfx-vol-label">Ses Efektleri Sesi</h3>
+                                <p id="sfx-vol-desc">Kutu açma, telefon zili ve tıklama ses düzeyini ayarlar.</p>
+                            </div>
+                            <div class="volume-container">
+                                <i id="sfx-volume-icon" class="fas fa-volume-down clickable-volume-icon" title="Sustur/Aç"></i>
+                                <input type="range" id="sfx-volume-slider" class="slider-input" min="0" max="100" value="80">
+                                <span id="sfx-volume-val-label" class="volume-value">80%</span>
+                            </div>
+                        </div>
+
+                        <!-- Voiceover Volume Slider -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="voiceover-vol-label">Seslendirme Sesi</h3>
+                                <p id="voiceover-vol-desc">Bankacı konuşmaları ve Ahmet Dayı replikleri ses düzeyini ayarlar.</p>
+                            </div>
+                            <div class="volume-container">
+                                <i id="voiceover-volume-icon" class="fas fa-comment clickable-volume-icon" title="Sustur/Aç"></i>
+                                <input type="range" id="voiceover-volume-slider" class="slider-input" min="0" max="100" value="80">
+                                <span id="voiceover-volume-val-label" class="volume-value">80%</span>
+                            </div>
+                        </div>
+
+                        <!-- Kutu Diyalogu Göster Toggle -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="dialogue-toggle-label">Kutu Diyalogları</h3>
+                                <p id="dialogue-toggle-desc">Kutu açılırken sahiplerinin konuşma balonlarını gösterir veya gizler.</p>
+                            </div>
+                            <button id="dialogue-toggle" class="action-btn active">
+                                <i class="fas fa-check"></i> <span id="dialogue-toggle-txt">Açık</span>
+                            </button>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="sfx-label">Ses Efektleri</h3>
+                                <p id="sfx-desc">Ses efektlerini tamamen açar veya kapatır.</p>
+                            </div>
+                            <button id="sfx-toggle" class="action-btn active">
+                                <i class="fas fa-check"></i> <span id="sfx-toggle-txt">Açık</span>
+                            </button>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="music-label">Arka Plan Müziği</h3>
+                                <p id="music-desc">Arka plan müziğini tamamen açar veya kapatır.</p>
+                            </div>
+                            <button id="music-toggle" class="action-btn active">
+                                <i class="fas fa-check"></i> <span id="music-toggle-txt">Açık</span>
+                            </button>
+                        </div>
+
+                        <!-- Voiceover Enabled Toggle -->
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="voiceover-toggle-label">Bankacı & Ahmet Dayı Seslendirmeleri</h3>
+                                <p id="voiceover-toggle-desc">Bankacı ve Ahmet Dayı seslendirmelerini tamamen açar veya kapatır.</p>
+                            </div>
+                            <button id="voiceover-toggle" class="action-btn active">
+                                <i class="fas fa-check"></i> <span id="voiceover-toggle-txt">Açık</span>
+                            </button>
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-info">
+                                <h3 id="test-label">Ses Testi</h3>
+                                <p id="test-desc">Sentezleyici ses tonlarının düzgün çalışıp çalışmadığını test edin.</p>
+                            </div>
+                            <button id="test-sound-btn" class="action-btn">
+                                <i class="fas fa-volume-up"></i> <span id="test-btn-txt">Tonu Test Et</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: YAPANLAR -->
+            <div id="tab-credits" class="tab-content">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <i class="fas fa-laptop-code"></i>
+                        <h2 id="credits-main-title">Emeği Geçenler</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="credits-viewport">
+                            <div class="credits-scroll">
+                                <div>
+                                    <div class="credit-title">Proje Sahibi &amp; Fikir</div>
+                                    <div class="credit-desc">SAMOisGamer</div>
+                                </div>
+                                <div>
+                                    <div class="credit-title">Müzik &amp; Sesler</div>
+                                    <div class="credit-desc">SAMOisGamer</div>
+                                </div>
+                                <div>
+                                    <div class="credit-title">Kodlama ve Geliştirme</div>
+                                    <div class="credit-desc">Yapay zekadan yardım alındı (Antigravity AI)</div>
+                                </div>
+                                <div>
+                                    <div class="credit-title">Teşekkürler</div>
+                                    <div class="credit-desc">Destekleyen tüm dostlara ve takipçilere!</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============ GAME SCREEN ============ -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <button id="back-to-menu-btn" class="back-btn">
+                <i class="fas fa-arrow-left"></i> <span id="back-to-menu-txt">Menüye Dön</span>
+            </button>
+            <div class="status-panel">
+                <h2 id="status-message">Kendi kutunu seç!</h2>
+                <div id="round-indicator" class="badge">Hazırlık</div>
+            </div>
+            <div class="spacer"></div>
+            <div id="player-badge" class="player-badge hidden">
+                <i class="fas fa-user-circle"></i>
+                <span id="player-badge-name">OYUNCU</span>
+            </div>
+            <button id="game-joker-btn" class="back-btn joker-btn hidden" style="margin-left: 10px;">
+                <i class="fas fa-star"></i> <span id="game-joker-btn-txt">Joker</span>
+                <span id="game-joker-count" class="joker-count-badge">2</span>
+            </button>
+            <button id="game-log-btn" class="back-btn" style="margin-left: 10px;">
+                <i class="fas fa-list-alt"></i> <span id="game-log-btn-txt">Log</span>
+            </button>
+            <button id="game-settings-btn" class="back-btn" style="margin-left: 10px;">
+                <i class="fas fa-cog"></i> <span id="game-settings-btn-txt">Ayarlar</span>
+            </button>
+        </div>
+
+        <div class="game-layout">
+            <!-- Left Sidebar (Light Punishments / Blue) -->
+            <div class="sidebar left-sidebar">
+                <div class="sidebar-title blue-title">Hafif Cezalar</div>
+                <div id="left-rewards-list" class="rewards-list">
+                    <!-- Hafif cezalar 13-24 -->
+                </div>
+            </div>
+
+            <!-- Central Game Board -->
+            <div class="main-board">
+                <div id="boxes-grid" class="boxes-grid">
+                    <!-- 24 Boxes will be dynamically generated here -->
+                </div>
+                
+                <div class="active-cases-display">
+                    <div id="player-box-container" class="player-box-container hidden">
+                        <span class="label">SENİN KUTUN</span>
+                        <div id="player-box" class="box player-selected">?</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar (Heavy Punishments / Red) -->
+            <div class="sidebar right-sidebar">
+                <div class="sidebar-title red-title">Ağır Cezalar</div>
+                <div id="right-rewards-list" class="rewards-list">
+                    <!-- Ağır cezalar 1-12 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- STREAMER MODE: Chat Overlay -->
+        <div id="streamer-panel" class="streamer-panel hidden">
+            <!-- Active Viewer Banner -->
+            <div id="active-viewer-banner" class="active-viewer-banner hidden">
+                <div class="active-viewer-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="active-viewer-name">İzleyici</span>
+                    <span class="viewer-action" id="viewer-action-label">oynuyor!</span>
+                </div>
+                <div class="active-viewer-instruction" id="viewer-instruction-label">
+                    Sohbete kutu numarası yaz (örn: 12)
+                </div>
+            </div>
+
+            <!-- Viewer Queue -->
+            <div class="queue-panel">
+                <div class="queue-header">
+                    <i class="fas fa-users"></i>
+                    <span>Sıradaki İzleyiciler</span>
+                    <span id="queue-count" class="queue-count">0</span>
+                </div>
+                <div id="queue-list" class="queue-list">
+                    <!-- Dynamically filled -->
+                </div>
+            </div>
+
+            <!-- Live Chat -->
+            <div class="chat-panel">
+                <div class="chat-header">
+                    <i id="chat-platform-icon" class="fas fa-comments"></i>
+                    <span id="chat-platform-label">Canlı Sohbet</span>
+                    <span id="chat-status" class="chat-status offline">●</span>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                    <!-- Dynamically filled -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Karartma katmanı (bankacı + elenen ceza) -->
+        <div id="game-dim-overlay" class="game-dim-overlay hidden"></div>
+
+        <!-- Elenen ceza kartı -->
+        <div id="dare-reveal-overlay" class="dare-reveal-overlay hidden" aria-live="polite">
+            <div class="dare-reveal-card">
+                <span class="dare-reveal-kicker" id="dare-reveal-kicker">Kutu — Elenen Ceza</span>
+                <p class="dare-reveal-text" id="dare-reveal-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Banker Call (Hamdi Bey) -->
+    <div id="banker-modal" class="modal banker-modal">
+        <div class="modal-content banker-content">
+            <div class="phone-animation">
+                <i class="fas fa-phone-volume ringing"></i>
+            </div>
+            <h2>Hamdi Bey Telefonda!</h2>
+            <p class="banker-intro">Kalan cezaları analiz etti ve sana bir teklifi var...</p>
+            
+            <div class="offer-box">
+                <span class="offer-label">TEKLİF EDİLEN CEZA:</span>
+                <div id="banker-offer-text" class="offer-text">5 Şınav Çek</div>
+            </div>
+
+            <!-- Chat Oylama Çubuğu (Yalnızca Yayıncı Modunda Görünür) -->
+            <div id="banker-poll-container" class="banker-poll-container hidden">
+                <div class="poll-title">Chat Oylaması: <span id="poll-vote-count">0 oy</span></div>
+                <div class="poll-bar-wrapper">
+                    <div id="poll-bar-varim" class="poll-bar varim" style="width: 50%;">
+                        <span class="poll-bar-label">Varım (%50)</span>
+                    </div>
+                    <div id="poll-bar-yokum" class="poll-bar yokum" style="width: 50%;">
+                        <span class="poll-bar-label">Yokum (%50)</span>
+                    </div>
+                </div>
+                <div class="poll-instructions">Kabul etmek için <strong class="text-varim">!varim</strong>, reddetmek için <strong class="text-yokum">!yokum</strong> yazın.</div>
+            </div>
+
+            <div class="banker-actions">
+                <button id="deal-btn" class="btn deal-btn btn-animate">
+                    <i class="fas fa-check"></i> VARIM (Kabul Et)
+                </button>
+                <button id="no-deal-btn" class="btn no-deal-btn btn-animate">
+                    <i class="fas fa-times"></i> YOKUM (Reddet)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Game Over / Result -->
+    <div id="result-modal" class="modal result-modal">
+        <div class="modal-content result-content">
+            <div class="result-layout">
+                <!-- Sol Sütun: Sonuç Bilgileri ve Tuşlar -->
+                <div class="result-left">
+                    <div class="result-icon">
+                        <i class="fas fa-scroll"></i>
+                    </div>
+                    <h2 id="result-title">Oyun Bitti!</h2>
+                    <p id="result-source-text">Sonucunda kazandığın ceza:</p>
+                    
+                    <div class="final-dare-box animate-pulse">
+                        <div id="final-dare-text" class="final-dare-text">10 Saniye Tek Ayak Üstünde Dur</div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button id="restart-btn" class="btn primary-btn btn-animate">
+                            <i class="fas fa-redo"></i> Tekrar Dene
+                        </button>
+                        <button id="result-menu-btn" class="btn secondary-btn btn-animate">
+                            <i class="fas fa-home"></i> Ana Menü
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sağ Sütun: Hamdi Bey Analiz Paneli -->
+                <div class="result-right">
+                    <div id="result-analysis-container" class="result-analysis-container hidden">
+                        <div class="analysis-header">
+                            <span class="analysis-title">Hamdi Bey Analizi</span>
+                            <div id="performance-grade" class="performance-grade-badge">A</div>
+                        </div>
+                        <div id="analysis-text" class="analysis-decision-eval"></div>
+                        <div class="chart-wrapper">
+                            <div class="chart-title">Bankacı Teklif Eğrisi</div>
+                            <div id="analysis-chart-container">
+                                <!-- SVG chart will be dynamically injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Box Open Confirmation (kutu açma onayı) -->
+    <div id="box-open-modal" class="modal box-open-modal">
+        <div class="box-open-content">
+            <!-- Sol: Kutu sahibi -->
+            <div class="box-owner-side">
+                <div class="box-owner-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="box-owner-name-title" id="box-open-owner-name">Kutay'ın Kutusu</div>
+                <div class="box-owner-number" id="box-open-number">12</div>
+                <div class="box-owner-speech-bubble">
+                    <p id="box-owner-quote">"Büyük hissediyorum bu gece..."</p>
+                </div>
+            </div>
+            <!-- Sağ: Karar -->
+            <div class="box-decision-side">
+                <div class="box-decision-card">
+                    <h2 class="box-decision-title">Son Karar</h2>
+                    <p class="box-decision-sub">Bu kutuyu açmak istiyor musun?</p>
+                    <div class="box-decision-buttons">
+                        <button id="box-open-confirm-btn" class="box-decision-btn box-open-yes">
+                            <i class="fas fa-check"></i>
+                            <span>Aç</span>
+                        </button>
+                        <button id="box-open-cancel-btn" class="box-decision-btn box-open-no">
+                            <i class="fas fa-times"></i>
+                            <span>Açma</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Joker Selection -->
+    <div id="joker-select-modal" class="modal joker-modal">
+        <div class="modal-content joker-select-content">
+            <button type="button" class="close-btn game-log-close-btn" data-target="joker-select-modal" aria-label="Kapat">&times;</button>
+            <h2 id="joker-select-title"><i class="fas fa-star"></i> Joker Seç</h2>
+            <p id="joker-select-desc" class="joker-modal-desc">Oyunda bir kez kullanabileceğin jokerlerden birini seç.</p>
+            <div class="joker-cards">
+                <button type="button" id="joker-ahmet-btn" class="joker-card joker-card-ahmet">
+                    <div class="joker-card-icon"><i class="fas fa-user-tie"></i></div>
+                    <h3 id="joker-ahmet-name">Ahmet Dayı'ya Danış</h3>
+                    <p id="joker-ahmet-desc">Ahmet Dayı rastgele bir kutu seçer ve senin yerine açar.</p>
+                    <span class="joker-card-tag" id="joker-ahmet-tag">Kullanılabilir</span>
+                </button>
+                <button type="button" id="joker-bonkor-btn" class="joker-card joker-card-bonkor">
+                    <div class="joker-card-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    <h3 id="joker-bonkor-name">Bonkör Bankacı</h3>
+                    <p id="joker-bonkor-desc">Bir sonraki bankacı teklifini güzelleştirir.</p>
+                    <span class="joker-card-tag" id="joker-bonkor-tag">Kullanılabilir</span>
+                </button>
+                <button type="button" id="joker-halk-btn" class="joker-card joker-card-halk">
+                    <div class="joker-card-icon"><i class="fas fa-users-viewfinder"></i></div>
+                    <h3 id="joker-halk-name">Halkın Sesi</h3>
+                    <p id="joker-halk-desc">Seyircilerin en çok tavsiye ettiği kutuları gösterir.</p>
+                    <span class="joker-card-tag" id="joker-halk-tag">Kullanılabilir</span>
+                </button>
+                <button type="button" id="joker-sigorta-btn" class="joker-card joker-card-sigorta">
+                    <div class="joker-card-icon"><i class="fas fa-shield-halved"></i></div>
+                    <h3 id="joker-sigorta-name">Kutu Sigortası</h3>
+                    <p id="joker-sigorta-desc">Bir sonraki açacağın kutudan çıkacak Ağır Cezayı iptal eder.</p>
+                    <span class="joker-card-tag" id="joker-sigorta-tag">Kullanılabilir</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Game Log -->
+    <div id="game-log-modal" class="modal game-log-modal">
+        <div class="modal-content game-log-content">
+            <button type="button" id="game-log-close-btn" class="close-btn game-log-close-btn" data-target="game-log-modal" aria-label="Kapat">&times;</button>
+            <h2 id="game-log-title"><i class="fas fa-list-alt"></i> Oyun Günlüğü</h2>
+            <div id="game-log-list" class="game-log-list">
+                <p class="game-log-empty" id="game-log-empty">Henüz kayıt yok.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Swap Confirm (kutu değiştirme) -->
+    <div id="swap-modal" class="modal">
+        <div class="modal-content" style="max-width:520px; text-align:center;">
+            <div style="font-size:3rem; color:var(--primary); margin-bottom:15px;"><i class="fas fa-exchange-alt"></i></div>
+            <h2 id="swap-modal-title" style="color:var(--primary); font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:1.8rem; margin-bottom:10px;">Son İki Kutu!</h2>
+            <p id="swap-modal-desc" style="color:var(--text-muted); margin-bottom:25px; line-height:1.6;"></p>
+            <div style="display:flex; gap:15px; justify-content:center;">
+                <button id="swap-yes-btn" class="btn deal-btn btn-animate"><i class="fas fa-check"></i> Değiştir</button>
+                <button id="swap-no-btn" class="btn no-deal-btn btn-animate"><i class="fas fa-times"></i> Değiştirme</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Confirm Menu (menüye dön onayı) -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content" style="max-width:460px; text-align:center;">
+            <div style="font-size:2.5rem; color:#ff3344; margin-bottom:15px;"><i class="fas fa-exclamation-triangle"></i></div>
+            <h2 style="color:#fff; font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:1.6rem; margin-bottom:10px;">Emin misin?</h2>
+            <p style="color:var(--text-muted); margin-bottom:25px;" id="confirm-modal-text">Oyunu sonlandırıp menüye dönmek istiyor musun? İlerlemeniz silinecek.</p>
+            <div style="display:flex; gap:15px; justify-content:center;">
+                <button id="confirm-yes-btn" class="btn no-deal-btn btn-animate"><i class="fas fa-sign-out-alt"></i> Evet, Dön</button>
+                <button id="confirm-no-btn" class="btn deal-btn btn-animate"><i class="fas fa-times"></i> İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Streamer Mode -->
+    <script src="streamer.js"></script>
+    <!-- Custom JS -->
+    <script src="index.js"></script>
+</body>
+</html>
