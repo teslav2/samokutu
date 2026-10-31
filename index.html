@@ -231,11 +231,10 @@
                         <div class="control-row">
                             <div class="control-info">
                                 <h3 id="streamer-platform-label">Platform Seçimi</h3>
-                                <p id="streamer-platform-desc">Canlı yayını yaptığınız platformu seçin. (Demo modu test amaçlıdır)</p>
+                                <p id="streamer-platform-desc">Canlı yayını yaptığınız platformu seçin.</p>
                             </div>
                             <select id="streamer-platform-select" class="select-input">
-                                <option value="demo" id="platform-opt-demo">Demo (Simülasyon)</option>
-                                <option value="kick" id="platform-opt-kick">Kick</option>
+                                <option value="kick" id="platform-opt-kick" selected>Kick</option>
                                 <option value="youtube" id="platform-opt-youtube">YouTube Live</option>
                             </select>
                         </div>
@@ -261,17 +260,16 @@
                             <div class="control-row">
                                 <div class="control-info">
                                     <h3 id="kick-channel-label">Kick Kanal Adı</h3>
-                                    <p id="kick-channel-desc">Chat'e bağlanmak için Kick kullanıcı adınızı yazın.</p>
+                                    <p id="kick-channel-desc">Chat'e bağlanmak için Kick kullanıcı adınızı yazıp Onayla'ya basın.</p>
                                 </div>
-                                <input type="text" id="kick-channel-input" class="text-input" placeholder="örn: samoisgamer veya iowf">
-                            </div>
-                            <div class="control-row">
-                                <div class="control-info">
-                                    <h3 id="kick-id-label">Kick Kanal / Chatroom ID (Opsiyonel)</h3>
-                                    <p id="kick-id-desc">Kanal adı yerine doğrudan sayısal ID girebilirsiniz.</p>
+                                <div style="display:flex; gap:10px; align-items:center;">
+                                    <input type="text" id="kick-channel-input" class="text-input" placeholder="örn: teslav2" style="max-width:200px;">
+                                    <button type="button" id="kick-connect-btn" class="btn deal-btn" style="padding:10px 18px; font-size:0.95rem; white-space:nowrap; cursor:pointer;">
+                                        <i class="fas fa-check"></i> Onayla
+                                    </button>
                                 </div>
-                                <input type="text" id="kick-id-input" class="text-input" placeholder="örn: 35772897">
                             </div>
+                            <div id="kick-status-feedback" style="margin-top:6px; font-size:0.85rem; font-weight:600; text-align:right;"></div>
                         </div>
 
                         <div id="youtube-settings-group" class="platform-settings-group hidden">

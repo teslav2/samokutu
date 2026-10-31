@@ -1204,8 +1204,18 @@ function setupStreamerCallbacks() {
         if (gameLayout) gameLayout.classList.add('streamer-active');
         if (gameHeader) gameHeader.classList.add('streamer-active');
         
-        // Connect to platform
-        streamerMode.connect();
+        // Connect to platform if not already connected
+        if (!streamerMode.isConnected) {
+            streamerMode.connect();
+        } else {
+            if (chatStatus) chatStatus.className = 'chat-status online';
+            if (chatPlatformLabel) chatPlatformLabel.innerText = streamerMode.platform.toUpperCase() + ' Chat';
+            if (chatPlatformIcon) {
+                chatPlatformIcon.className = streamerMode.getPlatformIcon(streamerMode.platform);
+                chatPlatformIcon.style.color = '#53fc18';
+            }
+        }
+        updateQueueUI();
     } else {
         if (streamerPanel) streamerPanel.classList.add('hidden');
         const gameLayout = document.querySelector('.game-layout');
@@ -1584,7 +1594,10 @@ const settingsConfig = {
     set allowBoxSwap(v) { localStorage.setItem('gta_allow_box_swap', v.toString()); },
     get streamerEnabled() { return localStorage.getItem('streamer_enabled') === 'true'; },
     set streamerEnabled(v) { localStorage.setItem('streamer_enabled', v.toString()); },
-    get streamerPlatform() { return localStorage.getItem('streamer_platform') || 'demo'; },
+    get streamerPlatform() {
+        const p = localStorage.getItem('streamer_platform') || 'kick';
+        return p === 'demo' ? 'kick' : p;
+    },
     set streamerPlatform(v) { localStorage.setItem('streamer_platform', v); },
     get streamerTrigger() { return localStorage.getItem('streamer_trigger') || '!oyna'; },
     set streamerTrigger(v) { localStorage.setItem('streamer_trigger', v); },
@@ -1953,8 +1966,27 @@ function syncSettingsFormValues() {
     if (triggerInput) triggerInput.value = settingsConfig.streamerTrigger;
     if (pointsInput) pointsInput.value = settingsConfig.streamerMinLoyalty;
     if (kickChannelInput) kickChannelInput.value = settingsConfig.kickChannel;
-    const kickIdInput = document.getElementById('kick-id-input');
-    if (kickIdInput) kickIdInput.value = settingsConfig.kickChannelId;
+    const kickConnectBtn = document.getElementById('kick-connect-btn');
+    const kickStatusFeedback = document.getElementById('kick-status-feedback');
+    if (streamerMode.isConnected && streamerMode.platform === 'kick') {
+        if (kickConnectBtn) {
+            kickConnectBtn.innerHTML = '<i class="fas fa-check"></i> Bağlandı';
+            kickConnectBtn.style.backgroundColor = '#53fc18';
+            kickConnectBtn.style.color = '#000';
+        }
+        if (kickStatusFeedback) {
+            kickStatusFeedback.innerHTML = `<span style="color:#53fc18;"><i class="fas fa-check-circle"></i> "${settingsConfig.kickChannel}" kanalına bağlı</span>`;
+        }
+    } else {
+        if (kickConnectBtn) {
+            kickConnectBtn.innerHTML = '<i class="fas fa-check"></i> Onayla';
+            kickConnectBtn.style.backgroundColor = '';
+            kickConnectBtn.style.color = '';
+        }
+        if (kickStatusFeedback && settingsConfig.kickChannel) {
+            kickStatusFeedback.innerHTML = `<span style="color:#888;">Kanal: ${settingsConfig.kickChannel}</span>`;
+        }
+    }
     if (ytKeyInput) ytKeyInput.value = settingsConfig.ytApiKey;
     if (ytVideoInput) ytVideoInput.value = settingsConfig.ytVideoId;
 
@@ -2240,6 +2272,81 @@ function initSettingsControls() {
         settingsConfig.streamerMinLoyalty = parseInt(e.target.value) || 0;
     });
 
+    
+    // Kick Onayla / Bağlan Butonu Mantığı
+    const kickConnectBtn = document.getElementById('kick-connect-btn');
+    const kickStatusFeedback = document.getElementById('kick-status-feedback');
+
+    async function handleKickConnect() {
+        const kickInput = document.getElementById('kick-channel-input');
+        const channelName = (kickInput?.value || '').trim();
+        if (!channelName) {
+            if (kickStatusFeedback) {
+                kickStatusFeedback.innerHTML = '<span style="color:#ff3344;"><i class="fas fa-exclamation-circle"></i> Lütfen Kick kanal adınızı yazın!</span>';
+            }
+            return;
+        }
+
+        settingsConfig.kickChannel = channelName;
+        settingsConfig.streamerPlatform = 'kick';
+        streamerMode.kickChannelName = channelName;
+        streamerMode.platform = 'kick';
+        streamerMode.enabled = true;
+        settingsConfig.streamerEnabled = true;
+        updateSettingsToggleButtons();
+
+        if (kickConnectBtn) {
+            kickConnectBtn.disabled = true;
+            kickConnectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Bağlanıyor...';
+        }
+        if (kickStatusFeedback) {
+            kickStatusFeedback.innerHTML = '<span style="color:#ffd700;"><i class="fas fa-spinner fa-spin"></i> Chatroom aranıyor ve bağlanılıyor...</span>';
+        }
+
+        try {
+            const connected = await streamerMode.connectKick();
+            if (connected) {
+                if (kickConnectBtn) {
+                    kickConnectBtn.innerHTML = '<i class="fas fa-check"></i> Bağlandı!';
+                    kickConnectBtn.style.backgroundColor = '#53fc18';
+                    kickConnectBtn.style.color = '#000';
+                }
+                if (kickStatusFeedback) {
+                    kickStatusFeedback.innerHTML = `<span style="color:#53fc18;"><i class="fas fa-check-circle"></i> "${channelName}" kanalına bağlandı!</span>`;
+                }
+                setupStreamerCallbacks();
+            } else {
+                if (kickConnectBtn) {
+                    kickConnectBtn.innerHTML = '<i class="fas fa-redo"></i> Tekrar Dene';
+                    kickConnectBtn.style.backgroundColor = '';
+                    kickConnectBtn.style.color = '';
+                }
+                if (kickStatusFeedback) {
+                    kickStatusFeedback.innerHTML = '<span style="color:#ff3344;"><i class="fas fa-times-circle"></i> Kanal bulunamadı! Kullanıcı adını kontrol edin.</span>';
+                }
+            }
+        } catch (err) {
+            if (kickConnectBtn) {
+                kickConnectBtn.innerHTML = '<i class="fas fa-redo"></i> Tekrar Dene';
+                kickConnectBtn.style.backgroundColor = '';
+                kickConnectBtn.style.color = '';
+            }
+            if (kickStatusFeedback) {
+                kickStatusFeedback.innerHTML = `<span style="color:#ff3344;"><i class="fas fa-times-circle"></i> Bağlantı hatası: ${err.message}</span>`;
+            }
+        } finally {
+            if (kickConnectBtn) kickConnectBtn.disabled = false;
+        }
+    }
+
+    kickConnectBtn?.addEventListener('click', handleKickConnect);
+    document.getElementById('kick-channel-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleKickConnect();
+        }
+    });
+
     document.getElementById('kick-channel-input')?.addEventListener('input', (e) => {
         settingsConfig.kickChannel = e.target.value.trim();
         if (typeof streamerMode !== 'undefined') {
@@ -2430,6 +2537,9 @@ window.addEventListener('DOMContentLoaded', () => {
     if (settingsBackBtn) {
         settingsBackBtn.addEventListener('click', () => {
             soundManager.playClick();
+            if (streamerMode.enabled) {
+                setupStreamerCallbacks();
+            }
             if (previousScreenBeforeSettings === 'game-screen') {
                 document.getElementById('settings-screen').classList.remove('active');
                 restoreEliminatedRewards();
