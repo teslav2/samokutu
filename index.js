@@ -1340,7 +1340,12 @@ function setupStreamerCallbacks() {
             } else if (isYokum) {
                 formattedText = '<strong style="color: #ff3344;">!yokum</strong>';
             } else if (activeBoxId !== null) {
-                formattedText = `<strong style="color: #ffd700; background: rgba(255,215,0,0.15); padding: 2px 6px; border-radius: 4px;">Kutu ${activeBoxId}</strong>`;
+                const targetBox = (typeof gameBoxes !== 'undefined' && gameBoxes) ? gameBoxes.find(b => b.id === activeBoxId) : null;
+                const isHeavy = targetBox ? (targetBox.rank <= 15) : false;
+                const color = isHeavy ? '#ff3232' : '#00bfff';
+                const bg = isHeavy ? 'rgba(255, 50, 50, 0.15)' : 'rgba(0, 191, 255, 0.15)';
+                const border = isHeavy ? 'rgba(255, 50, 50, 0.4)' : 'rgba(0, 191, 255, 0.4)';
+                formattedText = `<strong style="color: ${color}; background: ${bg}; border: 1px solid ${border}; padding: 2px 7px; border-radius: 4px;">Kutu ${activeBoxId}</strong>`;
             }
 
             msgDiv.innerHTML = `
@@ -1468,10 +1473,10 @@ function tryNextViewer() {
             
             if (playerBox === null) {
                 updateStatusMessage(t('streamerChooseBox', {name: activeViewer.name}));
-                streamerMode.addSystemMessage(`🎮 Sıra ${activeViewer.name} adlı yarışmacıda! Kendi kutunu seçmek için sohbete kutu numarası yaz (örn: 11).`);
+                streamerMode.addSystemMessage(`Sıra ${activeViewer.name} adlı yarışmacıda! Kendi kutunu seçmek için sohbete kutu numarası yaz (örn: 11).`);
             } else {
                 updateStatusMessage(t('streamerOpenBox', {name: activeViewer.name, count: boxesToOpenInRound}));
-                streamerMode.addSystemMessage(`🎮 Sıra ${activeViewer.name} adlı yarışmacıda! Kutu açmak için sohbete kutu numarası yaz.`);
+                streamerMode.addSystemMessage(`Sıra ${activeViewer.name} adlı yarışmacıda! Kutu açmak için sohbete kutu numarası yaz.`);
             }
             return true;
         } else {
@@ -3259,8 +3264,8 @@ function handleBoxClick(box) {
         updateRoundIndicator(t('roundTitle', {n: 1}), "aktif");
         if (streamerMode.enabled && activeViewer) {
             updateStatusMessage(t('streamerOpenBox', {name: activeViewer.name, count: boxesToOpenInRound}));
-            streamerMode.addSystemMessage(`📦 ${activeViewer.name} kendi kutusunu seçti: Kutu ${box.id}!`);
-            streamerMode.addSystemMessage(`👉 ${activeViewer.name}, 1. tur için sohbete kutu numarası yazarak ${boxesToOpenInRound} kutu açmalısın.`);
+            streamerMode.addSystemMessage(`${activeViewer.name} kendi kutusunu seçti: Kutu ${box.id}!`);
+            streamerMode.addSystemMessage(`${activeViewer.name}, 1. tur için sohbete kutu numarası yazarak ${boxesToOpenInRound} kutu açmalısın.`);
         } else if (streamerMode.enabled) {
             tryNextViewer();
         } else {
@@ -3846,9 +3851,9 @@ function doOpenBox(box) {
     // Update background color based on remaining risks
 
     if (streamerMode.enabled && activeViewer) {
-        streamerMode.addSystemMessage(`🔓 ${activeViewer.name}, Kutu ${box.id}'yi açtı! (İçinden çıktı: ${box.dare})`);
+        streamerMode.addSystemMessage(`${activeViewer.name}, Kutu ${box.id}\'yi açtı!`);
         if (boxesToOpenInRound > 0) {
-            streamerMode.addSystemMessage(`⏳ ${activeViewer.name}, bu turda açman gereken ${boxesToOpenInRound} kutu kaldı.`);
+            streamerMode.addSystemMessage(`${activeViewer.name}, bu turda açman gereken ${boxesToOpenInRound} kutu kaldı.`);
         }
     }
 
@@ -3916,8 +3921,8 @@ function triggerBankerCall() {
             openModal(bankerModal);
             
             if (streamerMode.enabled && activeViewer) {
-                streamerMode.addSystemMessage(`📞 ${bankerName} aradı! Teklif: "${offer.dare}"`);
-                streamerMode.addSystemMessage(`❓ ${activeViewer.name}, teklife !varım mı yoksa !yokum mu diyorsun?`);
+                streamerMode.addSystemMessage(`${bankerName} aradı! Teklif: "${offer.dare}"`);
+                streamerMode.addSystemMessage(`${activeViewer.name}, teklife !varım mı yoksa !yokum mu diyorsun?`);
             }
 
             // Start oylama (voting) in both modes
@@ -3990,7 +3995,7 @@ function acceptBankerOffer() {
         ? `Teklif kabul edildi: "${acceptedOffer}"`
         : `Deal accepted: "${acceptedOffer}"`);
     if (streamerMode.enabled && activeViewer) {
-        streamerMode.addSystemMessage(`🤝 ${activeViewer.name} "!varım" dedi ve ${bankerName}'in teklifini KABUL ETTİ!`);
+        streamerMode.addSystemMessage(`${activeViewer.name} "!varım" dedi ve ${bankerName}'in teklifini KABUL ETTİ!`);
     }
     endGame(true);
 }
@@ -4001,7 +4006,7 @@ function declineBankerOffer() {
         ? 'Teklif reddedildi — kutu açmaya devam.'
         : 'Offer declined — continuing to open boxes.');
     if (streamerMode.enabled && activeViewer) {
-        streamerMode.addSystemMessage(`❌ ${activeViewer.name} "!yokum" dedi ve teklifi REDDETTİ! Kutusuna güvenmeye devam ediyor.`);
+        streamerMode.addSystemMessage(`${activeViewer.name} "!yokum" dedi ve teklifi REDDETTİ! Kutusuna güvenmeye devam ediyor.`);
     }
     // Check if we have more rounds
     if (currentRound < roundConfig.length) {
@@ -4019,7 +4024,7 @@ function declineBankerOffer() {
             updateRoundIndicator(t('roundTitle', {n: currentRound}), "aktif");
             if (streamerMode.enabled && activeViewer) {
                 updateStatusMessage(t('streamerOpenBox', {name: activeViewer.name, count: boxesToOpenInRound}));
-                streamerMode.addSystemMessage(`👉 ${activeViewer.name}, ${currentRound}. tur başladı! Açman gereken kutu sayısı: ${boxesToOpenInRound}.`);
+                streamerMode.addSystemMessage(`${activeViewer.name}, ${currentRound}. tur başladı! Açman gereken kutu sayısı: ${boxesToOpenInRound}.`);
             } else if (streamerMode.enabled) {
                 tryNextViewer();
             } else {
@@ -4052,8 +4057,8 @@ function triggerFinalChoice(lastRemainingBox) {
             : `Only 2 boxes left! Click your box (Box ${playerBox.id}) to open it, or click the other box (Box ${lastRemainingBox.id}) to swap & open it!`;
         updateStatusMessage(msg, { highlight: true });
         if (streamerMode.enabled && activeViewer) {
-            streamerMode.addSystemMessage(`🔥 SON AŞAMA! Sadece kendi kutun (Kutu ${playerBox.id}) ve Kutu ${lastRemainingBox.id} kaldı!`);
-            streamerMode.addSystemMessage(`👉 ${activeViewer.name}, kendi kutunu açmak için sohbete ${playerBox.id}, diğer kutuyu seçmek için ${lastRemainingBox.id} yaz!`);
+            streamerMode.addSystemMessage(`SON AŞAMA! Sadece kendi kutun (Kutu ${playerBox.id}) ve Kutu ${lastRemainingBox.id} kaldı!`);
+            streamerMode.addSystemMessage(`${activeViewer.name}, kendi kutunu açmak için sohbete ${playerBox.id}, diğer kutuyu seçmek için ${lastRemainingBox.id} yaz!`);
         }
     }, delay);
 }
@@ -4092,8 +4097,8 @@ function endGame(viaDeal) {
     openModal(resultModal);
 
     if (streamerMode.enabled && activeViewer) {
-        streamerMode.addSystemMessage(`🏆 Oyun Bitti! ${activeViewer.name}'in aldığı ceza: "${resultDare}" (${rank <= 15 ? 'Ağır Ceza' : 'Hafif Ceza'})`);
-        streamerMode.addSystemMessage(`📢 Sıradaki yarışmacı için sohbete !oyna yazabilirsiniz!`);
+        streamerMode.addSystemMessage(`Oyun Bitti! ${activeViewer.name}'in aldığı ceza: "${resultDare}" (${rank <= 15 ? 'Ağır Ceza' : 'Hafif Ceza'})`);
+        streamerMode.addSystemMessage(`Sıradaki yarışmacı için sohbete !oyna yazabilirsiniz!`);
         activeViewer = null; // Oyun bittiğinde sıfırla
     }
 }

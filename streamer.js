@@ -134,7 +134,7 @@ class StreamerMode {
 
             this.youtubeLiveChatId = liveDetails.activeLiveChatId;
             this.isConnected = true;
-            this.addSystemMessage('✅ YouTube Live Chat bağlandı!');
+            this.addSystemMessage('YouTube Live Chat bağlandı!');
 
             if (this.onConnectionChange) {
                 this.onConnectionChange(true, 'youtube');
@@ -145,7 +145,7 @@ class StreamerMode {
             return true;
 
         } catch (e) {
-            this.addSystemMessage(`❌ YouTube bağlantı hatası: ${e.message}`);
+            this.addSystemMessage(`YouTube bağlantı hatası: ${e.message}`);
             console.error('YouTube connection error:', e);
             return false;
         }
@@ -194,7 +194,7 @@ class StreamerMode {
         const inputVal = (this.kickChannelName || '').trim();
 
         if (!inputVal) {
-            this.addSystemMessage('⚠️ Kick kanal adı gerekli!');
+            this.addSystemMessage('Kick kanal adı gerekli!');
             if (this.onConnectionChange) this.onConnectionChange(false, 'kick');
             return false;
         }
@@ -238,7 +238,7 @@ class StreamerMode {
             }
 
             if (!channelId || !chatroomId) {
-                this.addSystemMessage('❌ Kick kanalı bulunamadı! Lütfen kanal adınızı kontrol edin.');
+                this.addSystemMessage('Kick kanalı bulunamadı! Lütfen kanal adınızı kontrol edin.');
                 if (this.onConnectionChange) this.onConnectionChange(false, 'kick');
                 return false;
             }
@@ -252,7 +252,7 @@ class StreamerMode {
             return true;
 
         } catch (e) {
-            this.addSystemMessage(`❌ Kick bağlantı hatası: ${e.message}`);
+            this.addSystemMessage(`Kick bağlantı hatası: ${e.message}`);
             console.error('Kick connection error:', e);
             if (this.onConnectionChange) this.onConnectionChange(false, 'kick');
             return false;
@@ -275,7 +275,7 @@ class StreamerMode {
             this.onConnectionChange(true, 'kick');
         }
 
-        this.addSystemMessage(`✅ Kick Chat bağlandı! (Kanal: ${this.kickChannelName})`);
+        this.addSystemMessage(`Kick Chat bağlandı! (Kanal: ${this.kickChannelName})`);
     }
 
     async connectKickViewerWebSocket(chatroomId) {
@@ -511,7 +511,7 @@ class StreamerMode {
         this.viewerQueue.push(viewer);
         const queuePos = this.viewerQueue.length;
 
-        this.addSystemMessage(`🎯 ${viewer.name} !oyna yazarak sıraya girdi! (Sırada: ${queuePos}. kişi)`);
+        this.addSystemMessage(`${viewer.name} !oyna yazarak sıraya girdi! (Sırada: ${queuePos}. kişi)`);
 
         if (this.onViewerJoinQueue) {
             this.onViewerJoinQueue(viewer);
@@ -536,7 +536,7 @@ class StreamerMode {
 
     addSystemMessage(text) {
         const msg = {
-            name: '🤖 Sistem',
+            name: 'Sistem',
             message: text,
             platform: 'system',
             timestamp: Date.now(),
