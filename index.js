@@ -798,7 +798,7 @@ const soundManager = new SoundManager();
 
 // GAME VARIABLES
 let musicStarted = false;
-let daresList = [];
+let daresList = [...DEFAULT_DARES];
 let gameBoxes = [];
 let playerBox = null;
 let currentRound = 0;
@@ -1123,9 +1123,12 @@ function applyConfig() {
     
     const resultModalEl = document.getElementById('result-modal');
     if (resultModalEl) {
-        document.getElementById('result-title').innerText = t('resultTitle');
-        document.getElementById('result-source-text').innerText = t('resultSourceText');
-        document.getElementById('restart-btn').innerHTML = `<i class="fas fa-redo"></i> ${l.restartBtn}`;
+        const rt = document.getElementById('result-title');
+        if (rt) rt.innerText = t('resultTitle');
+        const rst = document.getElementById('result-source-text');
+        if (rst) rst.innerText = t('resultSourceText');
+        const rb = document.getElementById('restart-btn');
+        if (rb) rb.innerHTML = `<i class="fas fa-redo"></i> ${l.restartBtn}`;
         if (resultMenuBtn) {
             resultMenuBtn.innerHTML = `<i class="fas fa-home"></i> ${l.resultMenuBtn}`;
         }
@@ -2712,8 +2715,8 @@ function setupEventListeners() {
             bankerName = nameVal || "Hamdi Bey";
             localStorage.setItem('gta_banker_name', bankerName);
             
-            applyConfig();
-            applySettingsTranslations();
+            try { applyConfig(); } catch(e) { console.error("applyConfig error:", e); }
+            try { applySettingsTranslations(); } catch(e) { console.error("applySettingsTranslations error:", e); }
             
             startGame();
         });
