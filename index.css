@@ -1,4 +1,43 @@
 
+/* HEADER SENIN KUTUN ROZETI */
+.header-player-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 255, 136, 0.08);
+    border: 1.5px solid rgba(0, 255, 136, 0.45);
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.25), inset 0 0 10px rgba(0, 255, 136, 0.08);
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-left: 20px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(8px);
+}
+.header-player-box.hidden {
+    display: none !important;
+}
+.header-player-box .header-pb-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+.header-player-box .header-pb-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #00ff88;
+    text-shadow: 0 0 12px rgba(0, 255, 136, 0.85);
+    min-width: 22px;
+    text-align: center;
+}
+.active-cases-display {
+    display: none !important;
+}
+
+
 .caption-status {
     display: none !important;
 }
@@ -900,22 +939,22 @@ body {
 .boxes-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 15px;
+    grid-template-rows: repeat(5, 1fr);
+    gap: 8px;
     flex-grow: 1;
-    margin-bottom: 20px;
+    margin-bottom: 0;
 }
 
 /* BOX STYLES */
 .box {
     background: linear-gradient(135deg, #2b2b4a 0%, #15152a 100%);
     border: 2px solid #3d3d6b;
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 1.8rem;
+    font-size: 1.55rem;
     font-weight: 800;
     color: var(--primary);
     cursor: pointer;
@@ -923,10 +962,11 @@ body {
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     position: relative;
     overflow: hidden;
+    padding: 6px 4px;
 }
 
 .box-number-label {
-    font-size: 1.8rem;
+    font-size: 1.55rem;
     font-weight: 800;
     color: var(--primary);
     line-height: 1;

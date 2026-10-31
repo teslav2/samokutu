@@ -798,7 +798,7 @@ let gameBoxes = [];
 let playerBox = null;
 let currentRound = 0;
 let boxesToOpenInRound = 0;
-let roundConfig = [4, 4, 3, 3, 3, 2, 2, 1, 1]; // 23 total opens, leaves 1 box
+let roundConfig = [5, 5, 4, 4, 3, 3, 2, 2, 1]; // 29 total opens for 30 boxes, leaves 1 box
 let openedBoxesCount = 0;
 let acceptedOffer = null;
 let boxVoiceMapping = {};
@@ -822,7 +822,7 @@ let halkJokerActive = false;
 
 function initBoxVoiceMapping() {
     boxVoiceMapping = {};
-    for (let i = 1; i <= 24; i++) {
+    for (let i = 1; i <= 30; i++) {
         boxVoiceMapping[i] = i;
     }
 }
@@ -853,12 +853,12 @@ async function loadBoxOwners() {
             .map(line => line.trim())
             .filter(line => line.length > 0);
             
-        if (names.length >= 24) {
+        if (names.length >= 30) {
             loadedRawBoxOwners = names;
         } else {
             loadedRawBoxOwners = [...names];
             let idx = 0;
-            while (loadedRawBoxOwners.length < 24) {
+            while (loadedRawBoxOwners.length < 30) {
                 const fallback = DEFAULT_BOX_NAMES[idx % DEFAULT_BOX_NAMES.length];
                 if (!loadedRawBoxOwners.includes(fallback)) {
                     loadedRawBoxOwners.push(fallback);
@@ -866,11 +866,12 @@ async function loadBoxOwners() {
                 idx++;
             }
         }
-        boxOwnersList = [...loadedRawBoxOwners].slice(0, 24);
+        // Kutulardaki isimler her girişte rastgele yer değiştirir (Shuffle)
+        boxOwnersList = shuffleArray([...loadedRawBoxOwners]).slice(0, 30);
     } catch (e) {
         console.warn("CORS kısıtlaması veya dosya eksikliği nedeniyle kutu_sahipleri.txt yüklenemedi. Varsayılan liste yükleniyor.", e);
         loadedRawBoxOwners = [...DEFAULT_BOX_NAMES];
-        boxOwnersList = [...DEFAULT_BOX_NAMES];
+        boxOwnersList = shuffleArray([...DEFAULT_BOX_NAMES]).slice(0, 30);
     }
 }
 
@@ -1296,15 +1297,15 @@ function setupStreamerCallbacks() {
         let activeBoxId = null;
 
         if (isActiveViewer) {
-            const justNumMatch = cleanMsg.match(/^[\D]*([1-9]|1[0-9]|2[0-4])[\D]*$/);
+            const justNumMatch = cleanMsg.match(/^[\D]*([1-9]|[12][0-9]|30)[\D]*$/);
             if (justNumMatch) {
                 activeBoxId = parseInt(justNumMatch[1], 10);
             } else {
-                const keywordMatch = cleanMsg.match(/(?:kutu|box|no|seç|sec|#)\s*([1-9]|1[0-9]|2[0-4])\b/);
+                const keywordMatch = cleanMsg.match(/(?:kutu|box|no|seç|sec|#)\s*([1-9]|[12][0-9]|30)\b/);
                 if (keywordMatch) {
                     activeBoxId = parseInt(keywordMatch[1], 10);
                 } else {
-                    const standaloneMatch = cleanMsg.match(/\b([1-9]|1[0-9]|2[0-4])\b/);
+                    const standaloneMatch = cleanMsg.match(/\b([1-9]|[12][0-9]|30)\b/);
                     if (standaloneMatch) {
                         activeBoxId = parseInt(standaloneMatch[1], 10);
                     }
@@ -3083,14 +3084,24 @@ function startGame(fade = true) {
     // Setup reward sidebars
     setupSidebars();
 
-    // Shuffle and assign dares to boxes
+    // Reset header player box badge
+    const headerPb = document.getElementById('header-player-box');
+    const headerPbNum = document.getElementById('header-player-box-num');
+    if (headerPb) headerPb.classList.add('hidden');
+    if (headerPbNum) headerPbNum.innerText = '-';
+
+    // Her oyunda kutulardaki isimlerin yerleri rastgele değişsin (kullanıcı isteği)
+    if (loadedRawBoxOwners && loadedRawBoxOwners.length > 0) {
+        boxOwnersList = shuffleArray([...loadedRawBoxOwners]).slice(0, 30);
+    }
+
+    // Shuffle and assign dares to boxes (30 boxes total)
     const shuffledDares = shuffleArray([...daresList]);
     
     gameBoxes = [];
-    for (let i = 1; i <= 24; i++) {
-        const dareStr = shuffledDares[i - 1];
-        // Rank is determined by the index in the original loaded daresList (1-24)
-        const rank = daresList.indexOf(dareStr) + 1;
+    for (let i = 1; i <= 30; i++) {
+        const dareStr = shuffledDares[(i - 1) % shuffledDares.length];
+        const rank = (daresList.indexOf(dareStr) >= 0 ? daresList.indexOf(dareStr) + 1 : ((i % 24) + 1));
         gameBoxes.push({
             id: i,
             dare: dareStr,
@@ -3099,12 +3110,12 @@ function startGame(fade = true) {
         });
     }
 
-    // Render Grid
+    // Render Grid (5x6 = 30 kutu)
     renderBoxesGrid();
 
     addGameLog('game_start', currentLang === 'tr'
-        ? 'Oyun başladı — 24 kutu hazır.'
-        : 'Game started — 24 boxes ready.');
+        ? 'Oyun başladı — 30 kutu hazır.'
+        : 'Game started — 30 boxes ready.');
 }
 
 function setupSidebars() {
@@ -3196,6 +3207,8 @@ function handleBoxClick(box) {
             if (lastRemainingBox && box.id === lastRemainingBox.id) {
                 const oldId = playerBox.id;
                 playerBox = lastRemainingBox;
+                const headerPbNum = document.getElementById('header-player-box-num');
+                if (headerPbNum) headerPbNum.innerText = playerBox.id;
                 addGameLog('swap', currentLang === 'tr'
                     ? `Kutu değiştirildi: Kutu ${oldId} yerine Kutu ${playerBox.id} seçildi ve açıldı`
                     : `Box swapped: Selected Box ${playerBox.id} instead of Box ${oldId} and opened it`);
@@ -3222,9 +3235,14 @@ function handleBoxClick(box) {
         const boxDiv = document.getElementById(`box-${box.id}`);
         boxDiv.className = 'box player-selected';
         
-        // Show in bottom container
-        playerBoxContainer.classList.remove('hidden');
-        playerBoxEl.innerText = box.id;
+        // Show in header badge (SENİN KUTUN : X)
+        const headerPb = document.getElementById('header-player-box');
+        const headerPbNum = document.getElementById('header-player-box-num');
+        if (headerPb && headerPbNum) {
+            headerPb.classList.remove('hidden');
+            headerPbNum.innerText = box.id;
+        }
+        if (playerBoxEl) playerBoxEl.innerText = box.id;
         
         soundManager.playTone(523, 'sine', 0.3, 0, 0.1); // Happy select note
         

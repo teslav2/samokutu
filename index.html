@@ -43,7 +43,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css?v=3.8.0">
+    <link rel="stylesheet" href="index.css?v=3.9.0">
 </head>
 <body oncontextmenu="return false;">
 
@@ -540,6 +540,13 @@
                 <h2 id="status-message">Kendi kutunu seç!</h2>
                 <div id="round-indicator" class="badge">Hazırlık</div>
             </div>
+            
+            <!-- HEADER SENIN KUTUN (1. Tur ile IOWF arasında) -->
+            <div id="header-player-box" class="header-player-box hidden">
+                <i class="fas fa-box-open" style="color: #00ff88; font-size: 0.95rem;"></i>
+                <span class="header-pb-label">SENİN KUTUN :</span>
+                <span id="header-player-box-num" class="header-pb-num">-</span>
+            </div>
             <div class="spacer"></div>
             <div id="player-badge" class="player-badge hidden">
                 <i class="fas fa-user-circle"></i>
@@ -568,11 +575,9 @@
                     <!-- 24 Boxes will be dynamically generated here -->
                 </div>
                 
-                <div class="active-cases-display">
-                    <div id="player-box-container" class="player-box-container hidden">
-                        <span class="label">SENİN KUTUN</span>
-                        <div id="player-box" class="box player-selected">?</div>
-                    </div>
+                <!-- Bottom player-box container moved to header -->
+                <div id="player-box-container" class="player-box-container hidden" style="display: none !important;">
+                    <div id="player-box" class="box player-selected">?</div>
                 </div>
             </div>
 
@@ -857,8 +862,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=3.8.0"></script>
+    <script src="streamer.js?v=3.9.0"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=3.8.0"></script>
+    <script src="index.js?v=3.9.0"></script>
 </body>
 </html>
