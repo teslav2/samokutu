@@ -43,7 +43,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css?v=2.5.0">
+    <link rel="stylesheet" href="index.css?v=3.0.0">
 </head>
 <body oncontextmenu="return false;">
 
@@ -80,30 +80,35 @@
         </div>
     </div>
 
-    <!-- ============ MENU SCREEN (GTA 4 STYLE) ============ -->
+    <!-- ============ MODERN MENU SCREEN ============ -->
     <div id="menu-screen" class="screen">
         <div class="menu-overlay"></div>
         
-        <div class="gta-menu-container">
-            <!-- Separate Floating Logo from logo.png -->
-            <div class="gta-logo-img-container">
-                <img id="gta-logo" src="assets/images/logo.png" alt="Oyun Logosu">
+        <div class="modern-menu-container">
+            <!-- Floating 3D Logo -->
+            <div class="menu-logo-container">
+                <img id="gta-logo" src="assets/images/logo.png" alt="Oyun Logosu" class="menu-logo-img">
             </div>
             
-            <!-- Bottom Menu Bar, exactly like GTA 4 -->
-            <div class="gta-bottom-bar">
-                <div class="gta-bottom-content">
-                    <div class="gta-horizontal-menu">
-                        <button id="start-btn" class="gta-menu-link active">Oyna</button>
-                        <button id="settings-btn" class="gta-menu-link">Ayarlar</button>
-                    </div>
-                    <div class="gta-bottom-right">
-                        <button id="gta-fullscreen-btn" class="gta-sound-icon-btn">
-                            <i class="fas fa-expand"></i>
-                        </button>
-                        <span class="gta-version">v1.0</span>
-                    </div>
-                </div>
+            <!-- Modern Floating Action Dock (No solid black bar!) -->
+            <div class="modern-floating-dock">
+                <button id="start-btn" class="menu-btn menu-btn-play">
+                    <span class="btn-shine"></span>
+                    <i class="fas fa-play"></i>
+                    <span>OYNA</span>
+                </button>
+                <button id="settings-btn" class="menu-btn menu-btn-settings">
+                    <i class="fas fa-cog"></i>
+                    <span>AYARLAR</span>
+                </button>
+            </div>
+
+            <!-- Modern Utility Dock -->
+            <div class="menu-utility-dock">
+                <button id="gta-fullscreen-btn" class="utility-icon-btn" title="Tam Ekran">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <span class="utility-version-pill">v2.0</span>
             </div>
         </div>
     </div>
@@ -855,8 +860,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=2.5.0"></script>
+    <script src="streamer.js?v=3.0.0"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=2.5.0"></script>
+    <script src="index.js?v=3.0.0"></script>
 </body>
 </html>
