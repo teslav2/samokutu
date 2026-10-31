@@ -2495,13 +2495,29 @@ window.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        let isPlaying = false;
+        // Video 2 saniyeden uzun süre tamponlanamazsa veya takılırsa siyah ekranda bekletme, doğrudan menüye geç!
+        const bufferTimeout = setTimeout(() => {
+            if (!isPlaying) {
+                console.log("Intro videosu yavaş yüklendi, menüye geçiliyor...");
+                dismissIntro();
+            }
+        }, 2000);
+
+        introVideo.onplaying = () => {
+            isPlaying = true;
+            clearTimeout(bufferTimeout);
+        };
+
         introVideo.play().then(() => {
-            // 15 seconds safety fallback timeout
             if (introSafetyTimeout) clearTimeout(introSafetyTimeout);
             introSafetyTimeout = setTimeout(() => {
                 dismissIntro();
             }, 15000);
-        }).catch(() => dismissIntro());
+        }).catch(() => {
+            clearTimeout(bufferTimeout);
+            dismissIntro();
+        });
     }
 
     const introSkipBtn = document.getElementById('intro-skip-btn');

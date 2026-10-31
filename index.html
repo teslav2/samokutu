@@ -48,9 +48,9 @@
 <body oncontextmenu="return false;">
 
     <!-- MENU MUSIC (Hidden Audio - Never reloads) -->
-    <audio id="menu-music-audio" src="assets/audio/musicmenu.mp3" loop preload="auto"></audio>
-    <audio id="game-music-audio" src="assets/audio/gamebm.mp3" loop preload="auto"></audio>
-    <audio id="call-music-audio" src="assets/audio/callbm.mp3" loop preload="auto"></audio>
+    <audio id="menu-music-audio" src="assets/audio/musicmenu.mp3" loop preload="metadata"></audio>
+    <audio id="game-music-audio" src="assets/audio/gamebm.mp3" loop preload="none"></audio>
+    <audio id="call-music-audio" src="assets/audio/callbm.mp3" loop preload="none"></audio>
 
     <!-- ============ PRE-INTRO CLICK SCREEN ============ -->
     <div id="pre-intro-screen" class="screen active">
@@ -68,7 +68,7 @@
 
     <!-- ============ INTRO SCREEN ============ -->
     <div id="intro-screen" class="screen">
-        <video id="intro-video-element" muted playsinline>
+        <video id="intro-video-element" muted playsinline preload="metadata">
             <source src="assets/video/intro.mp4" type="video/mp4">
         </video>
         <button id="intro-skip-btn">Geçmek için Tıklayın</button>

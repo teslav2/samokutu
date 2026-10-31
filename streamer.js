@@ -399,7 +399,7 @@ class StreamerMode {
         };
 
         pollMessages();
-        this.kickPollInterval = setInterval(pollMessages, 1000);
+        this.kickPollInterval = setInterval(pollMessages, 750);
     }
 
     handleIncomingKickMessage(raw) {
