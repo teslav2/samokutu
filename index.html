@@ -43,7 +43,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css?v=3.0.0">
+    <link rel="stylesheet" href="index.css?v=3.1.0">
 </head>
 <body oncontextmenu="return false;">
 
@@ -85,25 +85,26 @@
         <div class="menu-overlay"></div>
         
         <div class="modern-menu-container">
-            <!-- Floating 3D Logo -->
-            <div class="menu-logo-container">
-                <img id="gta-logo" src="assets/images/logo.png" alt="Oyun Logosu" class="menu-logo-img">
-            </div>
-            
-            <!-- Modern Floating Action Dock (No solid black bar!) -->
-            <div class="modern-floating-dock">
-                <button id="start-btn" class="menu-btn menu-btn-play">
-                    <span class="btn-shine"></span>
-                    <i class="fas fa-play"></i>
-                    <span>OYNA</span>
-                </button>
-                <button id="settings-btn" class="menu-btn menu-btn-settings">
-                    <i class="fas fa-cog"></i>
-                    <span>AYARLAR</span>
-                </button>
+            <!-- Right-Side Hero Panel (Logo + Buttons in Open Space) -->
+            <div class="modern-menu-right-panel">
+                <div class="menu-logo-container">
+                    <img id="gta-logo" src="assets/images/logo.png" alt="Kutumda Büyük Hissediyorum" class="menu-logo-img">
+                </div>
+                
+                <div class="modern-floating-dock">
+                    <button id="start-btn" class="menu-btn menu-btn-play">
+                        <span class="btn-shine"></span>
+                        <i class="fas fa-play"></i>
+                        <span>OYNA</span>
+                    </button>
+                    <button id="settings-btn" class="menu-btn menu-btn-settings">
+                        <i class="fas fa-cog"></i>
+                        <span>AYARLAR</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Modern Utility Dock -->
+            <!-- Utility Dock (Lower Left) -->
             <div class="menu-utility-dock">
                 <button id="gta-fullscreen-btn" class="utility-icon-btn" title="Tam Ekran">
                     <i class="fas fa-expand"></i>
@@ -860,8 +861,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=3.0.0"></script>
+    <script src="streamer.js?v=3.1.0"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=3.0.0"></script>
+    <script src="index.js?v=3.1.0"></script>
 </body>
 </html>
