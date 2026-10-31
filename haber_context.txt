@@ -1,0 +1,38 @@
+================================================================================
+KUTUMDA BÜYÜK HİSSEDİYORUM - CANLI YAYIN TV HABER BÜLTENİ EĞİTİM REHBERİ
+Designed By Samo
+================================================================================
+
+1. YARIŞMANIN KONSEPTİ VE AMACI:
+- Bu oyun, ünlü TV yarışması "Var Mısın Yok Musun" formatının Kick yayıncısı Tarık (IOWF) ve yayın ekibi için uyarlanmış, yüksek tempolu, bol kahkahalı ve tansiyon dolu Türk streamer versiyonudur.
+- Toplam 24 adet kutu bulunur.
+  * 1'den 12'ye kadar olanlar: Kırmızı rozetli AĞIR CEZALAR (Yayıncıyı rezil eden, chat'i kahkahaya boğan zorlu cezalar).
+  * 13'ten 24'e kadar olanlar: Mavi rozetli HAFİF CEZALAR (Komik taklitler, eğlenceli ufak meydan okumalar).
+- Amaç: Ağır cezaları oyun içinde açarak elemek ve en sonunda hafif bir ceza ile kurtulmaktır.
+
+2. BAŞ KARAKTERLER:
+- TARIK (IOWF / Yarışmacı):
+  Kick'in en iddialı ve eğlenceli yayıncısı. Sürekli "Kutumda büyük hissediyorum!", "Bu kutu beni kurtaracak!", "Hamdi Bey ayağını denk al!" diyerek büyük riskler alır. Ağır ceza çıktığında çıldırır, kafasını tutar, masayı yumruklar gibi yapar veya donup kalır. Hafif ceza çıktığında ise stüdyoyu inletir, zafer dansı yapar.
+- SAMO:
+  Formatın beyni, yarışmanın yaratıcısı ve Tarık'ın can dostu. Oyundaki kutuları dizen, düzeni sağlayan ve stüdyonun kontrolünü elinde tutan isim.
+- HAMDİ BEY (BANKACI / BANKER):
+  Telefonun diğer ucundaki gizemli, acımasız ve hesapçı bankacı. Tarık'ı köşeye sıkıştırmak için psikolojik teklifler yapar. Masada 1 ağır 1 hafif ceza kaldığında bile öyle bir teklif sunar ki stüdyoda nefesler tutulur.
+- KİCK CHAT'İ (İZLEYİCİLER):
+  Yayın boyunca !varım ve !yokum oylamalarıyla Tarık'ı gaza getiren veya trolleyen, stüdyonun arkasındaki en büyük güç.
+
+3. TV HABER BÜLTENİ DİLİ VE MANŞET TARZI:
+- Haberler tıpkı Show TV, Flash TV veya ATV Ana Haber Bülteni gibi aşırı sansasyonel, flaş flaş flaş flaş, absürt mizahi ve abartılı bir Türk televizyonu diliyle yazılmalıdır.
+- Büyük harflerle vurucu manşetler ('headline') maksimum 6-10 kelime olmalıdır.
+  Örnekler:
+  * "FLAŞ GELİŞME: TARIK'IN KUTUSUNDAN ÇIKAN AĞIR CEZA KICK YAYININI SALLADI!"
+  * "HAMDİ BEY'DEN TARİHİ ÇALIM: TARIK CANLI YAYINDA ÇARESİZ KALDI!"
+  * "STÜDYO KARIŞTI: SAMO ACİL DURUM İLAN ETTİ, TARIK CEZAYA BOYUN EĞDİ!"
+  * "KIL PAYI KURTULUŞ: TARIK KUTUSUNA GÜVENDİ, HAMDİ BEY ŞOKA GİRDİ!"
+- Haber özeti ('summary') 2-3 cümlelik, canlı yayında stüdyoda yaşanan dramı ve komediyi anlatan, doğrudan Tarık, Samo ve Hamdi Bey'in adını geçiren zengin bir metin olmalıdır.
+- Duygu Durumu ('emotion'):
+  * Ağır Ceza ise: 'saskin', 'sinirli' veya 'uzgun'
+  * Hafif Ceza ise: 'mutlu'
+
+4. OYUN SONU KARAR TÜRLERİ:
+- Kendi kutusunu açtıysa: "Kutusuna sonuna kadar güvendi ve kutusunu açtı."
+- Hamdi Bey'in teklifine VARIM dediyse: "Hamdi Bey'in teklifine boyun eğdi / teklifi kabul etti."

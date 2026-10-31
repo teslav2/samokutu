@@ -589,16 +589,11 @@ class SoundManager {
 
         const randomIndex = Math.floor(Math.random() * 6) + 1;
         const paths = [
+            `assets/audio/phone_call_${randomIndex}.mp3`,
+            `/assets/audio/phone_call_${randomIndex}.mp3`,
             `audio/phone_call_${randomIndex}.mp3`,
-            `audio/phone_call_${randomIndex}.wav`,
-            `audio/phone_call_${randomIndex}.m4a`,
-            `audio/phone_call_${randomIndex}.ogg`,
-            `audio/banker_call_${randomIndex}.mp3`,
-            `audio/banker_call_${randomIndex}.wav`,
-            `audio/banker_call_${randomIndex}.m4a`,
-            `voice/phone_call_${randomIndex}.mp3`,
-            `voice/banker_call_${randomIndex}.mp3`,
-            `voice/banker_call_${randomIndex}.m4a`
+            `assets/audio/phone_call_${randomIndex}.wav`,
+            `audio/phone_call_${randomIndex}.wav`
         ];
 
         const phrasesTr = [
@@ -842,7 +837,7 @@ const DEFAULT_BOX_NAMES = [
     "DepresifTosbaa", "llleandreas", "dream_33", "PANDA_ADAM",
     "Klaxxoun", "Beru", "Mordex", "SAMO", "Lunyxia", "Sweet0",
     "Gavatnur", "Akon", "Septy", "Akansa", "Cemoshx", "Slaptula",
-    "TeslaV2", "Melibon", "SamDadlisi", "KRWest", "Archie_Wan", "MotherOfPrincess",
+    "TeslaV2", "Eray", "SamDadlisi", "KRWest", "Archie_Wan", "MotherOfPrincess",
     "UcanTurk", "Nisnur", "KucukCemo", "JohnBishop", "Emeriks", "Balkabagi"
 ];
 
@@ -4570,7 +4565,7 @@ function startBankerPoll() {
 }
 
 function updatePollUI() {
-    if (!currentPoll) return;
+    if (!currentPoll || !streamerMode.enabled) return;
     
     const pc = document.getElementById('banker-poll-container');
     if (!pc) return;

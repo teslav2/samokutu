@@ -1,3 +1,18 @@
+
+/* GLOBAL HIDDEN UTILITY */
+.hidden {
+    display: none !important;
+}
+.entrance-play-btn.hidden {
+    display: none !important;
+}
+.entrance-loading-box.hidden {
+    display: none !important;
+}
+#banker-poll-container.hidden {
+    display: none !important;
+}
+
 /* CSS VARIABLES & DESIGN SYSTEM */
 :root {
     --bg-dark: #070714;
@@ -60,8 +75,10 @@ body {
 
 /* MENU SCREEN STYLES (GTA 4 THEME - CLEANED) */
 #menu-screen {
-    background: url('assets/images/openingbg.png') no-repeat center center;
-    background-size: cover;
+    background-image: url('assets/images/menu.png'), linear-gradient(135deg, #020205 0%, #0c0817 50%, #020205 100%);
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
     width: 100vw;
     height: 100vh;
     position: fixed;
@@ -3844,9 +3861,10 @@ body {
 .entrance-interactive-container {
     position: absolute;
     right: 12%;
-    top: 56%;
+    top: 50%;
     transform: translateY(-50%);
-    width: 380px;
+    width: 360px;
+    max-width: 90%;
     z-index: 10;
     display: flex;
     flex-direction: column;
