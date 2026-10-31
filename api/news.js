@@ -5,7 +5,7 @@ const path = require('path');
 
 // Hilarious fallback news generation engine tailored to Tarık (IOWF), Samo & Hamdi Bey
 function generateComedicNews(dare, isDeal, rank, streamer = "Tarık") {
-    const isHeavy = rank <= 12;
+    const isHeavy = rank <= 15;
     const streamerUpper = (streamer || "TARIK").toUpperCase();
     
     const headlinesHeavy = [
@@ -100,7 +100,7 @@ Karakterler:
 Yarışma Sonucu:
 Oyuncu: ${streamer}
 Kazandığı Ceza: "${dare}"
-Ceza Türü: ${rank <= 12 ? 'AĞIR CEZA (Kötü sonuç)' : 'HAFİF CEZA (İyi sonuç / Kurtuluş)'}
+Ceza Türü: ${rank <= 15 ? 'AĞIR CEZA (Kötü sonuç)' : 'HAFİF CEZA (İyi sonuç / Kurtuluş)'}
 Oyun Sonu Kararı: ${isDeal ? 'Hamdi Beyin teklifine VARIM dedi (Kabul etti)' : 'Kendi kutusunu açtı (Sonuna kadar gitti)'}
 
 ${contextGuide ? `Referans Bilgi:\n${contextGuide.slice(0, 800)}\n` : ''}
@@ -176,7 +176,7 @@ SADECE JSON döndür: {"headline": "...", "summary": "...", "emotion": "saskin"}
             ok: true,
             headline: result.headline,
             summary: result.summary,
-            emotion: result.emotion || (rank <= 12 ? 'saskin' : 'mutlu')
+            emotion: result.emotion || (rank <= 15 ? 'saskin' : 'mutlu')
         });
     } catch(e) {
         const fallback = generateComedicNews("10 saniye tek ayak üstünde dur", false, 10, "Tarık");

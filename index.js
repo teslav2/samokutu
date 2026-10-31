@@ -26,7 +26,7 @@ document.addEventListener('keydown', e => {
 
 // FALLBACK DARES (CORS hatası veya dosya eksikliği durumunda yüklenecek varsayılan cezalar)
 const DEFAULT_DARES = [
-    // 1-12: Ağır Cezalar (Heavy Dares)
+    // 1-15: Ağır Cezalar (Heavy Dares)
     "Welcome to the Game 3 Başla",
     "chat'ten rastgele birinin geçmişine atla",
     "ekipten 3 kişiyi arayıp 'acil bir durum var kardeşim, PC gitti' diyerek tepkilerini ölç",
@@ -39,7 +39,10 @@ const DEFAULT_DARES = [
     "bağış atan herkesi öptüğünü söyle ve öp",
     "galerideki en son fotoğrafı göster",
     "çocukluk fotoğrafı varsa göster",
-    // 13-24: Hafif Cezalar (Light Dares)
+    "Bandananı aç",
+    "SAMO'nun bir şarkısını kötüle",
+    "Futbolda herkesin hemfikir olduğu bir konuda ters bir şey söyle",
+    // 16-30: Hafif Cezalar (Light Dares)
     "10 dakika kekeme taklidi yap",
     "5 dakika kadın taklidi yap",
     "3 dakika sessiz kal, sadece beden diliyle konuş",
@@ -51,7 +54,10 @@ const DEFAULT_DARES = [
     "chatin seçtiği şarkıyı mırıldan",
     "3 dakika boyunca her gelen mesaja 'haklısın' de",
     "5 dakika NPC ol, sadece 'Evet, Hayır, Belki, Devlet sırrı' diyebilirsin",
-    "son yaptığın en saçma şeyi anlat"
+    "son yaptığın en saçma şeyi anlat",
+    "Hiç bilmediğin bir şarkıyı sözlerine bakarak nakarata kadar söyle",
+    "Hiç sevmediğin bir şarkı türünden bir şarkı aç",
+    "Chatten sana gelen tüm övgülere karşı çık"
 ];
 
 // SOUND MANAGER (Web Audio API)
@@ -2675,15 +2681,15 @@ async function loadDares() {
             .map(line => line.trim())
             .filter(line => line.length > 0);
             
-        // Ensure we have exactly 24 dares
-        if (daresList.length < 24) {
-            console.warn(`Cezalar dosyasında ${daresList.length} adet ceza bulundu. 24'e tamamlamak için varsayılanlar ekleniyor.`);
-            while (daresList.length < 24) {
+        // Ensure we have exactly 30 dares
+        if (daresList.length < 30) {
+            console.warn(`Cezalar dosyasında ${daresList.length} adet ceza bulundu. 30'a tamamlamak için varsayılanlar ekleniyor.`);
+            while (daresList.length < 30) {
                 daresList.push(DEFAULT_DARES[daresList.length]);
             }
-        } else if (daresList.length > 24) {
-            console.warn(`Cezalar dosyasında ${daresList.length} adet ceza bulundu. İlk 24 ceza kullanılacak.`);
-            daresList = daresList.slice(0, 24);
+        } else if (daresList.length > 30) {
+            console.warn(`Cezalar dosyasında ${daresList.length} adet ceza bulundu. İlk 30 ceza kullanılacak.`);
+            daresList = daresList.slice(0, 30);
         }
     } catch (e) {
         console.warn("CORS kısıtlaması veya dosya eksikliği nedeniyle cezalar.txt yüklenemedi. Varsayılan liste yükleniyor.", e);
@@ -3122,27 +3128,27 @@ function setupSidebars() {
     leftRewardsList.innerHTML = '';
     rightRewardsList.innerHTML = '';
 
-    // Sol: Hafif cezalar (13-24) — mavi
-    for (let i = 12; i < 24; i++) {
+    // Sol: Hafif cezalar (16-30) — mavi
+    for (let i = 15; i < 30; i++) {
         const item = document.createElement('div');
         item.id = `reward-item-${i + 1}`;
         item.className = 'reward-item';
         item.setAttribute('data-rank', i + 1);
         item.innerHTML = `
             <span class="reward-rank blue-title">${i + 1}</span>
-            <span class="reward-name">${daresList[i]}</span>
+            <span class="reward-name">${daresList[i] || ''}</span>
         `;
         leftRewardsList.appendChild(item);
     }
 
-    // Sağ: Ağır cezalar (1-12) — kırmızı
-    for (let i = 0; i < 12; i++) {
+    // Sağ: Ağır cezalar (1-15) — kırmızı
+    for (let i = 0; i < 15; i++) {
         const item = document.createElement('div');
         item.id = `reward-item-${i + 1}`;
         item.className = 'reward-item';
         item.setAttribute('data-rank', i + 1);
         item.innerHTML = `
-            <span class="reward-name">${daresList[i]}</span>
+            <span class="reward-name">${daresList[i] || ''}</span>
             <span class="reward-rank red-title">${i + 1}</span>
         `;
         rightRewardsList.appendChild(item);
@@ -3179,7 +3185,7 @@ function renderBoxesGrid() {
             // X-Ray Vision overlay
             if (settingsConfig.xrayVision) {
                 const xrayEl = document.createElement('span');
-                const isHeavy = box.rank <= 12; // rank 1-12 = heavy
+                const isHeavy = box.rank <= 15; // rank 1-12 = heavy
                 xrayEl.className = `xray-text ${isHeavy ? 'xray-red' : 'xray-blue'}`;
                 xrayEl.innerText = box.dare;
                 boxDiv.appendChild(xrayEl);
@@ -3651,7 +3657,7 @@ function markRewardEliminated(rank, animate = false) {
     const rewardEl = document.getElementById(`reward-item-${rank}`);
     if (!rewardEl) return;
 
-    const isHeavy = rank <= 12;
+    const isHeavy = rank <= 15;
     rewardEl.classList.remove('eliminating', 'eliminated', 'light-dare', 'heavy-dare');
 
     if (animate) {
@@ -3713,7 +3719,7 @@ function showDareReveal(box, isInsured = false) {
     const text = document.getElementById('dare-reveal-text');
     if (!overlay || !text) return;
 
-    const isHeavy = box.rank <= 12;
+    const isHeavy = box.rank <= 15;
 
     showGameDim(false);
 
@@ -3781,7 +3787,7 @@ function doOpenBox(box) {
     boxDiv.className = 'box opened';
     boxDiv.innerText = '';
 
-    const isHeavy = box.rank <= 12;
+    const isHeavy = box.rank <= 15;
     
     // Sigorta Kontrolü
     let isInsured = false;
@@ -3925,8 +3931,8 @@ function calculateBankerOffer() {
     const remainingBoxes = gameBoxes.filter(b => b.id === playerBox.id || !b.isOpened);
     
     // Count heavy dares (ranks 1-12) and light dares (ranks 13-24)
-    const heavyRemaining = remainingBoxes.filter(b => b.rank <= 12).length;
-    const lightRemaining = remainingBoxes.filter(b => b.rank > 12).length;
+    const heavyRemaining = remainingBoxes.filter(b => b.rank <= 15).length;
+    const lightRemaining = remainingBoxes.filter(b => b.rank > 15).length;
     const totalRemaining = remainingBoxes.length;
 
     // Calculate average rank of remaining boxes
@@ -4061,14 +4067,14 @@ function endGame(viaDeal) {
         resultDare = acceptedOffer;
         // Decide fanfare: rank 1-12 = HEAVY (bad = lose), rank 13-24 = LIGHT (good = win)
         const offerRank = daresList.indexOf(resultDare) + 1;
-        if (offerRank > 12) {
+        if (offerRank > 15) {
             soundManager.playWinFanfare();
         } else {
             soundManager.playLoseFanfare();
         }
     } else {
         resultDare = playerBox.dare;
-        if (playerBox.rank > 12) {
+        if (playerBox.rank > 15) {
             soundManager.playWinFanfare();
         } else {
             soundManager.playLoseFanfare();
@@ -4080,13 +4086,13 @@ function endGame(viaDeal) {
     addGameLog('game_end', currentLang === 'tr'
         ? `Oyun bitti - ceza: "${resultDare}"`
         : `Game over - dare: "${resultDare}"`,
-        rank <= 12 ? 'heavy' : 'light');
+        rank <= 15 ? 'heavy' : 'light');
 
     showTvNewsResult(viaDeal, resultDare, rank);
     openModal(resultModal);
 
     if (streamerMode.enabled && activeViewer) {
-        streamerMode.addSystemMessage(`🏆 Oyun Bitti! ${activeViewer.name}'in aldığı ceza: "${resultDare}" (${rank <= 12 ? 'Ağır Ceza' : 'Hafif Ceza'})`);
+        streamerMode.addSystemMessage(`🏆 Oyun Bitti! ${activeViewer.name}'in aldığı ceza: "${resultDare}" (${rank <= 15 ? 'Ağır Ceza' : 'Hafif Ceza'})`);
         streamerMode.addSystemMessage(`📢 Sıradaki yarışmacı için sohbete !oyna yazabilirsiniz!`);
         activeViewer = null; // Oyun bittiğinde sıfırla
     }
@@ -4110,7 +4116,7 @@ async function showTvNewsResult(viaDeal, resultDare, rank) {
     updateTvClock();
     tvClockInterval = setInterval(updateTvClock, 1000);
 
-    const isHeavy = rank <= 12;
+    const isHeavy = rank <= 15;
     const typeTag = document.getElementById('tv-dare-type-tag');
     if (typeTag) {
         typeTag.className = isHeavy ? 'tv-dare-type-tag red-tag' : 'tv-dare-type-tag blue-tag';
