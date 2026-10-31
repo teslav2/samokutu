@@ -4538,3 +4538,35 @@ function endBankerPoll() {
     const pc = document.getElementById('banker-poll-container');
     if (pc) pc.classList.add('hidden');
 }
+
+// ==========================================================================
+// TEST KISAYOLU: Klavyeden 'T' tusuna basarak TV ekranini ve fotolari test et
+// ==========================================================================
+let testEmotionIndex = 0;
+const testEmotions = [
+    { emotion: 'mutlu', dare: 'chatin seçtiği şarkıyı mırıldan', rank: 21, isDeal: true },
+    { emotion: 'uzgun', dare: 'Welcome to the Game 3 Başla', rank: 1, isDeal: false },
+    { emotion: 'saskin', dare: '20 dakika boyunca futbol konusu açıldığında "Ben futbolun ta kendisiyim" de', rank: 9, isDeal: false },
+    { emotion: 'sinirli', dare: 'instagrama "hamdi bey çay içmeye bekliyorum" olarak story at', rank: 6, isDeal: true }
+];
+
+function testTvNewsScreen() {
+    const cur = testEmotions[testEmotionIndex % testEmotions.length];
+    testEmotionIndex++;
+    const resModal = document.getElementById('result-modal');
+    if (resModal) {
+        showTvNewsResult(cur.isDeal, cur.dare, cur.rank);
+        setTimeout(() => { applyTarikEmotion(cur.emotion); }, 50);
+        openModal(resModal);
+    }
+}
+
+window.testTvNews = testTvNewsScreen;
+
+document.addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+    if (e.key === 't' || e.key === 'T') {
+        testTvNewsScreen();
+    }
+});
