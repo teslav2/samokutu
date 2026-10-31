@@ -801,7 +801,7 @@ function shuffleBoxVoiceMapping() {
 // ===== BOX OWNER NAMES =====
 const DEFAULT_BOX_NAMES = [
     "aycinkavak", "Lloyd",
-    "DepresifTosbaa", "llleandreas", "dream_33", "PANDA_ADAM",
+    "DepresifTosbaa", "IIIeandreas", "dream_33", "PANDA_ADAM",
     "Klaxxoun", "Beru", "Mordex", "SAMO", "Lunyxia", "Sweet0",
     "Gavatnur", "Akon", "Septy", "Nahuru", "Cemoshx", "Slaptula",
     "TeslaV2", "Misaki", "SamDadlisi", "KRWest", "Archie_Wan", "MotherOfPrincess",
@@ -853,6 +853,52 @@ function getPossessiveName(name) {
     const suffix = vowels.includes(lastChar) ? "'nın" : "'ın";
     return name + suffix;
 }
+
+function formatBoxOwnerHtml(rawName) {
+    if (!rawName) return '';
+    const clean = rawName.trim();
+    const lower = clean.toLowerCase();
+
+    // 1. MotherOfPrincess -> Mother / Of / Princess (3 satır)
+    if (lower === 'motherofprincess' || lower === 'mother_of_princess') {
+        return '<span>Mother</span><span>Of</span><span>Princess</span>';
+    }
+    // 2. aycinkavak -> Aycin / Kavak
+    if (lower === 'aycinkavak' || lower === 'aycin_kavak' || lower === 'aycin kavak') {
+        return '<span>Aycin</span><span>Kavak</span>';
+    }
+    // 3. llleandreas / iiieandreas -> III / eandreas (kullanıcı isteği: başında LLL yerine III)
+    if (lower === 'llleandreas' || lower === 'iiieandreas') {
+        return '<span>III</span><span>eandreas</span>';
+    }
+    // 4. PANDA_ADAM -> Panda / Adam
+    if (lower === 'panda_adam' || lower === 'pandaadam' || lower === 'panda adam') {
+        return '<span>Panda</span><span>Adam</span>';
+    }
+    // 5. DepresifTosbaa -> Depresif / Tosbaa
+    if (lower === 'depresiftosbaa' || lower === 'depresif_tosbaa' || lower === 'depresif tosbaa') {
+        return '<span>Depresif</span><span>Tosbaa</span>';
+    }
+    // 6. JohnBishop -> John / Bishop
+    if (lower === 'johnbishop' || lower === 'john_bishop' || lower === 'john bishop') {
+        return '<span>John</span><span>Bishop</span>';
+    }
+    // 7. Archie_Wan -> Archie / Wan
+    if (lower === 'archie_wan' || lower === 'archiewan' || lower === 'archie wan') {
+        return '<span>Archie</span><span>Wan</span>';
+    }
+    // 8. SamDadlisi -> Sam / Dadlisi
+    if (lower === 'samdadlisi' || lower === 'sam_dadlisi' || lower === 'sam dadlisi') {
+        return '<span>Sam</span><span>Dadlisi</span>';
+    }
+    // 9. KucukCemo -> Kucuk / Cemo
+    if (lower === 'kucukcemo' || lower === 'kucuk_cemo' || lower === 'kucuk cemo') {
+        return '<span>Kucuk</span><span>Cemo</span>';
+    }
+
+    return `<span>${clean.replace(/_/g, ' ')}</span>`;
+}
+
 
 // DOM ELEMENTS
 const menuScreen = document.getElementById('menu-screen');
@@ -3096,7 +3142,7 @@ function setupSidebars() {
         item.className = 'reward-item';
         item.setAttribute('data-rank', i + 1);
         item.innerHTML = `
-            <span class="reward-rank blue-title">${i + 1}</span>
+            <span class="reward-rank blue-title">😇</span>
             <span class="reward-name">${daresList[i] || ''}</span>
         `;
         leftRewardsList.appendChild(item);
@@ -3110,7 +3156,7 @@ function setupSidebars() {
         item.setAttribute('data-rank', i + 1);
         item.innerHTML = `
             <span class="reward-name">${daresList[i] || ''}</span>
-            <span class="reward-rank red-title">${i + 1}</span>
+            <span class="reward-rank red-title">😈</span>
         `;
         rightRewardsList.appendChild(item);
     }
@@ -3130,7 +3176,7 @@ function renderBoxesGrid() {
 
         const nameEl = document.createElement('div');
         nameEl.className = 'box-owner-label';
-        nameEl.innerText = ownerName;
+        nameEl.innerHTML = formatBoxOwnerHtml(ownerName);
 
         if (playerBox && playerBox.id === box.id) {
             boxDiv.className = 'box player-selected';

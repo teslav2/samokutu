@@ -1,3 +1,13 @@
+@font-face {
+    font-family: 'Lilomon';
+    src: url('assets/fonts/Lilomon.woff') format('woff'),
+         url('assets/fonts/Lilomon.ttf') format('truetype'),
+         url('assets/fonts/Lilomon.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 
 /* HEADER SENIN KUTUN ROZETI */
 .header-player-box {
@@ -703,26 +713,28 @@ body {
 
 .reward-item .reward-rank {
     flex-shrink: 0;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-size: 0.72rem;
-    font-weight: 700;
+    font-size: 0.85rem;
+    line-height: 1;
 }
 
 .left-sidebar .reward-item .reward-rank {
     background: rgba(0, 191, 255, 0.15);
     color: #00bfff;
-    border: 1px solid rgba(0, 191, 255, 0.3);
+    border: 1px solid rgba(0, 191, 255, 0.4);
+    box-shadow: 0 0 8px rgba(0, 191, 255, 0.2);
 }
 
 .right-sidebar .reward-item .reward-rank {
     background: rgba(255, 50, 50, 0.15);
     color: #ff3232;
-    border: 1px solid rgba(255, 50, 50, 0.3);
+    border: 1px solid rgba(255, 50, 50, 0.4);
+    box-shadow: 0 0 8px rgba(255, 50, 50, 0.2);
 }
 
 /* Phase 1: parlama — dikkat çek */
@@ -973,17 +985,29 @@ body {
 }
 
 .box-owner-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.5);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-top: 4px;
-    max-width: 90%;
+    font-family: 'Lilomon', 'Outfit', sans-serif;
+    font-size: 0.76rem;
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+    max-width: 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.12;
+    text-align: center;
+    transition: color 0.25s;
+    pointer-events: none;
+}
+
+.box-owner-label span {
+    display: block;
+    white-space: nowrap;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    transition: color 0.25s;
 }
 
 .box:hover .box-owner-label {
@@ -992,7 +1016,8 @@ body {
 
 .box.player-selected .box-owner-label {
     color: #00ff88;
-    font-weight: 800;
+    text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+    font-weight: bold;
 }
 
 /* Kendi Kutumuzun Numarası: Parlak Yeşil & Yanıp Sönen Neon Efekt */
