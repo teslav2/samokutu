@@ -73,46 +73,7 @@ class SoundManager {
     }
 
     playCinematicWhoosh() {
-        if (this.isMuted) return;
-        this.init();
-        try {
-            const now = this.ctx.currentTime;
-            // Sub-bass impact
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(140, now);
-            osc.frequency.exponentialRampToValueAtTime(35, now + 0.6);
-            gain.gain.setValueAtTime(0.35, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.6);
-
-            // Whoosh noise sweep
-            const bufferSize = Math.floor(this.ctx.sampleRate * 0.5);
-            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-            const noise = this.ctx.createBufferSource();
-            noise.buffer = buffer;
-            const filter = this.ctx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(900, now);
-            filter.frequency.exponentialRampToValueAtTime(180, now + 0.5);
-            filter.Q.value = 2;
-            const noiseGain = this.ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.22, now);
-            noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
-            noise.connect(filter);
-            filter.connect(noiseGain);
-            noiseGain.connect(this.ctx.destination);
-            noise.start(now);
-            noise.stop(now + 0.5);
-        } catch(e) {}
+        return; // Boink/whoosh sesi kullanici istegiyle kapatildi
     }
 
     init() {
@@ -2561,7 +2522,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (entrancePlayBtn) {
             entrancePlayBtn.addEventListener('click', () => {
                 soundManager.init();
-                soundManager.playCinematicWhoosh();
+                // soundManager.playCinematicWhoosh();
                 
                 // Add zoom and blur to entrance screen
                 entranceScreen.classList.add('entrance-zooming');
