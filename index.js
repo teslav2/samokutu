@@ -836,8 +836,8 @@ const DEFAULT_BOX_NAMES = [
     "aycinkavak", "Lloyd",
     "DepresifTosbaa", "llleandreas", "dream_33", "PANDA_ADAM",
     "Klaxxoun", "Beru", "Mordex", "SAMO", "Lunyxia", "Sweet0",
-    "Gavatnur", "Akon", "Septy", "Akansa", "Cemoshx", "Slaptula",
-    "TeslaV2", "Eray", "SamDadlisi", "KRWest", "Archie_Wan", "MotherOfPrincess",
+    "Gavatnur", "Akon", "Septy", "Nahuru", "Cemoshx", "Slaptula",
+    "TeslaV2", "Misaki", "SamDadlisi", "KRWest", "Archie_Wan", "MotherOfPrincess",
     "UcanTurk", "Nisnur", "KucukCemo", "JohnBishop", "Emeriks", "Balkabagi"
 ];
 
