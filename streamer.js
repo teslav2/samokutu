@@ -212,7 +212,9 @@ class StreamerMode {
                 const slug = inputVal.toLowerCase();
                 const targetUrl = `https://kick.com/api/v2/channels/${encodeURIComponent(slug)}`;
                 
+                // Öncelik Vercel Serverless API (/api/kick), ardından CORS proxy alternatifleri
                 const sources = [
+                    `/api/kick?action=channel&slug=${encodeURIComponent(slug)}`,
                     targetUrl,
                     `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
                     `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
@@ -276,51 +278,62 @@ class StreamerMode {
 
     async connectKickViewerWebSocket(chatroomId) {
         try {
-            const tokenRes = await fetch('https://websockets.kick.com/viewer/v1/token', {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CLIENT-TOKEN': 'e1393935a959b4020a4491574f6490129f678acdaa92760471263db43487f823'
-                }
-            });
+            // Önce Vercel Serverless proxy'yi dene, ardından doğrudan endpoint'i dene
+            let token = null;
+            const tokenEndpoints = [
+                '/api/kick?action=token',
+                'https://websockets.kick.com/viewer/v1/token'
+            ];
 
-            if (tokenRes.ok) {
-                const tokenData = await tokenRes.json();
-                const token = tokenData?.data?.token;
-
-                if (token) {
-                    this.kickWs = new WebSocket(`wss://websockets.kick.com/viewer/v1/connect?token=${token}`);
-
-                    this.kickWs.onopen = () => {
-                        if (this.kickPingInterval) clearInterval(this.kickPingInterval);
-                        this.kickPingInterval = setInterval(() => {
-                            if (this.kickWs && this.kickWs.readyState === WebSocket.OPEN) {
-                                try {
-                                    this.kickWs.send(JSON.stringify({ type: 'ping' }));
-                                } catch (e) {}
-                            }
-                        }, 25000);
-                    };
-
-                    this.kickWs.onmessage = (event) => {
-                        try {
-                            const data = JSON.parse(event.data);
-                            if (data && (data.type === 'message' || data.event === 'ChatMessageEvent' || data.content)) {
-                                this.handleIncomingKickMessage(data);
-                            }
-                        } catch (err) {}
-                    };
-
-                    this.kickWs.onclose = () => {
-                        if (this.kickPingInterval) {
-                            clearInterval(this.kickPingInterval);
-                            this.kickPingInterval = null;
+            for (const ep of tokenEndpoints) {
+                try {
+                    const tokenRes = await fetch(ep, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CLIENT-TOKEN': 'e1393935a959b4020a4491574f6490129f678acdaa92760471263db43487f823'
                         }
-                    };
+                    });
+                    if (tokenRes.ok) {
+                        const tokenData = await tokenRes.json();
+                        token = tokenData?.data?.token;
+                        if (token) break;
+                    }
+                } catch (e) {}
+            }
 
-                    this.kickWs.onerror = (err) => {
-                        console.warn('Kick WebSocket uyarısı:', err);
-                    };
-                }
+            if (token) {
+                this.kickWs = new WebSocket(`wss://websockets.kick.com/viewer/v1/connect?token=${token}`);
+
+                this.kickWs.onopen = () => {
+                    if (this.kickPingInterval) clearInterval(this.kickPingInterval);
+                    this.kickPingInterval = setInterval(() => {
+                        if (this.kickWs && this.kickWs.readyState === WebSocket.OPEN) {
+                            try {
+                                this.kickWs.send(JSON.stringify({ type: 'ping' }));
+                            } catch (e) {}
+                        }
+                    }, 25000);
+                };
+
+                this.kickWs.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data && (data.type === 'message' || data.event === 'ChatMessageEvent' || data.content)) {
+                            this.handleIncomingKickMessage(data);
+                        }
+                    } catch (err) {}
+                };
+
+                this.kickWs.onclose = () => {
+                    if (this.kickPingInterval) {
+                        clearInterval(this.kickPingInterval);
+                        this.kickPingInterval = null;
+                    }
+                };
+
+                this.kickWs.onerror = (err) => {
+                    console.warn('Kick WebSocket uyarısı:', err);
+                };
             }
         } catch (wsErr) {
             console.warn('Kick WebSocket atlandı, REST polling aktif:', wsErr);
@@ -332,11 +345,19 @@ class StreamerMode {
             clearInterval(this.kickPollInterval);
         }
 
+        let useApiProxy = true;
+
         const pollMessages = async () => {
             if (!this.isConnected || this.platform !== 'kick') return;
 
             try {
-                const url = `https://kick.com/api/v2/channels/${channelId}/messages?_t=${Date.now()}`;
+                let url;
+                if (useApiProxy) {
+                    url = `/api/kick?action=messages&channelId=${encodeURIComponent(channelId)}`;
+                } else {
+                    url = `https://kick.com/api/v2/channels/${channelId}/messages?_t=${Date.now()}`;
+                }
+
                 const res = await fetch(url, {
                     headers: {
                         'Accept': 'application/json',
@@ -351,12 +372,19 @@ class StreamerMode {
                     for (let i = messages.length - 1; i >= 0; i--) {
                         this.handleIncomingKickMessage(messages[i]);
                     }
+                } else if (useApiProxy && res.status === 404) {
+                    // Eğer /api/kick endpoint'i bulunamazsa (statik hosting vb.) doğrudan adrese geç
+                    useApiProxy = false;
                 }
-            } catch (pollErr) {}
+            } catch (pollErr) {
+                if (useApiProxy) {
+                    useApiProxy = false;
+                }
+            }
         };
 
         pollMessages();
-        this.kickPollInterval = setInterval(pollMessages, 800);
+        this.kickPollInterval = setInterval(pollMessages, 1000);
     }
 
     handleIncomingKickMessage(raw) {

@@ -1,0 +1,17 @@
+{
+  "name": "samokutu",
+  "version": "1.0.0",
+  "description": "Samo Kutu Oyunu - Var misin Yok musun Kick Canli Yayin Entegrasyonu",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -e \"console.log('Static game ready for Vercel')\""
+  },
+  "keywords": [
+    "game",
+    "kick",
+    "streamer",
+    "var-misin-yok-musun"
+  ],
+  "author": "teslav2",
+  "license": "MIT"
+}
