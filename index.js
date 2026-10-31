@@ -867,9 +867,9 @@ function formatBoxOwnerHtml(rawName) {
     if (lower === 'aycinkavak' || lower === 'aycin_kavak' || lower === 'aycin kavak') {
         return '<span>Aycin</span><span>Kavak</span>';
     }
-    // 3. llleandreas / iiieandreas -> III / eandreas (kullanıcı isteği: başında LLL yerine III)
+    // 3. llleandreas / iiieandreas -> Tek satır bitişik IIIeandreas (Kullanıcı isteği)
     if (lower === 'llleandreas' || lower === 'iiieandreas') {
-        return '<span>III</span><span>eandreas</span>';
+        return '<span>IIIeandreas</span>';
     }
     // 4. PANDA_ADAM -> Panda / Adam
     if (lower === 'panda_adam' || lower === 'pandaadam' || lower === 'panda adam') {
@@ -887,15 +887,8 @@ function formatBoxOwnerHtml(rawName) {
     if (lower === 'archie_wan' || lower === 'archiewan' || lower === 'archie wan') {
         return '<span>Archie</span><span>Wan</span>';
     }
-    // 8. SamDadlisi -> Sam / Dadlisi
-    if (lower === 'samdadlisi' || lower === 'sam_dadlisi' || lower === 'sam dadlisi') {
-        return '<span>Sam</span><span>Dadlisi</span>';
-    }
-    // 9. KucukCemo -> Kucuk / Cemo
-    if (lower === 'kucukcemo' || lower === 'kucuk_cemo' || lower === 'kucuk cemo') {
-        return '<span>Kucuk</span><span>Cemo</span>';
-    }
 
+    // SamDadlisi, KucukCemo ve diğerleri bitişik tek satır
     return `<span>${clean.replace(/_/g, ' ')}</span>`;
 }
 
