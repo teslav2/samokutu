@@ -1,8 +1,9 @@
 # 🎁 Kutumda Büyük Hissediyorum (Cezalı Var mısın Yok musun?)
+### 👑 Designed By Samo — [kick.com/iowf](https://kick.com/iowf) Yayıncısına Özel
 
 > **"Bu kez sıradan bir 'Var mısın Yok musun?' değil. Her kutunun içinde sürprizler, cezalar ve beklenmedik anlar seni bekliyor!"**
 
-Bu proje, klasik televizyon yarışması formatını interaktif oyun mekanikleri, ceza/meydan okuma sistemi, zengin ses efektleri ve canlı yayıncı (Streamer) entegrasyonuyla tarayıcı ortamına taşıyan kapsamlı bir HTML5 web oyunudur.
+Bu proje, klasik televizyon yarışması formatını interaktif oyun mekanikleri, ceza/meydan okuma sistemi, zengin ses efektleri ve canlı Kick yayıncı (Streamer) entegrasyonuyla tarayıcı ortamına taşıyan kapsamlı bir HTML5 web oyunudur.
 
 ---
 
@@ -20,11 +21,11 @@ Bu proje, klasik televizyon yarışması formatını interaktif oyun mekanikleri
 - **Halkın Sesi:** Seyircilerin en çok önerdiği kutuları yüzde ve vurgu efektleriyle ekrana yansıtır.
 - **Kutu Sigortası:** Açacağın bir sonraki kutudan çıkacak olası ağır cezayı iptal eder.
 
-### 📡 3. Yayıncı (Streamer) Modu
-- **YouTube Live & Kick Entegrasyonu:** Gerçek zamanlı sohbeti dinleyerek `!oyna` komutu veren izleyicileri sıraya alır.
-- **Viewer Queue & Sadakat Puanı:** Katılım şartları ve izleyici sırası takibi.
-- **Chat Anketleri:** Bankacı tekliflerinde izleyicilerin "Var" / "Yok" oylaması yapabilmesi.
-- **Demo Modu:** Canlı yayında olunmasa bile simüle edilmiş izleyici akışı.
+### 📡 3. Canlı Kick Yayıncı (Streamer) Entegrasyonu
+- **Kick Chat Entegrasyonu:** Gerçek zamanlı sohbeti dinleyerek `!oyna` komutu veren izleyicileri sıraya alır.
+- **Sohbetten Hamle:** Aktif yarışmacı kutu numarasını veya banker tekliflerinde `!varım` / `!yokum` yazarak oyunu doğrudan chat'ten yönetebilir.
+- **İzleyici Kuyruğu (Queue):** Kutu seçimi tamamlanan izleyici tekrar `!oyna` yazarak hemen sıraya yeniden girebilir.
+- **Vercel Serverless Proxy:** Kick API ve WebSocket isteklerini sıfır CORS engeliyle kesintisiz çalıştırır.
 
 ### 🔊 4. Ses ve Efektler
 - Web Audio API tabanlı dinamik synth tonları ve ses efektleri.
@@ -41,46 +42,37 @@ Bu proje, klasik televizyon yarışması formatını interaktif oyun mekanikleri
 ## 📁 Proje Dizin Yapısı
 
 ```
-KutumdaBuyukHissediyorum/
-├── index.html           # Ana oyun arayüzü ve modalları
-├── index.css            # Responsive stil, animasyonlar ve neon temalar
-├── index.js             # Oyun döngüsü, Bankacı mantığı, jokerler, ses motoru
-├── streamer.js          # YouTube Live & Kick WebSocket/Polling chat entegrasyonu
-├── musicmenu.mp3        # Menü fon müziği
-├── gamebm.mp3           # Oyun içi fon müziği
-├── callbm.mp3           # Hamdi Bey arama melodisi
-├── intro.mp4            # Giriş introları ve sinematik
-├── logo.png             # Logo görseli
-├── menu.png             # Menü arkaplan / banner görseli
-├── namebg.jpg           # İsim kartı arkaplanı
-├── openbg.png           # Kutu açılış sahnesi arkaplanı
-└── README.md            # Proje dokümantasyonu
+samokutu/
+├── api/
+│   └── kick.js              # Vercel Serverless CORS & Kick API Proxy
+├── assets/
+│   ├── audio/               # Oyun müzikleri ve ses efektleri
+│   │   ├── callbm.mp3       # Hamdi Bey arama melodisi
+│   │   ├── gamebm.mp3       # Oyun içi fon müziği
+│   │   └── musicmenu.mp3    # Menü fon müziği
+│   ├── images/              # Oyun grafikleri ve arkaplanlar
+│   │   ├── logo.png         # Oyun logosu
+│   │   ├── menu.png         # Menü arkaplan görseli
+│   │   ├── namebg.jpg       # İsim kartı arkaplanı
+│   │   └── openbg.png       # Kutu açılış sahnesi arkaplanı
+│   └── video/
+│       └── intro.mp4        # Giriş introları ve sinematik
+├── favicon.ico              # 3D altın gizemli kutu faviconu (çok boyutlu)
+├── favicon.png              # Yüksek çözünürlüklü favicon (512x512)
+├── apple-touch-icon.png     # Mobil cihazlar için ikon (180x180)
+├── og-image.png             # Sosyal medya paylaşım bannerı (1200x630)
+├── index.html               # Ana oyun arayüzü ve modalları
+├── index.css                # Responsive stiller ve neon temalar
+├── index.js                 # Oyun döngüsü, Bankacı mantığı ve jokerler
+├── streamer.js              # Kick chat canlı yayıncı entegrasyonu
+├── package.json             # Vercel ve proje konfigürasyonu
+├── vercel.json              # Vercel yönlendirme ve CORS ayarları
+└── README.md                # Proje dokümantasyonu (Designed By Samo)
 ```
 
 ---
 
-## 🚀 Yerel Olarak Çalıştırma
+## 🚀 Canlı Yayın ve Dağıtım
 
-Projeyi çalıştırmak için herhangi bir derleme adımına gerek yoktur. Modern bir tarayıcıda doğrudan `index.html` dosyasını açabilir veya yerel bir HTTP sunucusu başlatabilirsiniz:
-
-```bash
-# Python ile yerel sunucu başlatmak için:
-python -m http.server 8000
-```
-
-Ardından tarayıcınızdan `http://localhost:8000` adresine gidin.
-
----
-
-## 📤 Yeni Bir GitHub Deposuna Yükleme
-
-GitHub reposunu yeniden oluşturmak için şu adımları izleyebilirsiniz:
-
-1. [GitHub](https://github.com/new) üzerinde yeni bir boş repository oluşturun (örneğin: `varimyokum` veya `kutumda-buyuk-hissediyorum`).
-2. Terminalinizde proje dizinine girin ve aşağıdaki komutları çalıştırın:
-
-```bash
-git remote add origin https://github.com/<KULLANICI_ADINIZ>/<REPO_ADINIZ>.git
-git branch -M main
-git push -u origin main
-```
+Oyun Vercel üzerinde canlı yayındadır:
+👉 **[https://samokutu.vercel.app/](https://samokutu.vercel.app/)**

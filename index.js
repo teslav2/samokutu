@@ -2519,7 +2519,7 @@ window.addEventListener('DOMContentLoaded', () => {
             
             // Preload namebg.jpg programmatically when intro starts
             const img = new Image();
-            img.src = 'namebg.jpg';
+            img.src = 'assets/images/namebg.jpg';
             
             // Hide pre-intro, show intro screen
             preIntroScreen.classList.remove('active');
@@ -2612,7 +2612,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // Check if menu.png and logo.png exist
 function checkMenuBackground() {
     const img = new Image();
-    img.src = 'menu.png';
+    img.src = 'assets/images/menu.png';
     img.onload = () => {
         document.body.classList.add('has-menu-bg');
     };

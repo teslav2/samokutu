@@ -60,7 +60,7 @@ body {
 
 /* MENU SCREEN STYLES (GTA 4 THEME - CLEANED) */
 #menu-screen {
-    background-image: url('menu.png'), linear-gradient(135deg, #020205 0%, #0c0817 50%, #020205 100%);
+    background-image: url('assets/images/menu.png'), linear-gradient(135deg, #020205 0%, #0c0817 50%, #020205 100%);
     background-size: cover, cover;
     background-position: center, center;
     background-repeat: no-repeat, no-repeat;
@@ -74,7 +74,7 @@ body {
 }
 
 #name-screen {
-    background-image: url('namebg.jpg'), linear-gradient(135deg, #020205 0%, #0c0817 50%, #020205 100%);
+    background-image: url('assets/images/namebg.jpg'), linear-gradient(135deg, #020205 0%, #0c0817 50%, #020205 100%);
     background-size: cover, cover;
     background-position: center, center;
     background-repeat: no-repeat, no-repeat;
@@ -1994,7 +1994,7 @@ body {
 
 /* PRE-INTRO SCREEN STYLES (GTA 4 YELLOW & BLACK HAZARD) */
 #pre-intro-screen {
-    background-image: url('openbg.png'), url('openbg.jpg'), linear-gradient(135deg, #050505 0%, #151515 50%, #050505 100%);
+    background-image: url('assets/images/openbg.png'), url('openbg.jpg'), linear-gradient(135deg, #050505 0%, #151515 50%, #050505 100%);
     background-size: cover, cover, cover;
     background-position: center, center, center;
     background-repeat: no-repeat, no-repeat, no-repeat;
