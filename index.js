@@ -2678,7 +2678,7 @@ function setupEventListeners() {
         });
     }
 
-    initJokerControls();
+    // initJokerControls removed
 
     // Fullscreen Toggle
     const fullscreenBtn = document.getElementById('gta-fullscreen-btn');
@@ -3554,37 +3554,7 @@ function activateBonkorJoker() {
     soundManager.playTone(659, 'sine', 0.25, 0, 0.12);
 }
 
-function initJokerControls() {
-    document.getElementById('game-joker-btn')?.addEventListener('click', () => {
-        if (isRandomSelecting) return;
-        soundManager.playClick();
-        openJokerSelectModal();
-    });
-
-    document.getElementById('joker-ahmet-btn')?.addEventListener('click', () => {
-        if (!canUseAhmetJoker()) return;
-        soundManager.playClick();
-        executeAhmetJoker();
-    });
-
-    document.getElementById('joker-bonkor-btn')?.addEventListener('click', () => {
-        if (!canUseBonkorJoker()) return;
-        soundManager.playClick();
-        activateBonkorJoker();
-    });
-
-    document.getElementById('joker-halk-btn')?.addEventListener('click', () => {
-        if (!canUseHalkJoker()) return;
-        soundManager.playClick();
-        executeHalkJoker();
-    });
-
-    document.getElementById('joker-sigorta-btn')?.addEventListener('click', () => {
-        if (!canUseSigortaJoker()) return;
-        soundManager.playClick();
-        executeSigortaJoker();
-    });
-}
+// initJokerControls removed
 
 function markRewardEliminated(rank, animate = false) {
     const rewardEl = document.getElementById(`reward-item-${rank}`);

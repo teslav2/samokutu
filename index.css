@@ -3799,14 +3799,16 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 10000;
+    z-index: 999999;
     overflow: hidden;
     display: none;
     background: #000;
 }
 
 #entrance-screen.active {
-    display: block;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
 }
 
 .entrance-bg {
