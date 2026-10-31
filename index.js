@@ -26,30 +26,32 @@ document.addEventListener('keydown', e => {
 
 // FALLBACK DARES (CORS hatası veya dosya eksikliği durumunda yüklenecek varsayılan cezalar)
 const DEFAULT_DARES = [
-    "10 saniye tek ayak üstünde dur",
-    "Arkadaşına güzel bir mesaj at",
-    "5 şınav çek",
-    "Hızlıca 3 kere tekerleme söyle",
-    "En sevdiğin şarkıdan bir mısra söyle",
-    "Kendi etrafında 5 kere dön",
-    "Komik bir yüz ifadesi yap",
-    "30 saniye boyunca hiç göz kırpma",
-    "Odadaki bir eşyayı taklit et",
-    "Bir dakika boyunca robot gibi konuş",
-    "10 saniye boyunca kahkaha at",
-    "Kediler gibi miyavla",
-    "Bir bardak dolusu soğuk su iç",
-    "Çoraplarını ellerine giy",
-    "Bir dakika boyunca squat yap",
-    "Alnına komik bir kelime yazdır",
-    "En son attığın mesajı yüksek sesle oku",
-    "Gözleri kapalı bir nesneyi tahmin et",
-    "Gözlerini bağlayıp odada tur at",
-    "Limon dilimi ye (yüzünü ekşitmeden)",
-    "Rehberinden rastgele birini ara ve şarkı söyle",
-    "20 şınav çek ve 20 squat yap",
-    "Bir dakika boyunca kaşıkla yumurta taşı",
-    "Bir bardak tuzlu su iç (küçük bir yudum)"
+    // 1-12: Ağır Cezalar (Heavy Dares)
+    "Welcome to the Game 3 Başla",
+    "chat'ten rastgele birinin geçmişine atla",
+    "ekipten 3 kişiyi arayıp 'acil bir durum var kardeşim, PC gitti' diyerek tepkilerini ölç",
+    "ekipte en çok vakit geçirdiğin kişiyi ara, 'Tarık bey Panama'da tatile gidiyor, bir süre ortalıkta olmayacak' de",
+    "ekipten en son kime yazdıysan Discord'da ismini 'KUTUSUNDA BÜYÜK HİSSEDEN ADAM' olarak değiştir, öyle kalsın",
+    "instagram'a 'hamdi bey çay içmeye bekliyorum' olarak story at",
+    "yapay zekaya 'IOWF yaşlı mı?' diye sor, yaşlı derse yapay zekanın geçmişine atlayamazsın",
+    "20 dakika popüler kültür kölesi ol: herkesin sevdiği şeyleri öv, niş şeyleri yerin dibine sok",
+    "20 dakika boyunca futbol konusu açıldığında 'Ben futbolun ta kendisiyim' diyerek konuyu kapat",
+    "bağış atan herkesi öptüğünü söyle ve öp",
+    "galerideki en son fotoğrafı göster",
+    "çocukluk fotoğrafı varsa göster",
+    // 13-24: Hafif Cezalar (Light Dares)
+    "10 dakika kekeme taklidi yap",
+    "5 dakika kadın taklidi yap",
+    "3 dakika sessiz kal, sadece beden diliyle konuş",
+    "albion günlerini özlediğini söyle ve öv",
+    "15 dakika İstanbul beyefendisi gibi konuş",
+    "3 dakika aralıksız nah çek",
+    "10 dakika boyunca haber spikeri gibi konuş",
+    "5 dakika boyunca Karadeniz şivesiyle konuş",
+    "chatin seçtiği şarkıyı mırıldan",
+    "3 dakika boyunca her gelen mesaja 'haklısın' de",
+    "5 dakika NPC ol, sadece 'Evet, Hayır, Belki, Devlet sırrı' diyebilirsin",
+    "son yaptığın en saçma şeyi anlat"
 ];
 
 // SOUND MANAGER (Web Audio API)
@@ -2445,9 +2447,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const skipIntro = window.location.hash === '#settings';
 
-    // ===== INTRO SCREEN LOGIC =====
-    const introScreen = document.getElementById('intro-screen');
-    const introVideo = document.getElementById('intro-video-element');
+    // ===== YENI GIRIS EKRANI (SAMO OPENING) =====
+    const entranceScreen = document.getElementById('entrance-screen');
+    const entranceLoadingBox = document.getElementById('entrance-loading-box');
+    const entranceProgressFill = document.getElementById('entrance-progress-bar-fill');
+    const entrancePercentText = document.getElementById('entrance-loading-percent');
+    const entrancePlayBtn = document.getElementById('entrance-play-btn');
 
     function startMenuMusic() {
         soundManager.init();
@@ -2465,115 +2470,57 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    let introSafetyTimeout = null;
-    const preIntroScreen = document.getElementById('pre-intro-screen');
-    const preIntroPlayBtn = document.getElementById('pre-intro-play-btn');
+    if (entranceScreen) {
+        showScreen('entrance-screen');
+        
+        let progress = 0;
+        const loadDuration = 1800; // 1.8 seconds smooth loading
+        const startTime = performance.now();
 
-    function dismissIntro() {
-        if (introSafetyTimeout) {
-            clearTimeout(introSafetyTimeout);
-            introSafetyTimeout = null;
-        }
-        if (preIntroScreen) {
-            preIntroScreen.classList.remove('active');
-        }
-        if (introScreen) {
-            introScreen.classList.remove('active');
-        }
-        if (introVideo) {
-            try {
-                introVideo.pause();
-            } catch(e){}
-        }
-        showScreen('menu-screen');
-        startMenuMusic();
-    }
+        function updateProgress(currentTime) {
+            const elapsed = currentTime - startTime;
+            progress = Math.min(100, Math.round((elapsed / loadDuration) * 100));
 
-    function beginIntro() {
-        if (!introVideo) {
-            dismissIntro();
-            return;
-        }
-
-        let isPlaying = false;
-        // Video 2 saniyeden uzun süre tamponlanamazsa veya takılırsa siyah ekranda bekletme, doğrudan menüye geç!
-        const bufferTimeout = setTimeout(() => {
-            if (!isPlaying) {
-                console.log("Intro videosu yavaş yüklendi, menüye geçiliyor...");
-                dismissIntro();
+            if (entranceProgressFill) {
+                entranceProgressFill.style.width = `${progress}%`;
             }
-        }, 2000);
+            if (entrancePercentText) {
+                entrancePercentText.innerText = `${progress}%`;
+            }
 
-        introVideo.onplaying = () => {
-            isPlaying = true;
-            clearTimeout(bufferTimeout);
-        };
+            if (progress < 100) {
+                requestAnimationFrame(updateProgress);
+            } else {
+                setTimeout(() => {
+                    if (entranceLoadingBox) {
+                        entranceLoadingBox.style.opacity = '0';
+                        entranceLoadingBox.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            entranceLoadingBox.classList.add('hidden');
+                            if (entrancePlayBtn) {
+                                entrancePlayBtn.classList.remove('hidden');
+                            }
+                        }, 300);
+                    }
+                }, 200);
+            }
+        }
 
-        introVideo.play().then(() => {
-            if (introSafetyTimeout) clearTimeout(introSafetyTimeout);
-            introSafetyTimeout = setTimeout(() => {
-                dismissIntro();
-            }, 15000);
-        }).catch(() => {
-            clearTimeout(bufferTimeout);
-            dismissIntro();
-        });
+        requestAnimationFrame(updateProgress);
+
+        if (entrancePlayBtn) {
+            entrancePlayBtn.addEventListener('click', () => {
+                soundManager.init();
+                soundManager.playClick();
+                entranceScreen.classList.remove('active');
+                showScreen('menu-screen');
+                startMenuMusic();
+            });
+        }
     }
-
-    const introSkipBtn = document.getElementById('intro-skip-btn');
-
-    if (skipIntro) {
-        if (preIntroScreen) preIntroScreen.classList.remove('active');
-        showScreen('settings-screen');
-        startMenuMusic();
-        initSettingsScreen();
-        history.replaceState(null, '', 'index.html');
-    } else if (preIntroScreen && preIntroPlayBtn) {
-        preIntroPlayBtn.addEventListener('click', () => {
-            // Unlock/Initialize AudioContext on user gesture
-            soundManager.init();
-            
-            // Preload namebg.jpg programmatically when intro starts
-            const img = new Image();
-            img.src = 'assets/images/namebg.jpg';
-            
-            // Hide pre-intro, show intro screen
-            preIntroScreen.classList.remove('active');
-            if (introScreen) introScreen.classList.add('active');
-            
-            // Play video
-            beginIntro();
-        });
-
-        // Setup skip button
-        if (introSkipBtn) {
-            introSkipBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dismissIntro();
-            });
-        }
-        
-        if (introScreen) {
-            introScreen.addEventListener('click', () => {
-                dismissIntro();
-            });
-        }
-        
-        if (introVideo) {
-            introVideo.addEventListener('ended', () => {
-                dismissIntro();
-            });
-            introVideo.addEventListener('error', dismissIntro);
-        }
-    } else {
-        if (preIntroScreen) preIntroScreen.classList.remove('active');
-        showScreen('menu-screen');
-        startMenuMusic();
-    }
-
     // ===== SETTINGS SCREEN SPA NAVIGATION =====
     let previousScreenBeforeSettings = 'menu-screen';
-    const settingsBtn = document.getElementById('settings-btn');
+    // settingsBtn already declared
     const gameSettingsBtn = document.getElementById('game-settings-btn');
     const settingsBackBtn = document.getElementById('settings-back-btn');
 
@@ -3906,37 +3853,56 @@ function calculateBankerOffer() {
     // Get all remaining unopened dares (including player's own box)
     const remainingBoxes = gameBoxes.filter(b => b.id === playerBox.id || !b.isOpened);
     
-    // Calculate average rank
+    // Count heavy dares (ranks 1-12) and light dares (ranks 13-24)
+    const heavyRemaining = remainingBoxes.filter(b => b.rank <= 12).length;
+    const lightRemaining = remainingBoxes.filter(b => b.rank > 12).length;
+    const totalRemaining = remainingBoxes.length;
+
+    // Calculate average rank of remaining boxes
     const sumRanks = remainingBoxes.reduce((sum, b) => sum + b.rank, 0);
-    const averageRank = sumRanks / remainingBoxes.length;
-    
-    // Rank 1 = HEAVIEST dare, Rank 24 = LIGHTEST dare.
-    // Banker always biases heavier: offer is worse than average (lower index = heavier)
-    // Bias: banker offers 2 ranks heavier than average (greedier/meaner)
-    let offerIndex = Math.round(averageRank) - 1;
-    offerIndex = Math.max(0, offerIndex - 2); // bias toward heavier
-    
-    // Banker personality adjustments:
-    // Generous (cömert): shifts toward lighter (higher index = lighter)
-    // Stingy (cimri): shifts toward even heavier (lower index = heavier)
-    const personality = settingsConfig.bankerPersonality || 'balanced';
-    if (personality === 'generous') {
-        offerIndex += 4; // lighter dare
-    } else if (personality === 'stingy') {
-        offerIndex -= 2; // even heavier dare
+    const averageRank = sumRanks / totalRemaining;
+
+    // Base offer starts near average rank
+    let offerRank = Math.round(averageRank);
+
+    // Dynamic Psychological AI:
+    // If board is dangerous (heavy dares dominate):
+    // Player is anxious. Hamdi Bey smells fear and offers an escape route (mid-tier penalty)
+    if (heavyRemaining > lightRemaining) {
+        const fearBonus = Math.floor(Math.random() * 3) - 1; // -1 to +1
+        offerRank = Math.min(15, Math.max(8, offerRank + fearBonus));
+    } else if (lightRemaining > heavyRemaining * 1.5) {
+        // Player is cruising safely! Mostly light dares remain!
+        // Hamdi Bey tries to lowball or give an annoying punishment to break their confidence.
+        offerRank = Math.max(2, offerRank - 3 - Math.floor(Math.random() * 2));
+    } else {
+        // Balanced board: psychological tension
+        const jitter = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 2) + 1);
+        offerRank = offerRank + jitter;
     }
 
-    if (jokerState.bonkorActive) {
-        offerIndex += 6;
-        jokerState.bonkorActive = false;
+    // Personality adjustment from settings
+    const personality = settingsConfig.bankerPersonality || 'balanced';
+    if (personality === 'generous') {
+        offerRank += 3;
+    } else if (personality === 'stingy') {
+        offerRank -= 3;
     }
-    
-    // Bound check
-    offerIndex = Math.max(0, Math.min(23, offerIndex));
-    
+
+    // Bound check (1 to 24)
+    offerRank = Math.max(1, Math.min(24, offerRank));
+
+    // Ensure we don't repeat the exact same dare consecutively
+    const lastOffer = bankerOfferHistory[bankerOfferHistory.length - 1];
+    if (lastOffer && lastOffer.rank === offerRank) {
+        offerRank = offerRank < 24 ? offerRank + 1 : offerRank - 1;
+    }
+
+    const offerIndex = offerRank - 1;
+
     return {
-        dare: daresList[offerIndex],
-        rank: offerIndex + 1
+        dare: daresList[offerIndex] || DEFAULT_DARES[offerIndex],
+        rank: offerRank
     };
 }
 
@@ -4010,53 +3976,173 @@ function endGame(viaDeal) {
     
     if (viaDeal) {
         resultDare = acceptedOffer;
-        resultTitle.innerText = t('dealAcceptedTitle');
-        resultSourceText.innerText = t('dealAcceptedDesc');
-        
         // Decide fanfare: rank 1-12 = HEAVY (bad = lose), rank 13-24 = LIGHT (good = win)
         const offerRank = daresList.indexOf(resultDare) + 1;
         if (offerRank > 12) {
-            soundManager.playWinFanfare(); // light dare = good news
+            soundManager.playWinFanfare();
         } else {
-            soundManager.playLoseFanfare(); // heavy dare = bad news
+            soundManager.playLoseFanfare();
         }
     } else {
         resultDare = playerBox.dare;
-        resultTitle.innerText = t('boxOpenedTitle');
-        resultSourceText.innerText = t('boxOpenedDesc', {playerBoxId: playerBox.id});
-        
         if (playerBox.rank > 12) {
-            soundManager.playWinFanfare(); // light dare = lucky
+            soundManager.playWinFanfare();
         } else {
-            soundManager.playLoseFanfare(); // heavy dare = unlucky
+            soundManager.playLoseFanfare();
         }
     }
-    
-    finalDareText.innerText = resultDare;
 
     const rank = daresList.indexOf(resultDare) + 1;
 
     addGameLog('game_end', currentLang === 'tr'
-        ? `Oyun bitti — ceza: "${resultDare}"`
-        : `Game over — dare: "${resultDare}"`,
+        ? `Oyun bitti - ceza: "${resultDare}"`
+        : `Game over - dare: "${resultDare}"`,
         rank <= 12 ? 'heavy' : 'light');
-    
-    // Apply styling based on severity: rank 1-12 = heavy = red, rank 13-24 = light = blue
-    if (rank <= 12) {
-        finalDareText.style.color = 'var(--red-color)';
-        finalDareText.parentElement.style.borderColor = 'var(--red-color)';
-    } else {
-        finalDareText.style.color = 'var(--blue-color)';
-        finalDareText.parentElement.style.borderColor = 'var(--blue-color)';
-    }
 
-    try {
-        showEndGameAnalysis(viaDeal, resultDare);
-    } catch (e) {
-        console.error("showEndGameAnalysis failed:", e);
-    }
-
+    showTvNewsResult(viaDeal, resultDare, rank);
     openModal(resultModal);
+}
+
+// Live TV clock timer
+let tvClockInterval = null;
+
+function updateTvClock() {
+    const clockEl = document.getElementById('tv-news-clock');
+    if (!clockEl) return;
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    clockEl.innerText = `${h}:${m}:${s}`;
+}
+
+async function showTvNewsResult(viaDeal, resultDare, rank) {
+    if (tvClockInterval) clearInterval(tvClockInterval);
+    updateTvClock();
+    tvClockInterval = setInterval(updateTvClock, 1000);
+
+    const isHeavy = rank <= 12;
+    const typeTag = document.getElementById('tv-dare-type-tag');
+    if (typeTag) {
+        typeTag.className = isHeavy ? 'tv-dare-type-tag red-tag' : 'tv-dare-type-tag blue-tag';
+        typeTag.innerText = isHeavy ? 'AĞIR CEZA' : 'HAFİF CEZA';
+    }
+
+    const dareDisplayBox = document.getElementById('tv-dare-display-box');
+    if (dareDisplayBox) {
+        dareDisplayBox.style.borderColor = isHeavy ? '#e60000' : '#0077ff';
+        dareDisplayBox.style.boxShadow = isHeavy ? '0 0 25px rgba(230,0,0,0.4)' : '0 0 25px rgba(0,119,255,0.4)';
+    }
+
+    const finalDareEl = document.getElementById('final-dare-text');
+    if (finalDareEl) {
+        finalDareEl.innerText = resultDare;
+        finalDareEl.style.color = isHeavy ? '#ff4d4d' : '#64b5f6';
+    }
+
+    const headlineEl = document.getElementById('tv-news-headline');
+    const subheadlineEl = document.getElementById('tv-news-subheadline');
+    const storyEl = document.getElementById('tv-news-story');
+    const marqueeEl = document.getElementById('tv-news-marquee');
+
+    const defaultEmotion = isHeavy ? 'saskin' : 'mutlu';
+    applyTarikEmotion(defaultEmotion);
+
+    if (headlineEl) {
+        headlineEl.innerText = isHeavy 
+            ? "IOWF'UN KUTUSUNDAN ÇIKAN AĞIR CEZA KICK YAYININI SALLADI!"
+            : "TARIK KADERİN SİLLESİNDEN KIL PAYI KURTULDU!";
+    }
+    if (subheadlineEl) {
+        subheadlineEl.innerText = viaDeal
+            ? "Hamdi Bey'in telefon teklifine 'Varım' dedi, stüdyo dondu kaldı!"
+            : "Kendi kutusuna sonuna kadar güvendi, kader anı ekranlara yansıdı!";
+    }
+    if (storyEl) {
+        storyEl.innerText = isHeavy
+            ? "Stüdyoda tansiyonun tavan yaptığı dakikalarda Hamdi Bey keyif kahvesini yudumlarken, IOWF stüdyoda buz kesti. Cezanın infazı için geri sayım başladı!"
+            : "Yayıncı Tarık, Hamdi Bey'in tüm psikolojik baskılarına rağmen kutusuna güvendi ve cezayı hafif atlattı. Stüdyoda bayram havası esiyor!";
+    }
+    if (marqueeEl) {
+        marqueeEl.innerText = isHeavy
+            ? `🔴 FLAŞ GELİŞME: IOWF KUTUSUNDA BÜYÜK HİSSETTİ • CHAT KAHKAHAYA BOĞULDU • HAMDİ BEY: "BEN DEMİŞTİM, BU CEZA KAÇMAZDI!" • CEZA: ${resultDare.toUpperCase()} • ⚡ SAMO TV ÖZEL YAYINI DEVAM EDİYOR...`
+            : `🟢 MÜJDE: IOWF HAFİF ATLATTI • CHATTE SEVİNÇ ÇIĞLIKLARI • HAMDİ BEY MASADAN MAĞLUP AYRILDI • CEZA: ${resultDare.toUpperCase()} • ⚡ SAMO TV ÖZEL YAYINI...`;
+    }
+
+    // Hamdi verdict grade
+    const gradeEl = document.getElementById('tv-hamdi-grade');
+    const evalEl = document.getElementById('analysis-text');
+    if (gradeEl) {
+        gradeEl.innerText = isHeavy ? (viaDeal ? 'C-' : 'F') : (viaDeal ? 'B+' : 'A+');
+        gradeEl.style.color = isHeavy ? '#ff4444' : '#00e676';
+    }
+    if (evalEl) {
+        evalEl.innerText = isHeavy 
+            ? '"Kutularına çok güvendi ama kaderle pazarlık yapılmaz. Bu ceza uzun süre unutulmaz!"' 
+            : '"Kurnazca oynadı ve en ağır cezalardan sıyrılmayı başardı. Tebrikler!"';
+    }
+
+    // Call /api/news for OpenRouter dynamic comedy
+    try {
+        const resp = await fetch('/api/news', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                dare: resultDare,
+                isDeal: viaDeal,
+                rank: rank,
+                streamer: "IOWF"
+            })
+        });
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data && data.headline) {
+                if (headlineEl) headlineEl.innerText = data.headline;
+                if (data.summary && storyEl) storyEl.innerText = data.summary;
+                if (data.emotion) applyTarikEmotion(data.emotion);
+            }
+        }
+    } catch(e) {
+        console.log("TV News API fallback active");
+    }
+
+    // Share button
+    const shareBtn = document.getElementById('tv-share-btn');
+    if (shareBtn) {
+        shareBtn.onclick = () => {
+            const shareText = `📺 SAMO TV FLAŞ HABER!\n\nKutumda Büyük Hissediyorum oyununda IOWF için kader anı belli oldu!\n🔴 Kazanılan Ceza: ${resultDare}\n\nSen de oyna: https://samokutu.vercel.app/`;
+            navigator.clipboard.writeText(shareText).then(() => {
+                const originalHtml = shareBtn.innerHTML;
+                shareBtn.innerHTML = '<i class="fas fa-check"></i> KOPYALANDI!';
+                setTimeout(() => { shareBtn.innerHTML = originalHtml; }, 2000);
+            }).catch(() => {});
+        };
+    }
+}
+
+function applyTarikEmotion(emotion) {
+    const photoEl = document.getElementById('tv-tarik-photo');
+    const statusEl = document.getElementById('tv-tarik-status');
+
+    const emotionMap = {
+        'mutlu': { text: 'DURUM: ZAFER (MUTLU)', cls: 'status-mutlu', file: 'assets/images/tarik_mutlu.png' },
+        'uzgun': { text: 'DURUM: YIKILMIŞ (ÜZGÜN)', cls: 'status-uzgun', file: 'assets/images/tarik_uzgun.png' },
+        'saskin': { text: 'DURUM: ŞAŞKIN', cls: 'status-saskin', file: 'assets/images/tarik_saskin.png' },
+        'sinirli': { text: 'DURUM: CİNNET (SİNİRLİ)', cls: 'status-sinirli', file: 'assets/images/tarik_sinirli.png' }
+    };
+
+    const info = emotionMap[emotion] || emotionMap['saskin'];
+    if (statusEl) {
+        statusEl.className = `caption-status ${info.cls}`;
+        statusEl.innerText = info.text;
+    }
+
+    if (photoEl) {
+        const testImg = new Image();
+        testImg.onload = () => { photoEl.src = info.file; };
+        testImg.onerror = () => { photoEl.src = 'assets/images/openingsamologo.png'; };
+        testImg.src = info.file;
+    }
 }
 
 function resetToMenu() {
@@ -4124,151 +4210,7 @@ function updateInsuranceUI() {
 }
 
 /* 3. HALKIN SESİ JOKER */
-function executeHalkJoker() {
-    if (!canUseHalkJoker()) return;
 
-    jokerState.halkUsed = true;
-    closeModal(document.getElementById('joker-select-modal'));
-    updateJokerButtonUI();
-    syncJokerCardStates();
-
-    updateStatusMessage(t('jokerHalkVoting'), { highlight: true });
-    soundManager.playTone(587.33, 'sine', 0.25); // D5 note
-
-    if (streamerMode.enabled) {
-        // Live Streamer Poll: listen to chat for 10 seconds
-        halkJokerActive = true;
-        const halkVotes = {}; // boxId -> count
-        const votedUsers = new Set();
-        
-        // Temporary chat message handler override
-        const originalOnChatMessage = streamerMode.onChatMessage;
-        
-        let secondsLeft = 10;
-        const interval = setInterval(() => {
-            secondsLeft--;
-            if (secondsLeft <= 0) {
-                clearInterval(interval);
-                halkJokerActive = false;
-                
-                // Restore original chat callback
-                streamerMode.onChatMessage = originalOnChatMessage;
-                
-                // Resolve results
-                resolveHalkJokerResults(halkVotes);
-            } else {
-                updateStatusMessage(
-                    currentLang === 'tr' 
-                    ? `Halkın Sesi: Sohbetten tavsiyeler alınıyor... (${secondsLeft} sn)`
-                    : `Voice of the People: Gathering chat recommendations... (${secondsLeft}s)`,
-                    { highlight: true }
-                );
-            }
-        }, 1000);
-        
-        streamerMode.onChatMessage = (msg) => {
-            if (originalOnChatMessage) originalOnChatMessage(msg);
-            
-            if (votedUsers.has(msg.name)) return; // 1 vote per user
-            
-            let boxId = null;
-            const cleanMsg = msg.message.toLowerCase().trim();
-            const numMatch = cleanMsg.match(/\b([1-9]|1[0-9]|2[0-4])\b/);
-            if (numMatch) {
-                boxId = parseInt(numMatch[1], 10);
-            }
-            
-            if (boxId !== null) {
-                const targetBox = gameBoxes.find(b => b.id === boxId);
-                if (targetBox && !targetBox.isOpened && targetBox.id !== playerBox.id) {
-                    halkVotes[boxId] = (halkVotes[boxId] || 0) + 1;
-                    votedUsers.add(msg.name);
-                    soundManager.playTone(800 + Math.random() * 200, 'sine', 0.02, 0, 0.03);
-                }
-            }
-        };
-    } else {
-        // Simulated audience poll for Single Player
-        updateStatusMessage(
-            currentLang === 'tr' ? "Halk oyluyor, tavsiyeler toplanıyor..." : "People are voting, gathering recommendations...",
-            { highlight: true }
-        );
-        
-        setTimeout(() => {
-            const unopened = gameBoxes.filter(b => b.id !== playerBox.id && !b.isOpened);
-            if (unopened.length === 0) return;
-            
-            const shuffled = shuffleArray([...unopened]);
-            const count = Math.min(3, shuffled.length);
-            const selected = shuffled.slice(0, count);
-            
-            const percentages = [55, 30, 15];
-            if (count === 2) {
-                percentages[0] = 65;
-                percentages[1] = 35;
-            } else if (count === 1) {
-                percentages[0] = 100;
-            }
-            
-            selected.forEach((box, index) => {
-                highlightBoxWithRecommendation(box.id, percentages[index]);
-            });
-            
-            soundManager.playTone(523.25, 'sine', 0.15, 0, 0.12);
-            setTimeout(() => soundManager.playTone(659.25, 'sine', 0.2, 0, 0.12), 80);
-            
-            const recMsg = currentLang === 'tr'
-                ? "Halkın tavsiyesi: Kutu " + selected.map((b, i) => `${b.id} (%${percentages[i]})`).join(', ')
-                : "Audience recommendation: Box " + selected.map((b, i) => `${b.id} (${percentages[i]}%)`).join(', ');
-                
-            updateStatusMessage(recMsg, { highlight: true });
-            addGameLog('joker_halk', recMsg);
-        }, 1800);
-    }
-}
-
-function resolveHalkJokerResults(halkVotes) {
-    const unopened = gameBoxes.filter(b => b.id !== playerBox.id && !b.isOpened);
-    const totalVotes = Object.values(halkVotes).reduce((sum, v) => sum + v, 0);
-    
-    if (totalVotes === 0 || unopened.length === 0) {
-        // No votes cast, choose 3 random boxes and simulate small votes
-        const shuffled = shuffleArray([...unopened]);
-        const count = Math.min(3, shuffled.length);
-        const selected = shuffled.slice(0, count);
-        const percentages = [50, 30, 20];
-        
-        selected.forEach((box, index) => {
-            highlightBoxWithRecommendation(box.id, percentages[index]);
-        });
-        
-        const msg = currentLang === 'tr' ? "Yeterli sohbet oyu gelmedi, halk rastgele tavsiyelerde bulundu." : "Not enough chat votes, audience gave random recommendations.";
-        updateStatusMessage(msg, { highlight: true });
-        return;
-    }
-    
-    const sortedVotes = Object.entries(halkVotes)
-        .map(([id, count]) => ({ id: parseInt(id), count }))
-        .sort((a, b) => b.count - a.count);
-        
-    const topCount = Math.min(3, sortedVotes.length);
-    const topVotes = sortedVotes.slice(0, topCount);
-    
-    topVotes.forEach((vote, index) => {
-        const pct = Math.round((vote.count / totalVotes) * 100);
-        highlightBoxWithRecommendation(vote.id, pct);
-    });
-    
-    soundManager.playTone(523.25, 'sine', 0.15, 0, 0.12);
-    setTimeout(() => soundManager.playTone(659.25, 'sine', 0.2, 0, 0.12), 80);
-    
-    const recMsg = currentLang === 'tr'
-        ? "Halkın tavsiyesi: Kutu " + topVotes.map((v, i) => `${v.id} (%${Math.round((v.count / totalVotes) * 100)})`).join(', ')
-        : "Audience recommendation: Box " + topVotes.map((v, i) => `${v.id} (${Math.round((v.count / totalVotes) * 100)}%)`).join(', ');
-        
-    updateStatusMessage(recMsg, { highlight: true });
-    addGameLog('joker_halk', recMsg);
-}
 
 function highlightBoxWithRecommendation(boxId, percentage) {
     const el = document.getElementById(`box-${boxId}`);

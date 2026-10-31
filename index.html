@@ -52,26 +52,32 @@
     <audio id="game-music-audio" src="assets/audio/gamebm.mp3" loop preload="none"></audio>
     <audio id="call-music-audio" src="assets/audio/callbm.mp3" loop preload="none"></audio>
 
-    <!-- ============ PRE-INTRO CLICK SCREEN ============ -->
-    <div id="pre-intro-screen" class="screen active">
-        <div class="pre-intro-hazard-top"></div>
-        <div class="pre-intro-hazard-bottom"></div>
-        <div class="pre-intro-glow-1"></div>
-        <div class="pre-intro-glow-2"></div>
-        <div class="pre-intro-overlay"></div>
-        <div class="pre-intro-card">
-            <h1 class="pre-intro-title">KUTUMDA BÜYÜK HİSSEDİYORUM</h1>
-            <p class="pre-intro-subtitle">Cezaya Var mısın Yok musun?</p>
-            <button id="pre-intro-play-btn" class="pre-intro-btn">Oynamak İçin Tıklayın</button>
+    <!-- ============ ENTRANCE SCREEN (SAMO OPENING) ============ -->
+    <div id="entrance-screen" class="screen active">
+        <div class="entrance-bg"></div>
+        <div class="entrance-overlay"></div>
+        <div class="entrance-interactive-container">
+            <div class="entrance-logo-wrapper">
+                <img id="entrance-samo-logo" src="assets/images/openingsamologo.png" alt="SAMO" class="entrance-logo">
+            </div>
+            <div class="entrance-action-wrapper">
+                <!-- Loading State -->
+                <div id="entrance-loading-box" class="entrance-loading-box">
+                    <div class="entrance-progress-bar-track">
+                        <div id="entrance-progress-bar-fill" class="entrance-progress-bar-fill"></div>
+                    </div>
+                    <div class="entrance-loading-status">
+                        <span id="entrance-loading-text">YÜKLENİYOR...</span>
+                        <span id="entrance-loading-percent">0%</span>
+                    </div>
+                </div>
+                <!-- Play Button (Reveals when loading hits 100%) -->
+                <button id="entrance-play-btn" class="entrance-play-btn hidden">
+                    <span class="btn-shine"></span>
+                    <i class="fas fa-play"></i> OYNAMAK İÇİN TIKLAYIN
+                </button>
+            </div>
         </div>
-    </div>
-
-    <!-- ============ INTRO SCREEN ============ -->
-    <div id="intro-screen" class="screen">
-        <video id="intro-video-element" muted playsinline preload="metadata">
-            <source src="assets/video/intro.mp4" type="video/mp4">
-        </video>
-        <button id="intro-skip-btn">Geçmek için Tıklayın</button>
     </div>
 
     <!-- ============ MENU SCREEN (GTA 4 STYLE) ============ -->
@@ -536,10 +542,6 @@
                 <i class="fas fa-user-circle"></i>
                 <span id="player-badge-name">OYUNCU</span>
             </div>
-            <button id="game-joker-btn" class="back-btn joker-btn hidden" style="margin-left: 10px;">
-                <i class="fas fa-star"></i> <span id="game-joker-btn-txt">Joker</span>
-                <span id="game-joker-count" class="joker-count-badge">2</span>
-            </button>
             <button id="game-log-btn" class="back-btn" style="margin-left: 10px;">
                 <i class="fas fa-list-alt"></i> <span id="game-log-btn-txt">Log</span>
             </button>
@@ -670,46 +672,111 @@
         </div>
     </div>
 
-    <!-- MODAL: Game Over / Result -->
-    <div id="result-modal" class="modal result-modal">
-        <div class="modal-content result-content">
-            <div class="result-layout">
-                <!-- Sol Sütun: Sonuç Bilgileri ve Tuşlar -->
-                <div class="result-left">
-                    <div class="result-icon">
-                        <i class="fas fa-scroll"></i>
+    <!-- MODAL: Game Over / TV Breaking News Broadcast -->
+    <div id="result-modal" class="modal result-modal tv-news-modal">
+        <div class="tv-news-screen">
+            <!-- TV Broadcast Top Bar -->
+            <div class="tv-news-header">
+                <div class="tv-live-badge">
+                    <span class="live-dot"></span>
+                    <span class="live-text">CANLI YAYIN</span>
+                </div>
+                <div class="tv-channel-tag">SAMO TV | ÖZEL YAYIN</div>
+                <div class="tv-news-clock" id="tv-news-clock">21:45:00</div>
+            </div>
+
+            <!-- TV Main Content Body -->
+            <div class="tv-news-body">
+                <!-- Left: Breaking News & Story Column -->
+                <div class="tv-news-left-col">
+                    <div class="tv-breaking-badge">
+                        <i class="fas fa-bolt"></i> SON DAKİKA GELİŞMESİ
                     </div>
-                    <h2 id="result-title">Oyun Bitti!</h2>
-                    <p id="result-source-text">Sonucunda kazandığın ceza:</p>
-                    
-                    <div class="final-dare-box animate-pulse">
-                        <div id="final-dare-text" class="final-dare-text">10 Saniye Tek Ayak Üstünde Dur</div>
+                    <h1 id="tv-news-headline" class="tv-news-headline">
+                        TARIK'IN KUTUSUNDAN ÇIKAN CEZA CANLI YAYINI SALLADI!
+                    </h1>
+                    <div id="tv-news-subheadline" class="tv-news-subheadline">
+                        Hamdi Bey'e meydan okuyan ünlü yayıncı için kader anı belli oldu!
                     </div>
 
-                    <div class="result-actions">
-                        <button id="restart-btn" class="btn primary-btn btn-animate">
-                            <i class="fas fa-redo"></i> Tekrar Dene
+                    <!-- The Official Penalty Box -->
+                    <div class="tv-dare-display-box" id="tv-dare-display-box">
+                        <div class="tv-dare-badge-row">
+                            <span class="tv-dare-label">RESMİ KAZANILAN CEZA</span>
+                            <span id="tv-dare-type-tag" class="tv-dare-type-tag red-tag">AĞIR CEZA</span>
+                        </div>
+                        <div id="final-dare-text" class="tv-final-dare-text">
+                            -
+                        </div>
+                    </div>
+
+                    <!-- Comedic Studio News Story / Absurd Breakdown -->
+                    <div class="tv-news-story-box">
+                        <div class="tv-story-header">
+                            <i class="fas fa-newspaper"></i> <span>STÜDYO HABER MERKEZİ BÜLTENİ</span>
+                        </div>
+                        <p id="tv-news-story" class="tv-news-story">
+                            Stüdyoda tansiyonun tavan yaptığı dakikalarda Hamdi Bey'in telefon teklifleri havada uçuştu. Chat ekran başında nefesini tutarken, kader kutusu açıldı ve stüdyoda büyük yankı uyandırdı!
+                        </p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="tv-news-actions">
+                        <button id="restart-btn" class="btn tv-btn tv-btn-primary">
+                            <i class="fas fa-redo"></i> YENİDEN OYNA
                         </button>
-                        <button id="result-menu-btn" class="btn secondary-btn btn-animate">
-                            <i class="fas fa-home"></i> Ana Menü
+                        <button id="result-menu-btn" class="btn tv-btn tv-btn-secondary">
+                            <i class="fas fa-home"></i> ANA MENÜ
+                        </button>
+                        <button id="tv-share-btn" class="btn tv-btn tv-btn-share">
+                            <i class="fas fa-share-alt"></i> HABERİ KOPYALA
                         </button>
                     </div>
                 </div>
 
-                <!-- Sağ Sütun: Hamdi Bey Analiz Paneli -->
-                <div class="result-right">
-                    <div id="result-analysis-container" class="result-analysis-container hidden">
-                        <div class="analysis-header">
-                            <span class="analysis-title">Hamdi Bey Analizi</span>
-                            <div id="performance-grade" class="performance-grade-badge">A</div>
+                <!-- Right: Studio Satellite Connection / Tarık Photo Column -->
+                <div class="tv-news-right-col">
+                    <div class="tv-studio-feed-frame">
+                        <div class="tv-feed-top-bar">
+                            <span class="feed-location"><i class="fas fa-satellite-dish"></i> CANLI: IOWF STÜDYO</span>
+                            <span class="feed-signal"><i class="fas fa-wifi"></i> HD</span>
                         </div>
-                        <div id="analysis-text" class="analysis-decision-eval"></div>
-                        <div class="chart-wrapper">
-                            <div class="chart-title">Bankacı Teklif Eğrisi</div>
-                            <div id="analysis-chart-container">
-                                <!-- SVG chart will be dynamically injected here -->
-                            </div>
+                        <div class="tv-photo-container">
+                            <img id="tv-tarik-photo" src="assets/images/openingsamologo.png" alt="Tarık" class="tv-tarik-photo">
+                            <div class="tv-photo-scanlines"></div>
+                            <div class="tv-cam-corner top-left"></div>
+                            <div class="tv-cam-corner top-right"></div>
+                            <div class="tv-cam-corner bottom-left"></div>
+                            <div class="tv-cam-corner bottom-right"></div>
                         </div>
+                        <div class="tv-photo-caption">
+                            <div class="caption-name">TARIK (IOWF)</div>
+                            <div id="tv-tarik-status" class="caption-status status-saskin">DURUM: ŞAŞKIN</div>
+                        </div>
+                    </div>
+
+                    <!-- Hamdi Bey Analysis Mini-Card -->
+                    <div class="tv-hamdi-verdict-box">
+                        <div class="hamdi-verdict-header">
+                            <i class="fas fa-phone-alt"></i> HAMDİ BEY VERDİĞİ NOT
+                        </div>
+                        <div id="tv-hamdi-grade" class="tv-hamdi-grade">A+</div>
+                        <div id="analysis-text" class="tv-hamdi-eval">
+                            "Kutularına güvendi ama kaderle pazarlık yapılmaz!"
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TV Bottom Moving Marquee Ticker -->
+            <div class="tv-news-ticker-bar">
+                <div class="ticker-title">
+                    <span>SON DAKİKA</span>
+                    <i class="fas fa-caret-right"></i>
+                </div>
+                <div class="ticker-content">
+                    <div id="tv-news-marquee" class="ticker-marquee">
+                        🔴 FLAŞ GELİŞME: IOWF KUTUSUNDA BÜYÜK HİSSETTİ • CHATTE KAHKAHA TUFANI KOPTU • HAMDİ BEY: "BEN DEMİŞTİM, BU CEZA KAÇMAZDI!" • İZLEYİCİLER YENİDEN OYNA ÇAĞRISI YAPIYOR • ⚡ SAMO TV ÖZEL YAYINI DEVAM EDİYOR...
                     </div>
                 </div>
             </div>
@@ -746,41 +813,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: Joker Selection -->
-    <div id="joker-select-modal" class="modal joker-modal">
-        <div class="modal-content joker-select-content">
-            <button type="button" class="close-btn game-log-close-btn" data-target="joker-select-modal" aria-label="Kapat">&times;</button>
-            <h2 id="joker-select-title"><i class="fas fa-star"></i> Joker Seç</h2>
-            <p id="joker-select-desc" class="joker-modal-desc">Oyunda bir kez kullanabileceğin jokerlerden birini seç.</p>
-            <div class="joker-cards">
-                <button type="button" id="joker-ahmet-btn" class="joker-card joker-card-ahmet">
-                    <div class="joker-card-icon"><i class="fas fa-user-tie"></i></div>
-                    <h3 id="joker-ahmet-name">Ahmet Dayı'ya Danış</h3>
-                    <p id="joker-ahmet-desc">Ahmet Dayı rastgele bir kutu seçer ve senin yerine açar.</p>
-                    <span class="joker-card-tag" id="joker-ahmet-tag">Kullanılabilir</span>
-                </button>
-                <button type="button" id="joker-bonkor-btn" class="joker-card joker-card-bonkor">
-                    <div class="joker-card-icon"><i class="fas fa-hand-holding-usd"></i></div>
-                    <h3 id="joker-bonkor-name">Bonkör Bankacı</h3>
-                    <p id="joker-bonkor-desc">Bir sonraki bankacı teklifini güzelleştirir.</p>
-                    <span class="joker-card-tag" id="joker-bonkor-tag">Kullanılabilir</span>
-                </button>
-                <button type="button" id="joker-halk-btn" class="joker-card joker-card-halk">
-                    <div class="joker-card-icon"><i class="fas fa-users-viewfinder"></i></div>
-                    <h3 id="joker-halk-name">Halkın Sesi</h3>
-                    <p id="joker-halk-desc">Seyircilerin en çok tavsiye ettiği kutuları gösterir.</p>
-                    <span class="joker-card-tag" id="joker-halk-tag">Kullanılabilir</span>
-                </button>
-                <button type="button" id="joker-sigorta-btn" class="joker-card joker-card-sigorta">
-                    <div class="joker-card-icon"><i class="fas fa-shield-halved"></i></div>
-                    <h3 id="joker-sigorta-name">Kutu Sigortası</h3>
-                    <p id="joker-sigorta-desc">Bir sonraki açacağın kutudan çıkacak Ağır Cezayı iptal eder.</p>
-                    <span class="joker-card-tag" id="joker-sigorta-tag">Kullanılabilir</span>
-                </button>
             </div>
         </div>
     </div>
