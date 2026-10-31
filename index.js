@@ -1226,41 +1226,95 @@ function setupStreamerCallbacks() {
         streamerMode.disconnect();
     }
 
-    // Chat Message Callback
+        // Chat Message Callback (Yalnızca oyun komutları, kutu seçimleri ve sistem mesajları işlenir)
     streamerMode.onChatMessage = (msg) => {
         if (!chatMessagesContainer) return;
+
+        const isSystem = !!msg.isSystem;
+        const cleanMsg = (msg.message || '').trim().toLowerCase();
+
+        // 1. !oyna veya !play komutu
+        const isTrigger = !isSystem && (
+            cleanMsg.includes(streamerMode.triggerCommand.toLowerCase().trim()) ||
+            /^!(?:oyna|play)/i.test(cleanMsg)
+        );
+
+        // 2. !varım (veya !varim) komutu
+        const isVarim = !isSystem && (cleanMsg === '!varım' || cleanMsg === '!varim');
+
+        // 3. !yokum komutu
+        const isYokum = !isSystem && cleanMsg === '!yokum';
+
+        // 4. Sırası gelen aktif yarışmacının kutu seçimi kontrolü
+        const isActiveViewer = !isSystem && streamerMode.enabled && activeViewer && (msg.name.toLowerCase() === activeViewer.name.toLowerCase());
+        let activeBoxId = null;
+
+        if (isActiveViewer) {
+            const justNumMatch = cleanMsg.match(/^[\D]*([1-9]|1[0-9]|2[0-4])[\D]*$/);
+            if (justNumMatch) {
+                activeBoxId = parseInt(justNumMatch[1], 10);
+            } else {
+                const keywordMatch = cleanMsg.match(/(?:kutu|box|no|seç|sec|#)\s*([1-9]|1[0-9]|2[0-4])\b/);
+                if (keywordMatch) {
+                    activeBoxId = parseInt(keywordMatch[1], 10);
+                } else {
+                    const standaloneMatch = cleanMsg.match(/\b([1-9]|1[0-9]|2[0-4])\b/);
+                    if (standaloneMatch) {
+                        activeBoxId = parseInt(standaloneMatch[1], 10);
+                    }
+                }
+            }
+        }
+
+        // FİLTRE: Sistem mesajı değilse, komut (!oyna, !varım, !yokum) değilse ve aktif kutu seçimi değilse YOL VERME (sohbeti kirletme)
+        const isAction = isSystem || isTrigger || isVarim || isYokum || (activeBoxId !== null);
+        if (!isAction) {
+            return; // Normal sohbet yazılarını (sa, selam, s, a, naber vb.) tamamen yok say
+        }
+
+        // DOM Elemanı Oluşturma
         const msgDiv = document.createElement('div');
-        const isTrigger = msg.message.toLowerCase().trim().includes(streamerMode.triggerCommand.toLowerCase().trim());
-        
-        msgDiv.className = `chat-msg ${msg.isSystem ? 'system-msg' : ''} ${isTrigger ? 'trigger-msg' : ''}`;
-        
-        if (msg.isSystem) {
+        msgDiv.className = `chat-msg ${isSystem ? 'system-msg' : ''} ${isTrigger ? 'trigger-msg' : ''}`;
+
+        if (isSystem) {
             msgDiv.innerHTML = `<span class="chat-text">${msg.message}</span>`;
         } else {
             const userColor = msg.color ? `style="color: ${msg.color}; font-weight: 600;"` : '';
+            let formattedText = msg.message;
+
+            if (isVarim) {
+                formattedText = '<strong style="color: #00ff88;">!varım</strong>';
+            } else if (isYokum) {
+                formattedText = '<strong style="color: #ff3344;">!yokum</strong>';
+            } else if (activeBoxId !== null) {
+                formattedText = `<strong style="color: #ffd700; background: rgba(255,215,0,0.15); padding: 2px 6px; border-radius: 4px;">Kutu ${activeBoxId}</strong>`;
+            }
+
             msgDiv.innerHTML = `
                 <span class="chat-name ${msg.platform}" ${userColor}>${msg.name}</span>: 
-                <span class="chat-text">${msg.message}</span>
+                <span class="chat-text">${formattedText}</span>
             `;
         }
-        
+
+        // Ses Efekti
         if (isTrigger && typeof soundManager !== 'undefined' && soundManager.playTone) {
             soundManager.playTone(880, 'sine', 0.15);
+        } else if (activeBoxId !== null && typeof soundManager !== 'undefined' && soundManager.playTone) {
+            soundManager.playTone(660, 'triangle', 0.2);
         }
-        
+
         chatMessagesContainer.appendChild(msgDiv);
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
 
-        // Banker Deal/No Deal Chat Poll
-        if (currentPoll && !msg.isSystem) {
-            const cleanMsg = msg.message.toLowerCase().trim();
-            if (cleanMsg === '!varim' || cleanMsg === '!varım') {
+        // Banker Oylaması (!varım / !yokum)
+        if (currentPoll && !isSystem) {
+            if (isVarim) {
                 if (!currentPoll.votedUsers.has(msg.name)) {
                     currentPoll.votedUsers.add(msg.name);
                     currentPoll.varim++;
                     updatePollUI();
                 }
-            } else if (cleanMsg === '!yokum') {
+            } else if (isYokum) {
                 if (!currentPoll.votedUsers.has(msg.name)) {
                     currentPoll.votedUsers.add(msg.name);
                     currentPoll.yokum++;
@@ -1269,40 +1323,14 @@ function setupStreamerCallbacks() {
             }
         }
 
-        // Auto box selection logic for active viewer
-        if (streamerMode.enabled && activeViewer && msg.name.toLowerCase() === activeViewer.name.toLowerCase()) {
-            let boxId = null;
-            const cleanMsg = msg.message.toLowerCase().trim();
-            const justNumMatch = cleanMsg.match(/^[\D]*([1-9]|1[0-9]|2[0-4])[\D]*$/);
-            if (justNumMatch) {
-                boxId = parseInt(justNumMatch[1], 10);
-            } else {
-                const keywordMatch = cleanMsg.match(/(?:kutu|box|no|seç|sec|#)\s*([1-9]|1[0-9]|2[0-4])\b/);
-                if (keywordMatch) {
-                    boxId = parseInt(keywordMatch[1], 10);
-                } else {
-                    const standaloneMatch = cleanMsg.match(/\b([1-9]|1[0-9]|2[0-4])\b/);
-                    if (standaloneMatch) {
-                        boxId = parseInt(standaloneMatch[1], 10);
-                    } else {
-                        const anyNumMatch = cleanMsg.match(/([1-9]|1[0-9]|2[0-4])/);
-                        if (anyNumMatch) {
-                            const num = parseInt(anyNumMatch[1], 10);
-                            if (num >= 1 && num <= 24) boxId = num;
-                        }
-                    }
-                }
-            }
-
-            if (boxId !== null) {
-                const targetBox = gameBoxes.find(b => b.id === boxId);
-                if (targetBox && !targetBox.isOpened) {
-                    if (playerBox === null) {
-                        handleBoxClick(targetBox);
-                    } else if (boxesToOpenInRound > 0) {
-                        // Direct open without manual confirmation modal!
-                        doOpenBox(targetBox);
-                    }
+        // Aktif yarışmacının kutusunu açma mantığı
+        if (activeBoxId !== null) {
+            const targetBox = gameBoxes.find(b => b.id === activeBoxId);
+            if (targetBox && !targetBox.isOpened) {
+                if (playerBox === null) {
+                    handleBoxClick(targetBox);
+                } else if (boxesToOpenInRound > 0) {
+                    doOpenBox(targetBox);
                 }
             }
         }
