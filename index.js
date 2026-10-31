@@ -1208,8 +1208,11 @@ function setupStreamerCallbacks() {
         if (!streamerMode.isConnected) {
             streamerMode.connect();
         } else {
-            if (chatStatus) chatStatus.className = 'chat-status online';
-            if (chatPlatformLabel) chatPlatformLabel.innerText = streamerMode.platform.toUpperCase() + ' Chat';
+            if (chatStatus) {
+                chatStatus.className = 'chat-status online';
+                chatStatus.innerHTML = '<span style="color:#53fc18;">● Bağlandı</span>';
+            }
+            if (chatPlatformLabel) chatPlatformLabel.innerText = streamerMode.platform === 'kick' ? 'KİCK CHAT' : (streamerMode.platform.toUpperCase() + ' CHAT');
             if (chatPlatformIcon) {
                 chatPlatformIcon.className = streamerMode.getPlatformIcon(streamerMode.platform);
                 chatPlatformIcon.style.color = '#53fc18';
@@ -1306,6 +1309,15 @@ function setupStreamerCallbacks() {
         chatMessagesContainer.appendChild(msgDiv);
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
 
+        // Eğer aktif yarışmacı !varım veya !yokum dediyse ve banker teklif modalı açıksa teklifi yanıtla
+        if (isActiveViewer && bankerModal && !bankerModal.classList.contains('hidden')) {
+            if (isVarim && dealBtn) {
+                dealBtn.click();
+            } else if (isYokum && noDealBtn) {
+                noDealBtn.click();
+            }
+        }
+
         // Banker Oylaması (!varım / !yokum)
         if (currentPoll && !isSystem) {
             if (isVarim) {
@@ -1350,12 +1362,16 @@ function setupStreamerCallbacks() {
         if (!chatStatus || !chatPlatformLabel || !chatPlatformIcon) return;
         if (connected) {
             chatStatus.className = 'chat-status online';
-            chatPlatformLabel.innerText = platform.toUpperCase() + ' Chat';
+            chatStatus.innerHTML = '<span style="color:#53fc18;">● Bağlandı</span>';
+            chatPlatformLabel.innerText = platform === 'kick' ? 'KİCK CHAT' : (platform.toUpperCase() + ' CHAT');
             chatPlatformIcon.className = streamerMode.getPlatformIcon(platform);
+            chatPlatformIcon.style.color = '#53fc18';
         } else {
             chatStatus.className = 'chat-status offline';
-            chatPlatformLabel.innerText = 'Sohbet Çevrimdışı';
+            chatStatus.innerHTML = '<span style="color:#ff3344;">● Çevrimdışı</span>';
+            chatPlatformLabel.innerText = 'SOHBET';
             chatPlatformIcon.className = 'fas fa-comments';
+            chatPlatformIcon.style.color = '';
         }
     };
 }

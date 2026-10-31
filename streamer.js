@@ -29,6 +29,8 @@ class StreamerMode {
         this.processedKickMessageIds = new Set();
         this.kickPingInterval = null;
         this.kickPollInterval = null;
+        this.connectionStartTime = 0;
+        this.isInitialKickPoll = true;
 
         // Callbacks
         this.onChatMessage = null;
@@ -261,6 +263,8 @@ class StreamerMode {
 
     async startKickConnection(channelId, chatroomId) {
         this.isConnected = true;
+        this.connectionStartTime = Date.now();
+        this.isInitialKickPoll = true;
         this.processedKickMessageIds = new Set();
 
         // 1. Centrifugo Viewer WebSocket
@@ -369,6 +373,17 @@ class StreamerMode {
                     const json = await res.json();
                     const messages = json?.data?.messages || [];
                     
+                    // İlk çalıştırmada var olan eski geçmiş mesajları yalnızca ID olarak kaydet,
+                    // ekrana basma ve !oyna / kutu komutu olarak işletme!
+                    if (this.isInitialKickPoll) {
+                        this.isInitialKickPoll = false;
+                        for (const m of messages) {
+                            const msgId = m.id || `${m.created_at}_${m.sender?.username || m.sender?.slug}_${m.content}`;
+                            this.processedKickMessageIds.add(msgId);
+                        }
+                        return;
+                    }
+
                     for (let i = messages.length - 1; i >= 0; i--) {
                         this.handleIncomingKickMessage(messages[i]);
                     }
@@ -389,6 +404,14 @@ class StreamerMode {
 
     handleIncomingKickMessage(raw) {
         if (!raw) return;
+
+        // Bağlantı kurulmadan önce gönderilmiş eski mesajları yoksay
+        if (raw.created_at && this.connectionStartTime > 0) {
+            const msgTime = new Date(raw.created_at).getTime();
+            if (msgTime < this.connectionStartTime - 3000) {
+                return;
+            }
+        }
 
         const msgId = raw.id || `${raw.created_at}_${raw.sender?.username || raw.sender?.slug}_${raw.content}`;
         if (this.processedKickMessageIds.has(msgId)) {
@@ -462,11 +485,16 @@ class StreamerMode {
         const username = (msg.name || '').trim();
         const userKey = username.toLowerCase();
 
-        // Mükerrer katılım engeli (Aynı kullanıcı tekrar sıraya giremez)
-        if (this.joinedUsers.has(userKey)) {
+        // 1. Zaten sırada bekleyen kullanıcı tekrar sıraya giremez (spam engeli)
+        const isAlreadyInQueue = this.viewerQueue.some(v => (v.name || '').toLowerCase() === userKey);
+        if (isAlreadyInQueue) {
             return;
         }
-        this.joinedUsers.add(userKey);
+
+        // 2. Aktif olarak oynayan yarışmacı, kutusunu seçip sırası bitene kadar tekrar sıraya giremez
+        if (typeof activeViewer !== 'undefined' && activeViewer && (activeViewer.name || '').toLowerCase() === userKey) {
+            return;
+        }
 
         const viewer = {
             id: msg.id || `${Date.now()}_${username}`,
