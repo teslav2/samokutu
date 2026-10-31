@@ -66,6 +66,49 @@ class SoundManager {
         this.currentVoiceover = null;
     }
 
+    playCinematicWhoosh() {
+        if (this.isMuted) return;
+        this.init();
+        try {
+            const now = this.ctx.currentTime;
+            // Sub-bass impact
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(140, now);
+            osc.frequency.exponentialRampToValueAtTime(35, now + 0.6);
+            gain.gain.setValueAtTime(0.35, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.6);
+
+            // Whoosh noise sweep
+            const bufferSize = Math.floor(this.ctx.sampleRate * 0.5);
+            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buffer;
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(900, now);
+            filter.frequency.exponentialRampToValueAtTime(180, now + 0.5);
+            filter.Q.value = 2;
+            const noiseGain = this.ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.22, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+            noise.connect(filter);
+            filter.connect(noiseGain);
+            noiseGain.connect(this.ctx.destination);
+            noise.start(now);
+            noise.stop(now + 0.5);
+        } catch(e) {}
+    }
+
     init() {
         if (!this.ctx) {
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2511,13 +2554,41 @@ window.addEventListener('DOMContentLoaded', () => {
         if (entrancePlayBtn) {
             entrancePlayBtn.addEventListener('click', () => {
                 soundManager.init();
-                soundManager.playClick();
-                entranceScreen.classList.remove('active');
-                showScreen('menu-screen');
-                startMenuMusic();
+                soundManager.playCinematicWhoosh();
+                
+                // Add zoom and blur to entrance screen
+                entranceScreen.classList.add('entrance-zooming');
+
+                // Trigger flash overlay
+                const transitionOverlay = document.getElementById('transition-overlay');
+                if (transitionOverlay) {
+                    transitionOverlay.classList.remove('flash-active');
+                    void transitionOverlay.offsetWidth; // trigger reflow
+                    transitionOverlay.classList.add('flash-active');
+                }
+
+                // Halfway through flash, transition to menu screen with staggered animations
+                setTimeout(() => {
+                    entranceScreen.classList.remove('active');
+                    entranceScreen.classList.remove('entrance-zooming');
+                    
+                    const menuScreen = document.getElementById('menu-screen');
+                    if (menuScreen) {
+                        menuScreen.classList.add('menu-reveal');
+                        showScreen('menu-screen');
+                    }
+                    startMenuMusic();
+
+                    // Cleanup reveal class after animation completes
+                    setTimeout(() => {
+                        if (menuScreen) menuScreen.classList.remove('menu-reveal');
+                        if (transitionOverlay) transitionOverlay.classList.remove('flash-active');
+                    }, 1200);
+                }, 280);
             });
         }
     }
+
     // ===== SETTINGS SCREEN SPA NAVIGATION =====
     let previousScreenBeforeSettings = 'menu-screen';
     // settingsBtn already declared

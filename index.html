@@ -43,9 +43,12 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css?v=3.1.0">
+    <link rel="stylesheet" href="index.css?v=3.2.0">
 </head>
 <body oncontextmenu="return false;">
+
+    <!-- Cinematic Fullscreen Transition Overlay -->
+    <div id="transition-overlay" class="transition-overlay"></div>
 
     <!-- MENU MUSIC (Hidden Audio - Never reloads) -->
     <audio id="menu-music-audio" src="assets/audio/musicmenu.mp3" loop preload="metadata"></audio>
@@ -82,6 +85,7 @@
 
     <!-- ============ MODERN MENU SCREEN ============ -->
     <div id="menu-screen" class="screen">
+        <div class="menu-stage-lights"></div>
         <div class="menu-overlay"></div>
         
         <div class="modern-menu-container">
@@ -861,8 +865,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=3.1.0"></script>
+    <script src="streamer.js?v=3.2.0"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=3.1.0"></script>
+    <script src="index.js?v=3.2.0"></script>
 </body>
 </html>
