@@ -555,26 +555,28 @@ body {
 }
 
 .sidebar {
-    width: 320px;
+    width: 325px;
     background: var(--bg-card);
     border: 1px solid var(--border-glass);
     border-radius: 15px;
     display: flex;
     flex-direction: column;
-    padding: 15px;
+    padding: 12px;
     backdrop-filter: blur(10px);
     overflow: hidden;
+    min-height: 0;
 }
 
 .sidebar-title {
     font-weight: 800;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     text-transform: uppercase;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
     border-bottom: 2px solid var(--border-glass);
     text-align: center;
     letter-spacing: 1px;
+    flex-shrink: 0;
 }
 
 .blue-title {
@@ -590,10 +592,12 @@ body {
 .rewards-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     overflow-y: auto;
+    overflow-x: hidden;
     flex-grow: 1;
-    padding-right: 5px;
+    min-height: 0;
+    padding-right: 4px;
 }
 
 .rewards-list::-webkit-scrollbar {
@@ -607,15 +611,17 @@ body {
 .reward-item {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 6px 10px;
+    padding: 5px 8px;
     border-radius: 8px;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     display: flex;
     align-items: center;
     gap: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-height: 38px;
+    min-height: 34px;
+    flex-shrink: 0;
     box-sizing: border-box;
+    width: 100%;
 }
 
 .reward-item .reward-name {
@@ -624,7 +630,7 @@ body {
     word-break: break-word;
     white-space: normal;
     font-family: 'Outfit', sans-serif;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.88);
 }
 
 .left-sidebar .reward-item .reward-name {
@@ -637,8 +643,8 @@ body {
 
 .reward-item .reward-rank {
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
