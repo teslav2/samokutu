@@ -200,8 +200,6 @@ class StreamerMode {
         }
 
         try {
-            this.addSystemMessage(`⚡ "${inputVal}" için Kick chatroom bilgisi alınıyor...`);
-
             let channelId = null;
             let chatroomId = null;
 
