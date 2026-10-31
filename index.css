@@ -1,4 +1,8 @@
 
+.caption-status {
+    display: none !important;
+}
+
 /* GLOBAL HIDDEN UTILITY */
 .hidden {
     display: none !important;

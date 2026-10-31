@@ -4204,8 +4204,8 @@ function applyTarikEmotion(emotion) {
 
     const info = emotionMap[emotion] || emotionMap['saskin'];
     if (statusEl) {
-        statusEl.className = `caption-status ${info.cls}`;
-        statusEl.innerText = info.text;
+        statusEl.style.display = 'none';
+        statusEl.remove();
     }
 
     if (photoEl) {
