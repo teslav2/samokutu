@@ -1646,18 +1646,402 @@ body {
 
 /* RESPONSIVE LAYOUTS */
 @media (max-width: 1100px) {
+    .game-layout {
+        gap: 10px;
+    }
+    .sidebar {
+        width: 250px;
+    }
+    .box {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 900px) {
+    body {
+        overflow: auto;
+        height: auto;
+    }
+    .gta-logo-img-container {
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70%;
+        max-width: 350px;
+        justify-content: center;
+    }
+    .game-layout {
+        flex-direction: column;
+        height: auto;
+    }
+    .sidebar {
+        width: 100%;
+        max-height: 250px;
+    }
+    .boxes-grid {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        min-height: 400px;
+    }
+    .gta-bottom-content {
+        padding: 0 20px;
+    }
+    .gta-horizontal-menu {
+        gap: 20px;
+    }
+}
+
+/* ============================================
+   STREAMER MODE STYLES
+   ============================================ */
+
+/* Streamer Panel (right side overlay) */
+.streamer-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    z-index: 90;
+    pointer-events: auto;
+    background: linear-gradient(180deg, rgba(5,5,15,0.92) 0%, rgba(10,10,30,0.95) 100%);
+    border-left: 1px solid rgba(255,255,255,0.06);
+}
+
+.streamer-panel.hidden {
+    display: none;
+}
+
+/* Active Viewer Banner */
+.active-viewer-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px 16px;
+    background: linear-gradient(90deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
+    border-bottom: 2px solid var(--primary);
+    animation: bannerPulse 2s ease-in-out infinite;
+}
+
+.active-viewer-banner.hidden {
+    display: none;
+}
+
+.active-viewer-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.active-viewer-info i {
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+.active-viewer-info #active-viewer-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.active-viewer-info .viewer-action {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.active-viewer-instruction {
+    font-size: 0.8rem;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px dashed rgba(255, 215, 0, 0.35);
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+@keyframes bannerPulse {
+    0%, 100% { background: linear-gradient(90deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05)); }
+    50% { background: linear-gradient(90deg, rgba(255,215,0,0.25), rgba(255,215,0,0.1)); }
+}
+
+/* Queue Panel */
+.queue-panel {
+    flex: 0 0 auto;
+    max-height: 180px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.queue-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.queue-header i {
+    color: var(--primary);
+}
+
+.queue-count {
+    margin-left: auto;
+    background: var(--primary);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.queue-list {
+    max-height: 130px;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.queue-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    transition: background 0.2s ease;
+}
+
+.queue-item:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+.queue-position {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    color: var(--primary);
+    min-width: 20px;
+}
+
+.queue-viewer-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.queue-platform-badge {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.queue-platform-badge.youtube {
+    background: rgba(255,0,0,0.15);
+    color: #ff4444;
+}
+
+.queue-platform-badge.kick {
+    background: rgba(83,252,24,0.15);
+    color: #53fc18;
+}
+
+.queue-platform-badge.demo {
+    background: rgba(255,215,0,0.15);
+    color: var(--primary);
+}
+
+/* Chat Panel */
+.chat-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.chat-header i {
+    color: var(--primary);
+}
+
+.chat-status {
+    margin-left: auto;
+    font-size: 0.7rem;
+}
+
+.chat-status.online {
+    color: #53fc18;
+}
+
+.chat-status.offline {
+    color: #ff3344;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+}
+
+.chat-msg {
+    padding: 4px 16px;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    animation: chatIn 0.3s ease;
+}
+
+.chat-msg .chat-name {
+    font-weight: 700;
+    margin-right: 6px;
+}
+
+.chat-msg .chat-name.youtube { color: #ff4444; }
+.chat-msg .chat-name.kick { color: #53fc18; }
+.chat-msg .chat-name.demo { color: var(--primary); }
+.chat-msg .chat-name.system { color: #00bfff; }
+
+.chat-msg .chat-text {
+    color: var(--text-muted);
+}
+
+.chat-msg.system-msg {
+    background: rgba(0,191,255,0.05);
+    border-left: 2px solid #00bfff;
+    padding: 6px 16px;
+    margin: 2px 0;
+}
+
+.chat-msg.system-msg .chat-text {
+    color: #00bfff;
+    font-size: 0.8rem;
+}
+
+.chat-msg.trigger-msg {
+    background: rgba(255,215,0,0.08);
+    border-left: 2px solid var(--primary);
+}
+
+.chat-msg.trigger-msg .chat-text {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+@keyframes chatIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Game layout adjustment when streamer panel is visible */
+.game-layout.streamer-active {
+    margin-right: 260px;
+}
+
+.game-header.streamer-active {
+    margin-right: 260px;
+    gap: 4px !important;
+    flex-wrap: nowrap;
+    overflow: hidden;
+}
+
+/* Hide text labels on buttons when streamer panel is visible on the right */
+.game-header.streamer-active #back-to-menu-txt,
+.game-header.streamer-active #game-joker-btn-txt,
+.game-header.streamer-active #game-log-btn-txt,
+.game-header.streamer-active #game-settings-btn-txt {
+    display: none;
+}
+
+.game-header.streamer-active .back-btn,
+.game-header.streamer-active .joker-btn {
+    padding: 8px 10px;
+    margin-left: 4px !important;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.game-header.streamer-active .status-panel {
+    margin-left: 10px;
+    gap: 8px;
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.game-header.streamer-active #status-message {
+    font-size: 1.05rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 550px;
+}
+
+.game-header.streamer-active .badge {
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.game-header.streamer-active .player-badge {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    gap: 4px;
+    margin-left: 4px !important;
+    flex-shrink: 0;
+}
+.game-header.streamer-active .player-badge i {
+    font-size: 1.0rem;
+}
+
+/* Responsive for streamer */
+@media (max-width: 1100px) {
     .streamer-panel {
-        width: 230px;
+        width: 220px;
     }
     .game-layout.streamer-active {
-        margin-right: 230px;
+        margin-right: 220px;
     }
     .game-header.streamer-active {
-        margin-right: 230px;
+        margin-right: 220px;
         gap: 4px !important;
     }
     .game-header.streamer-active #status-message {
-        max-width: 260px;
+        max-width: 320px;
         font-size: 0.95rem;
     }
 }
@@ -2840,7 +3224,7 @@ body {
     align-items: center;
     gap: 16px;
     width: 100%;
-    max-width: 260px;
+    max-width: 320px;
     box-sizing: border-box;
     backdrop-filter: blur(5px);
 }
