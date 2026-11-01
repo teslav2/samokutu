@@ -4763,7 +4763,11 @@ document.addEventListener('keydown', e => {
     const tag = (e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea') return;
     if (e.key === 't' || e.key === 'T') {
-        testTvNewsScreen();
+        // Sadece oyun ekranı aktifken çalışsın (Menüde engellendi)
+        const gameSc = document.getElementById('game-screen');
+        if (gameSc && gameSc.classList.contains('active')) {
+            testTvNewsScreen();
+        }
     }
 });
 
