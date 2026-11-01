@@ -4591,8 +4591,11 @@ body {
     background: #e60000;
     display: flex;
     align-items: center;
-    border-top: 2px solid #ffcc00;
+    border-top: none;
+    border-bottom: 2px solid #ffcc00;
     overflow: hidden;
+    position: relative;
+    z-index: 5;
 }
 
 .ticker-title {

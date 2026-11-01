@@ -44,7 +44,7 @@
     <link rel="preload" href="assets/fonts/Lilomon.woff" as="font" type="font/woff" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css?v=4.3.9">
+    <link rel="stylesheet" href="index.css?v=4.4.0">
 </head>
 <body oncontextmenu="return false;">
 
@@ -694,6 +694,19 @@
                 <div class="tv-news-clock" id="tv-news-clock">21:45:00</div>
             </div>
 
+                        <!-- TV Moving Marquee Ticker (Üst Sarı Çizgiye Yapışık) -->
+            <div class="tv-news-ticker-bar">
+                <div class="ticker-title">
+                    <span>SON DAKİKA</span>
+                    <i class="fas fa-caret-right"></i>
+                </div>
+                <div class="ticker-content">
+                    <div id="tv-news-marquee" class="ticker-marquee">
+                        🔴 FLAŞ GELİŞME: IOWF KUTUSUNDA BÜYÜK HİSSETTİ • CHATTE KAHKAHA TUFANI KOPTU • İZLEYİCİLER TEKRAR OYNA ÇAĞRISI YAPIYOR • ⚡ SAMO TV ÖZEL YAYINI DEVAM EDİYOR...
+                    </div>
+                </div>
+            </div>
+
             <!-- TV Main Content Body -->
             <div class="tv-news-body">
                 <!-- Left: Studio Satellite Connection / Tarık Photo Column (Sol Üst) -->
@@ -748,19 +761,6 @@
                         <button id="result-menu-btn" class="btn tv-btn tv-btn-secondary">
                             <i class="fas fa-home"></i> ANA MENÜ
                         </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TV Bottom Moving Marquee Ticker -->
-            <div class="tv-news-ticker-bar">
-                <div class="ticker-title">
-                    <span>SON DAKİKA</span>
-                    <i class="fas fa-caret-right"></i>
-                </div>
-                <div class="ticker-content">
-                    <div id="tv-news-marquee" class="ticker-marquee">
-                        🔴 FLAŞ GELİŞME: IOWF KUTUSUNDA BÜYÜK HİSSETTİ • CHATTE KAHKAHA TUFANI KOPTU • İZLEYİCİLER TEKRAR OYNA ÇAĞRISI YAPIYOR • ⚡ SAMO TV ÖZEL YAYINI DEVAM EDİYOR...
                     </div>
                 </div>
             </div>
@@ -839,8 +839,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=4.3.9"></script>
+    <script src="streamer.js?v=4.4.0"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=4.3.9"></script>
+    <script src="index.js?v=4.4.0"></script>
 </body>
 </html>
