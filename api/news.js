@@ -42,11 +42,44 @@ function generateComedicNews(dare, isDeal, rank, streamer = "Tarık") {
         ? summariesHeavy[Math.floor(Math.random() * summariesHeavy.length)]
         : summariesLight[Math.floor(Math.random() * summariesLight.length)];
 
+    const subheadlinesHeavyDeal = [
+        "Hamdi Bey'in telefon teklifine 'Varım' dedi, stüdyo dondu kaldı!",
+        "Bankacının tatlı diline aldandı, faturayı tüm stüdyo kesti!",
+        "Masadan kaçmak istedi ama Hamdi Bey'in acımasız tuzağına düştü!",
+        "Aceleyle 'Varım' dedi, kutusundaki kurtuluş şansını elinin tersiyle itti!"
+    ];
+    const subheadlinesHeavyBox = [
+        "Kendi kutusuna sonuna kadar güvendi ama kader bu kez affetmedi!",
+        "İçindeki sese kulak verdi, açılan kutuyla stüdyo buz kesti!",
+        "Chat 'büyük hisset' dedi, gelen ceza canlı yayını sarstı!",
+        "Hamdi Bey'in tüm tekliflerini tepti, kutusundaki felaketten kaçamadı!",
+        "Büyük cesaret gösterdi ancak kaderle pazarlık yapılmaz!"
+    ];
+    const subheadlinesLightDeal = [
+        "Hamdi Bey'in teklifini kabul etti, büyük felaketten tereyağından kıl çeker gibi sıyrıldı!",
+        "Doğru anda 'Varım' dedi, stüdyoyu kahkahalar ve sevinçle inletti!",
+        "Risk almadı, akıllıca bir hamleyle hafif cezaya razı olup masayı topladı!",
+        "Bankacıya şans tanımadı, teklifi kapıp derin bir 'oh' çekti!"
+    ];
+    const subheadlinesLightBox = [
+        "Kendi kutusuna sonuna kadar güvendi ve gecenin en büyük zaferine imza attı!",
+        "Hamdi Bey'in tüm baskılarını elinin tersiyle itti, adeta destan yazdı!",
+        "Chat ekran başında nefesini tuttu, kutusundan bayram havası çıktı!",
+        "Kaderle girdiği tarihi düelloyu tek bir kutuyla kazandı!",
+        "Cesaretinin ödülünü aldı: Kutusundan çıkan hafif ceza stüdyoyu yıktı!"
+    ];
+
+    let subheadlinePool = isHeavy
+        ? (isDeal ? subheadlinesHeavyDeal : subheadlinesHeavyBox)
+        : (isDeal ? subheadlinesLightDeal : subheadlinesLightBox);
+
+    const subheadline = subheadlinePool[Math.floor(Math.random() * subheadlinePool.length)];
+
     const emotion = isHeavy 
         ? (Math.random() > 0.6 ? 'sinirli' : (Math.random() > 0.5 ? 'saskin' : 'uzgun'))
         : 'mutlu';
 
-    return { headline, summary, emotion };
+    return { headline, subheadline, summary, emotion };
 }
 
 module.exports = async (req, res) => {
@@ -107,10 +140,11 @@ ${contextGuide ? `Referans Bilgi:\n${contextGuide.slice(0, 800)}\n` : ''}
 
 Lütfen Show TV / Flash TV haber bülteni üslubunda:
 1) 'headline': Vurucu, sansasyonel, büyük harflerle, maksimum 7-10 kelimelik TV manşeti.
-2) 'summary': Canlı yayındaki tansiyonu, Tarık'ı, Samo'yu ve Hamdi Bey'i anlatan absürt komik 2 cümlelik haber özeti.
-3) 'emotion': Tarık'ın ekrandaki yüz ifadesi ('mutlu', 'uzgun', 'saskin', 'sinirli').
+2) 'subheadline': 1 cümlelik vurucu alt başlık (örnek: "Kendi kutusuna güvendi ama kader bu kez affetmedi!" veya "Hamdi Bey'e rest çekti, gecenin en büyük zaferini kazandı!").
+3) 'summary': Canlı yayındaki tansiyonu, Tarık'ı, Samo'yu ve Hamdi Bey'i anlatan absürt komik 2 cümlelik haber özeti.
+4) 'emotion': Tarık'ın ekrandaki yüz ifadesi ('mutlu', 'uzgun', 'saskin', 'sinirli').
 
-SADECE JSON döndür: {"headline": "...", "summary": "...", "emotion": "saskin"}`;
+SADECE JSON döndür: {"headline": "...", "subheadline": "...", "summary": "...", "emotion": "saskin"}`;
 
         const payload = JSON.stringify({
             model: "google/gemini-2.0-flash-exp:free",

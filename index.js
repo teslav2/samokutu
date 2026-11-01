@@ -4160,10 +4160,38 @@ async function showTvNewsResult(viaDeal, resultDare, rank) {
             ? "IOWF'UN KUTUSUNDAN ÇIKAN AĞIR CEZA KICK YAYININI SALLADI!"
             : "TARIK KADERİN SİLLESİNDEN KIL PAYI KURTULDU!";
     }
+    const subheadlinesHeavyDeal = [
+        "Hamdi Bey'in telefon teklifine 'Varım' dedi, stüdyo dondu kaldı!",
+        "Bankacının tatlı diline aldandı, faturayı tüm stüdyo kesti!",
+        "Masadan kaçmak istedi ama Hamdi Bey'in acımasız tuzağına düştü!",
+        "Aceleyle 'Varım' dedi, kutusundaki kurtuluş şansını elinin tersiyle itti!"
+    ];
+    const subheadlinesHeavyBox = [
+        "Kendi kutusuna sonuna kadar güvendi ama kader bu kez affetmedi!",
+        "İçindeki sese kulak verdi, açılan kutuyla stüdyo buz kesti!",
+        "Chat 'büyük hisset' dedi, gelen ceza canlı yayını sarstı!",
+        "Hamdi Bey'in tüm tekliflerini tepti, kutusundaki felaketten kaçamadı!",
+        "Büyük cesaret gösterdi ancak kaderle pazarlık yapılmaz!"
+    ];
+    const subheadlinesLightDeal = [
+        "Hamdi Bey'in teklifini kabul etti, büyük felaketten tereyağından kıl çeker gibi sıyrıldı!",
+        "Doğru anda 'Varım' dedi, stüdyoyu kahkahalar ve sevinçle inletti!",
+        "Risk almadı, akıllıca bir hamleyle hafif cezaya razı olup masayı topladı!",
+        "Bankacıya şans tanımadı, teklifi kapıp derin bir 'oh' çekti!"
+    ];
+    const subheadlinesLightBox = [
+        "Kendi kutusuna sonuna kadar güvendi ve gecenin en büyük zaferine imza attı!",
+        "Hamdi Bey'in tüm baskılarını elinin tersiyle itti, adeta destan yazdı!",
+        "Chat ekran başında nefesini tuttu, kutusundan bayram havası çıktı!",
+        "Kaderle girdiği tarihi düelloyu tek bir kutuyla kazandı!",
+        "Cesaretinin ödülünü aldı: Kutusundan çıkan hafif ceza stüdyoyu yıktı!"
+    ];
+
     if (subheadlineEl) {
-        subheadlineEl.innerText = viaDeal
-            ? "Hamdi Bey'in telefon teklifine 'Varım' dedi, stüdyo dondu kaldı!"
-            : "Kendi kutusuna sonuna kadar güvendi, kader anı ekranlara yansıdı!";
+        const pool = isHeavy
+            ? (viaDeal ? subheadlinesHeavyDeal : subheadlinesHeavyBox)
+            : (viaDeal ? subheadlinesLightDeal : subheadlinesLightBox);
+        subheadlineEl.innerText = pool[Math.floor(Math.random() * pool.length)];
     }
     if (storyEl) {
         storyEl.innerText = isHeavy
@@ -4205,6 +4233,7 @@ async function showTvNewsResult(viaDeal, resultDare, rank) {
             const data = await resp.json();
             if (data && data.headline) {
                 if (headlineEl) headlineEl.innerText = data.headline;
+                if (data.subheadline && subheadlineEl) subheadlineEl.innerText = data.subheadline;
                 if (data.summary && storyEl) storyEl.innerText = data.summary;
                 if (data.emotion) applyTarikEmotion(data.emotion);
             }
