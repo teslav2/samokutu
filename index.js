@@ -4310,7 +4310,42 @@ function applyTarikEmotion(emotion) {
             container.style.backgroundPosition = 'center';
         }
 
-        videoEl.loop = true;
+        videoEl.loop = false; // Fade-out ve fade-in geçişli döngü
+        videoEl.classList.remove('tv-video-fade-out');
+
+        let isLoopTransitioning = false;
+        videoEl.ontimeupdate = () => {
+            if (!videoEl.duration || isLoopTransitioning) return;
+            // Video bitimine 0.45 saniye kala yumuşak fade-out başlat
+            if (videoEl.duration - videoEl.currentTime <= 0.45) {
+                isLoopTransitioning = true;
+                videoEl.classList.add('tv-video-fade-out');
+            }
+        };
+
+        videoEl.onended = () => {
+            isLoopTransitioning = true;
+            videoEl.classList.add('tv-video-fade-out');
+            setTimeout(() => {
+                videoEl.currentTime = 0;
+                const p = videoEl.play();
+                if (p !== undefined) {
+                    p.then(() => {
+                        setTimeout(() => {
+                            videoEl.classList.remove('tv-video-fade-out');
+                            isLoopTransitioning = false;
+                        }, 50);
+                    }).catch(() => {
+                        videoEl.classList.remove('tv-video-fade-out');
+                        isLoopTransitioning = false;
+                    });
+                } else {
+                    videoEl.classList.remove('tv-video-fade-out');
+                    isLoopTransitioning = false;
+                }
+            }, 180);
+        };
+
         if (!videoEl.src.includes(videoSrc)) {
             videoEl.poster = posterSrc;
             videoEl.src = videoSrc;
@@ -4326,9 +4361,11 @@ function applyTarikEmotion(emotion) {
             playPromise.then(() => {
                 videoEl.muted = tvVideoMuted;
                 videoEl.volume = tvVideoVolume;
+                videoEl.classList.remove('tv-video-fade-out');
             }).catch(() => {
                 videoEl.muted = true;
                 videoEl.play().catch(() => {});
+                videoEl.classList.remove('tv-video-fade-out');
             });
         }
     }
@@ -4341,6 +4378,9 @@ function applyTarikEmotion(emotion) {
 function stopTvVideo() {
     const videoEl = document.getElementById('tv-tarik-video');
     if (videoEl) {
+        videoEl.ontimeupdate = null;
+        videoEl.onended = null;
+        videoEl.classList.remove('tv-video-fade-out');
         videoEl.pause();
         videoEl.currentTime = 0;
         try { videoEl.src = ''; } catch(e){}

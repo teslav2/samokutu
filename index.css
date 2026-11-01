@@ -4503,7 +4503,12 @@ body {
     object-position: center center;
     position: relative;
     z-index: 1;
-    transition: transform 0.4s ease;
+    transition: transform 0.4s ease, opacity 0.38s ease-in-out;
+    opacity: 1;
+}
+
+.tv-tarik-photo.tv-video-fade-out {
+    opacity: 0 !important;
 }
 
 .tv-photo-scanlines {
