@@ -4153,7 +4153,7 @@ async function showTvNewsResult(viaDeal, resultDare, rank, hasSwapped = false) {
     const storyEl = document.getElementById('tv-news-story');
     const marqueeEl = document.getElementById('tv-news-marquee');
 
-    const defaultEmotion = isHeavy ? 'saskin' : 'mutlu';
+    const defaultEmotion = isHeavy ? 'sinirli' : 'mutlu';
     applyTarikEmotion(defaultEmotion);
 
     if (headlineEl) {
@@ -4277,27 +4277,30 @@ async function showTvNewsResult(viaDeal, resultDare, rank, hasSwapped = false) {
 }
 
 function applyTarikEmotion(emotion) {
+    const videoEl = document.getElementById('tv-tarik-video');
     const photoEl = document.getElementById('tv-tarik-photo');
     const statusEl = document.getElementById('tv-tarik-status');
 
-    const emotionMap = {
-        'mutlu': { text: 'DURUM: ZAFER (MUTLU)', cls: 'status-mutlu', file: 'assets/images/tarik_mutlu.png' },
-        'uzgun': { text: 'DURUM: YIKILMIŞ (ÜZGÜN)', cls: 'status-uzgun', file: 'assets/images/tarik_uzgun.png' },
-        'saskin': { text: 'DURUM: ŞAŞKIN', cls: 'status-saskin', file: 'assets/images/tarik_saskin.png' },
-        'sinirli': { text: 'DURUM: CİNNET (SİNİRLİ)', cls: 'status-sinirli', file: 'assets/images/tarik_sinirli.png' }
-    };
-
-    const info = emotionMap[emotion] || emotionMap['saskin'];
     if (statusEl) {
         statusEl.style.display = 'none';
         statusEl.remove();
     }
 
+    const isAngry = (emotion === 'sinirli' || emotion === 'uzgun' || emotion === 'saskin');
+    const videoSrc = isAngry ? 'assets/video/iowfsinirli.mp4' : 'assets/video/iowfmutlu.mp4';
+    const posterSrc = isAngry ? 'assets/images/tarik_sinirli.png' : 'assets/images/tarik_mutlu.png';
+
+    if (videoEl) {
+        if (!videoEl.src.includes(videoSrc)) {
+            videoEl.poster = posterSrc;
+            videoEl.src = videoSrc;
+            videoEl.load();
+        }
+        videoEl.play().catch(() => {});
+    }
+
     if (photoEl) {
-        const testImg = new Image();
-        testImg.onload = () => { photoEl.src = info.file; };
-        testImg.onerror = () => { photoEl.src = 'assets/images/openingsamologo.png'; };
-        testImg.src = info.file;
+        photoEl.src = posterSrc;
     }
 }
 

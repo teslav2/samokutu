@@ -44,7 +44,7 @@
     <link rel="preload" href="assets/fonts/Lilomon.woff" as="font" type="font/woff" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css?v=4.4.2">
+    <link rel="stylesheet" href="index.css?v=4.4.3">
 </head>
 <body oncontextmenu="return false;">
 
@@ -717,7 +717,10 @@
                             <span class="feed-signal"><i class="fas fa-wifi"></i> HD</span>
                         </div>
                         <div class="tv-photo-container">
-                            <img id="tv-tarik-photo" src="assets/images/openingsamologo.png" alt="Tarık" class="tv-tarik-photo">
+                            <video id="tv-tarik-video" class="tv-tarik-photo" autoplay loop muted playsinline poster="assets/images/tarik_mutlu.png">
+                                <source src="assets/video/iowfmutlu.mp4" type="video/mp4">
+                            </video>
+                            <img id="tv-tarik-photo" src="assets/images/tarik_mutlu.png" alt="Tarık" class="tv-tarik-photo" style="display:none;">
                             <div class="tv-photo-scanlines"></div>
                             <div class="tv-cam-corner top-left"></div>
                             <div class="tv-cam-corner top-right"></div>
@@ -839,8 +842,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=4.4.2"></script>
+    <script src="streamer.js?v=4.4.3"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=4.4.2"></script>
+    <script src="index.js?v=4.4.3"></script>
 </body>
 </html>
