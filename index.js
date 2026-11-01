@@ -946,12 +946,12 @@ const TRANSLATIONS = {
         confirmMenu: "Oyunu sonlandırıp menüye dönmek istediğinizden emin misiniz? İlerlemeniz silinecek.",
         boxSelection: "KUTU SEÇİMİ",
         roundTitle: "{n}. TUR",
-        boxSelectedMsg: "Kutunu seçtin! Şimdi kalan kutulardan {count} tane açmalısın.",
-        boxesLeftMsg: "Bu turda açman gereken {count} kutu kaldı.",
+        boxSelectedMsg: "Kutunu seçtin! Hamdi Bey'in aramasına son {count} kutu kaldı.",
+        boxesLeftMsg: "Hamdi Bey'in aramasına son {count} kutu kaldı.",
         boxOpenedMsg: "Kutu {id} Açıldı: \"{dare}\" elendi!",
         bankerCallingMsg: "Hamdi Bey aranıyor... Telefon çalıyor!",
         bankerOfferIndicator: "TEKLİF",
-        declineOfferMsg: "Teklifi reddettin! Bu turda {count} kutu açmalısın.",
+        declineOfferMsg: "Teklifi reddettin! Hamdi Bey'in yeni aramasına son {count} kutu kaldı.",
         finalIndicator: "FİNAL",
         lastTwoBoxesMsg: "Son iki kutu kaldı â kaderini kabul et!",
         swapConfirm: "Son iki kutuya ulaştın! Kutun: {playerBoxId} â Masadaki son kutu: {lastBoxId}. Değiştirmek ister misin?",
@@ -963,7 +963,7 @@ const TRANSLATIONS = {
         
         // Streamer
         streamerChooseBox: "{name} kendi kutusunu seçiyor...",
-        streamerOpenBox: "{name} kutu açıyor (Kalan: {count})...",
+        streamerOpenBox: "{name} kutu açıyor (Hamdi Bey'e son {count} kutu)...",
 
         bankerNameTitle: "Bankacı İsmini Gir",
         bankerNamePlaceholder: "Bankacı Adı...",
@@ -1019,12 +1019,12 @@ const TRANSLATIONS = {
         confirmMenu: "Are you sure you want to end the game and return to menu? Your progress will be lost.",
         boxSelection: "BOX SELECTION",
         roundTitle: "ROUND {n}",
-        boxSelectedMsg: "You selected your box! Now you must open {count} of the remaining boxes.",
-        boxesLeftMsg: "You have {count} boxes left to open in this round.",
+        boxSelectedMsg: "Box selected! Only {count} boxes left until the Banker calls.",
+        boxesLeftMsg: "Only {count} boxes left until the Banker calls.",
         boxOpenedMsg: "Box {id} Opened: \"{dare}\" eliminated!",
         bankerCallingMsg: "Calling the Banker... Phone is ringing!",
         bankerOfferIndicator: "OFFER",
-        declineOfferMsg: "You rejected the offer! Open {count} boxes in this round.",
+        declineOfferMsg: "Offer rejected! Only {count} boxes left until the Banker calls.",
         finalIndicator: "FINAL",
         lastTwoBoxesMsg: "Only two boxes left â face your fate!",
         swapConfirm: "Last two boxes! Your box: {playerBoxId} â Last box: {lastBoxId}. Swap?",
@@ -1036,7 +1036,7 @@ const TRANSLATIONS = {
         
         // Streamer
         streamerChooseBox: "{name} is choosing their box...",
-        streamerOpenBox: "{name} is opening a box ({count} left)...",
+        streamerOpenBox: "{name} is opening boxes ({count} left until Banker)...",
 
         bankerNameTitle: "Enter Banker Name",
         bankerNamePlaceholder: "Banker Name...",
@@ -3272,7 +3272,7 @@ function handleBoxClick(box) {
         if (streamerMode.enabled && activeViewer) {
             updateStatusMessage(t('streamerOpenBox', {name: activeViewer.name, count: boxesToOpenInRound}));
             streamerMode.addSystemMessage(`${activeViewer.name} kendi kutusunu seçti: Kutu ${box.id}!`);
-            streamerMode.addSystemMessage(`${activeViewer.name}, 1. tur için sohbete kutu numarası yazarak ${boxesToOpenInRound} kutu açmalısın.`);
+            streamerMode.addSystemMessage(`${activeViewer.name}, ${bankerName}'in aramasına son ${boxesToOpenInRound} kutu kaldı!`);
         } else if (streamerMode.enabled) {
             tryNextViewer();
         } else {
@@ -3860,7 +3860,7 @@ function doOpenBox(box) {
     if (streamerMode.enabled && activeViewer) {
         streamerMode.addSystemMessage(`${activeViewer.name}, Kutu ${box.id}\'yi açtı!`);
         if (boxesToOpenInRound > 0) {
-            streamerMode.addSystemMessage(`${activeViewer.name}, bu turda açman gereken ${boxesToOpenInRound} kutu kaldı.`);
+            streamerMode.addSystemMessage(`${activeViewer.name}, ${bankerName}'in aramasına son ${boxesToOpenInRound} kutu kaldı.`);
         }
     }
 
@@ -4031,7 +4031,7 @@ function declineBankerOffer() {
             updateRoundIndicator(t('roundTitle', {n: currentRound}), "aktif");
             if (streamerMode.enabled && activeViewer) {
                 updateStatusMessage(t('streamerOpenBox', {name: activeViewer.name, count: boxesToOpenInRound}));
-                streamerMode.addSystemMessage(`${activeViewer.name}, ${currentRound}. tur başladı! Açman gereken kutu sayısı: ${boxesToOpenInRound}.`);
+                streamerMode.addSystemMessage(`${activeViewer.name}, ${currentRound}. tur başladı! ${bankerName}'in aramasına son ${boxesToOpenInRound} kutu kaldı.`);
             } else if (streamerMode.enabled) {
                 tryNextViewer();
             } else {
