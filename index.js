@@ -774,6 +774,7 @@ let eliminatedRanks = new Set();
 let gameLog = [];
 let isRandomSelecting = false;
 let isFinalChoice = false;
+let hasSwappedAtFinal = false;
 
 let jokerState = {
     ahmetUsed: false,
@@ -4100,7 +4101,7 @@ function endGame(viaDeal) {
         : `Game over - dare: "${resultDare}"`,
         rank <= 15 ? 'heavy' : 'light');
 
-    showTvNewsResult(viaDeal, resultDare, rank);
+    showTvNewsResult(viaDeal, resultDare, rank, hasSwappedAtFinal);
     openModal(resultModal);
 
     if (streamerMode.enabled && activeViewer) {
@@ -4123,7 +4124,7 @@ function updateTvClock() {
     clockEl.innerText = `${h}:${m}:${s}`;
 }
 
-async function showTvNewsResult(viaDeal, resultDare, rank) {
+async function showTvNewsResult(viaDeal, resultDare, rank, hasSwapped = false) {
     if (tvClockInterval) clearInterval(tvClockInterval);
     updateTvClock();
     tvClockInterval = setInterval(updateTvClock, 1000);
@@ -4160,6 +4161,18 @@ async function showTvNewsResult(viaDeal, resultDare, rank) {
             ? "IOWF'UN KUTUSUNDAN ÇIKAN AĞIR CEZA KICK YAYININI SALLADI!"
             : "TARIK KADERİN SİLLESİNDEN KIL PAYI KURTULDU!";
     }
+    const subheadlinesHeavySwap = [
+        "Son dakikada kutusunu değiştirdi, kaderin en acı sillesini yedi!",
+        "Masadaki son kutuya aldandı, kendi kutusundaki kurtuluşu kaçırdı!",
+        "Değişim kararı felaket getirdi: Son anda yaptığı takas pahalıya patladı!",
+        "Kendi kutusunu bıraktı, masadaki tuzak kutuya balıklama atladı!"
+    ];
+    const subheadlinesLightSwap = [
+        "Son dakikada kutusunu değiştirdi, mucizevi bir hamleyle kurtuldu!",
+        "Altıncı hissi yanıltmadı: Yaptığı son dakika takası hayatını kurtardı!",
+        "Kendi kutusundaki ağır cezayı son anda masaya bırakıp zaferi kaptı!",
+        "Büyük kumar oynadı, son andaki takas kararıyla stüdyoyu yıktı!"
+    ];
     const subheadlinesHeavyDeal = [
         "Hamdi Bey'in telefon teklifine 'Varım' dedi, stüdyo dondu kaldı!",
         "Bankacının tatlı diline aldandı, faturayı tüm stüdyo kesti!",
@@ -4188,9 +4201,16 @@ async function showTvNewsResult(viaDeal, resultDare, rank) {
     ];
 
     if (subheadlineEl) {
-        const pool = isHeavy
-            ? (viaDeal ? subheadlinesHeavyDeal : subheadlinesHeavyBox)
-            : (viaDeal ? subheadlinesLightDeal : subheadlinesLightBox);
+        let pool;
+        if (isHeavy) {
+            if (viaDeal) pool = subheadlinesHeavyDeal;
+            else if (hasSwapped) pool = subheadlinesHeavySwap;
+            else pool = subheadlinesHeavyBox;
+        } else {
+            if (viaDeal) pool = subheadlinesLightDeal;
+            else if (hasSwapped) pool = subheadlinesLightSwap;
+            else pool = subheadlinesLightBox;
+        }
         subheadlineEl.innerText = pool[Math.floor(Math.random() * pool.length)];
     }
     if (storyEl) {

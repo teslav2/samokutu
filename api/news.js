@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Hilarious fallback news generation engine tailored to Tarık (IOWF), Samo & Hamdi Bey
-function generateComedicNews(dare, isDeal, rank, streamer = "Tarık") {
+function generateComedicNews(dare, isDeal, rank, streamer = "Tarık", hasSwapped = false) {
     const isHeavy = rank <= 15;
     const streamerUpper = (streamer || "TARIK").toUpperCase();
     
@@ -42,6 +42,18 @@ function generateComedicNews(dare, isDeal, rank, streamer = "Tarık") {
         ? summariesHeavy[Math.floor(Math.random() * summariesHeavy.length)]
         : summariesLight[Math.floor(Math.random() * summariesLight.length)];
 
+    const subheadlinesHeavySwap = [
+        "Son dakikada kutusunu değiştirdi, kaderin en acı sillesini yedi!",
+        "Masadaki son kutuya aldandı, kendi kutusundaki kurtuluşu kaçırdı!",
+        "Değişim kararı felaket getirdi: Son anda yaptığı takas pahalıya patladı!",
+        "Kendi kutusunu bıraktı, masadaki tuzak kutuya balıklama atladı!"
+    ];
+    const subheadlinesLightSwap = [
+        "Son dakikada kutusunu değiştirdi, mucizevi bir hamleyle kurtuldu!",
+        "Altıncı hissi yanıltmadı: Yaptığı son dakika takası hayatını kurtardı!",
+        "Kendi kutusundaki ağır cezayı son anda masaya bırakıp zaferi kaptı!",
+        "Büyük kumar oynadı, son andaki takas kararıyla stüdyoyu yıktı!"
+    ];
     const subheadlinesHeavyDeal = [
         "Hamdi Bey'in telefon teklifine 'Varım' dedi, stüdyo dondu kaldı!",
         "Bankacının tatlı diline aldandı, faturayı tüm stüdyo kesti!",
@@ -69,9 +81,16 @@ function generateComedicNews(dare, isDeal, rank, streamer = "Tarık") {
         "Cesaretinin ödülünü aldı: Kutusundan çıkan hafif ceza stüdyoyu yıktı!"
     ];
 
-    let subheadlinePool = isHeavy
-        ? (isDeal ? subheadlinesHeavyDeal : subheadlinesHeavyBox)
-        : (isDeal ? subheadlinesLightDeal : subheadlinesLightBox);
+    let subheadlinePool;
+    if (isHeavy) {
+        if (isDeal) subheadlinePool = subheadlinesHeavyDeal;
+        else if (hasSwapped) subheadlinePool = subheadlinesHeavySwap;
+        else subheadlinePool = subheadlinesHeavyBox;
+    } else {
+        if (isDeal) subheadlinePool = subheadlinesLightDeal;
+        else if (hasSwapped) subheadlinePool = subheadlinesLightSwap;
+        else subheadlinePool = subheadlinesLightBox;
+    }
 
     const subheadline = subheadlinePool[Math.floor(Math.random() * subheadlinePool.length)];
 
@@ -104,12 +123,13 @@ module.exports = async (req, res) => {
         const isDeal = !!body.isDeal;
         const rank = parseInt(body.rank) || 10;
         const streamer = body.streamer || "Tarık";
+        const hasSwapped = !!body.hasSwapped;
 
         const apiKey = process.env.OPENROUTER_API_KEY;
 
         // If no API key configured, use rich thematic fallback engine
         if (!apiKey) {
-            const fallback = generateComedicNews(dare, isDeal, rank, streamer);
+            const fallback = generateComedicNews(dare, isDeal, rank, streamer, hasSwapped);
             res.status(200).json({ ok: true, ...fallback });
             return;
         }
@@ -134,7 +154,7 @@ Yarışma Sonucu:
 Oyuncu: ${streamer}
 Kazandığı Ceza: "${dare}"
 Ceza Türü: ${rank <= 15 ? 'AĞIR CEZA (Kötü sonuç)' : 'HAFİF CEZA (İyi sonuç / Kurtuluş)'}
-Oyun Sonu Kararı: ${isDeal ? 'Hamdi Beyin teklifine VARIM dedi (Kabul etti)' : 'Kendi kutusunu açtı (Sonuna kadar gitti)'}
+Oyun Sonu Kararı: ${isDeal ? 'Hamdi Beyin teklifine VARIM dedi (Kabul etti)' : (hasSwapped ? 'Son dakikada KUTUSUNU DEĞİŞTİRDİ (Masadaki son kutuyla takas yaptı)' : 'İlk seçtiği kendi kutusunu açtı (Sonuna kadar kutusuna güvendi)')}
 
 ${contextGuide ? `Referans Bilgi:\n${contextGuide.slice(0, 800)}\n` : ''}
 
