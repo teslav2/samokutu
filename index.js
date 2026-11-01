@@ -941,7 +941,7 @@ const TRANSLATIONS = {
         noDealBtn: "YOKUM (Reddet)",
         resultTitle: "Oyun Bitti!",
         resultSourceText: "Sonucunda kazandığın ceza:",
-        restartBtn: "Tekrar Dene",
+        restartBtn: "TEKRAR OYNA",
         resultMenuBtn: "Ana Menü",
         confirmMenu: "Oyunu sonlandırıp menüye dönmek istediğinizden emin misiniz? İlerlemeniz silinecek.",
         boxSelection: "KUTU SEÇİMİ",
@@ -1014,7 +1014,7 @@ const TRANSLATIONS = {
         noDealBtn: "NO DEAL (Reject)",
         resultTitle: "Game Over!",
         resultSourceText: "The dare you won:",
-        restartBtn: "Try Again",
+        restartBtn: "PLAY AGAIN",
         resultMenuBtn: "Main Menu",
         confirmMenu: "Are you sure you want to end the game and return to menu? Your progress will be lost.",
         boxSelection: "BOX SELECTION",
@@ -4172,8 +4172,8 @@ async function showTvNewsResult(viaDeal, resultDare, rank) {
     }
     if (marqueeEl) {
         marqueeEl.innerText = isHeavy
-            ? `🔴 FLAŞ GELİŞME: IOWF KUTUSUNDA BÜYÜK HİSSETTİ • CHAT KAHKAHAYA BOĞULDU • HAMDİ BEY: "BEN DEMİŞTİM, BU CEZA KAÇMAZDI!" • CEZA: ${resultDare.toUpperCase()} • ⚡ SAMO TV ÖZEL YAYINI DEVAM EDİYOR...`
-            : `🟢 MÜJDE: IOWF HAFİF ATLATTI • CHATTE SEVİNÇ ÇIĞLIKLARI • HAMDİ BEY MASADAN MAĞLUP AYRILDI • CEZA: ${resultDare.toUpperCase()} • ⚡ SAMO TV ÖZEL YAYINI...`;
+            ? `🔴 FLAŞ GELİŞME: IOWF KUTUSUNDA BÜYÜK HİSSETTİ • CHAT KAHKAHAYA BOĞULDU • CEZA: ${resultDare.toUpperCase()} • ⚡ SAMO TV ÖZEL YAYINI DEVAM EDİYOR...`
+            : `🟢 MÜJDE: IOWF HAFİF ATLATTI • CHATTE SEVİNÇ ÇIĞLIKLARI • CEZA: ${resultDare.toUpperCase()} • ⚡ SAMO TV ÖZEL YAYINI DEVAM EDİYOR...`;
     }
 
     // Hamdi verdict grade
