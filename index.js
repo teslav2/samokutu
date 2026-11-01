@@ -3825,15 +3825,21 @@ function doOpenBox(box) {
         soundManager.playOpenBox(isHeavy);
     }
 
+    const dareDisplay = box.dare && box.dare.length > 38
+        ? (box.dare.substring(0, 36).trim() + '...')
+        : (box.dare || '');
+
     const openedMsg = isInsured
         ? (currentLang === 'tr'
-            ? `Kutu ${box.id} Açıldı: "${box.dare}" SİGORTALANDI ve İptal Edildi! 🛡️`
-            : `Box ${box.id} Opened: "${box.dare}" INSURED and Cancelled! 🛡️`)
+            ? `Kutu ${box.id}: "${dareDisplay}" SİGORTALANDI! 🛡️`
+            : `Box ${box.id}: "${dareDisplay}" INSURED! 🛡️`)
         : ((streamerMode.enabled && activeViewer)
             ? (currentLang === 'tr'
-                ? `${activeViewer.name}, Kutu ${box.id}'ü açtı: "${box.dare}" elendi!`
-                : `${activeViewer.name} opened Box ${box.id}: "${box.dare}" eliminated!`)
-            : t('boxOpenedMsg', {id: box.id, dare: box.dare}));
+                ? `${activeViewer.name}, Kutu ${box.id}: "${dareDisplay}" elendi!`
+                : `${activeViewer.name}, Box ${box.id}: "${dareDisplay}" eliminated!`)
+            : (currentLang === 'tr'
+                ? `Kutu ${box.id}: "${dareDisplay}" elendi!`
+                : `Box ${box.id}: "${dareDisplay}" eliminated!`));
 
     showDareReveal(box, isInsured);
     updateStatusMessage(openedMsg, { highlight: true, heavy: isHeavy && !isInsured, light: !isHeavy || isInsured });
