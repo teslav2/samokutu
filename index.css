@@ -1781,8 +1781,9 @@ body {
 /* Queue Panel */
 .queue-panel {
     flex: 0 0 auto;
-    max-height: 180px;
+    max-height: 215px;
     border-bottom: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
 }
 
 .queue-header {
@@ -1831,6 +1832,17 @@ body {
 
 .queue-item:hover {
     background: rgba(255,255,255,0.04);
+}
+
+.queue-more-indicator {
+    padding: 6px 16px;
+    font-size: 0.76rem;
+    color: var(--primary);
+    font-weight: 700;
+    text-align: center;
+    background: rgba(255, 215, 0, 0.08);
+    border-top: 1px dashed rgba(255, 215, 0, 0.25);
+    letter-spacing: 0.5px;
 }
 
 .queue-position {
