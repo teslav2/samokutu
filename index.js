@@ -4291,12 +4291,53 @@ function applyTarikEmotion(emotion) {
     const posterSrc = isAngry ? 'assets/images/tarik_sinirli.png' : 'assets/images/tarik_mutlu.png';
 
     if (videoEl) {
+        // Arka plan rengini ve posteri container'a ekle (siyahlık görünmesin)
+        const container = videoEl.parentElement;
+        if (container) {
+            container.style.backgroundImage = 'url("' + posterSrc + '")';
+            container.style.backgroundSize = 'cover';
+            container.style.backgroundPosition = 'center';
+        }
+
+        // Kesintisiz döngü: Video sonundaki olası siyah kareye varmadan anında başa sar
+        if (!videoEl._seamlessLoopReady) {
+            videoEl._seamlessLoopReady = true;
+            videoEl.addEventListener('timeupdate', () => {
+                if (videoEl.duration && videoEl.currentTime > 0) {
+                    if (videoEl.duration - videoEl.currentTime < 0.12) {
+                        videoEl.currentTime = 0;
+                        videoEl.play().catch(() => {});
+                    }
+                }
+            });
+            videoEl.addEventListener('ended', () => {
+                videoEl.currentTime = 0;
+                videoEl.play().catch(() => {});
+            });
+        }
+
+        // Video kaynağını ayarla
         if (!videoEl.src.includes(videoSrc)) {
             videoEl.poster = posterSrc;
             videoEl.src = videoSrc;
             videoEl.load();
         }
-        videoEl.play().catch(() => {});
+
+        // Ses ayarlarından tamamen bağımsız %100 ses seviyesi
+        videoEl.muted = false;
+        videoEl.volume = 1.0;
+
+        const playPromise = videoEl.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                videoEl.muted = false;
+                videoEl.volume = 1.0;
+            }).catch(() => {
+                // Tarayıcı ilk autoplay engeli verirse sessiz dene
+                videoEl.muted = true;
+                videoEl.play().catch(() => {});
+            });
+        }
     }
 
     if (photoEl) {
@@ -4305,6 +4346,8 @@ function applyTarikEmotion(emotion) {
 }
 
 function resetToMenu() {
+    const tvVid = document.getElementById('tv-tarik-video');
+    if (tvVid) { tvVid.pause(); tvVid.currentTime = 0; }
     soundManager.stopPhoneRing();
     soundManager.stopVoiceover();
     hideGameDim();

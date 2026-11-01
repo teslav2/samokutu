@@ -4482,7 +4482,9 @@ body {
     width: 100%;
     aspect-ratio: 16 / 9;
     max-height: 240px;
-    background: #05060a;
+    background-color: #101320;
+    background-size: cover;
+    background-position: center center;
     position: relative;
     display: flex;
     align-items: center;
