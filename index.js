@@ -1366,27 +1366,30 @@ function setupStreamerCallbacks() {
         chatMessagesContainer.appendChild(msgDiv);
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
 
-        // Eğer aktif yarışmacı !varım veya !yokum dediyse ve banker teklif modalı açıksa teklifi yanıtla
-        if (isActiveViewer && bankerModal && !bankerModal.classList.contains('hidden')) {
-            if (isVarim && dealBtn) {
-                dealBtn.click();
-            } else if (isYokum && noDealBtn) {
-                noDealBtn.click();
-            }
-        }
-
-        // Banker Oylaması (!varım / !yokum)
+        // Banker Oylaması (!varım / !yokum) - Canlı oy değiştirme destekli
         if (currentPoll && !isSystem) {
+            const userKey = (msg.name || '').toLowerCase().trim();
+            if (!currentPoll.userVotes) {
+                currentPoll.userVotes = new Map();
+            }
+            const prevVote = currentPoll.userVotes.get(userKey);
+
             if (isVarim) {
-                if (!currentPoll.votedUsers.has(msg.name)) {
-                    currentPoll.votedUsers.add(msg.name);
+                if (prevVote !== 'varim') {
+                    if (prevVote === 'yokum') {
+                        currentPoll.yokum = Math.max(0, currentPoll.yokum - 1);
+                    }
                     currentPoll.varim++;
+                    currentPoll.userVotes.set(userKey, 'varim');
                     updatePollUI();
                 }
             } else if (isYokum) {
-                if (!currentPoll.votedUsers.has(msg.name)) {
-                    currentPoll.votedUsers.add(msg.name);
+                if (prevVote !== 'yokum') {
+                    if (prevVote === 'varim') {
+                        currentPoll.varim = Math.max(0, currentPoll.varim - 1);
+                    }
                     currentPoll.yokum++;
+                    currentPoll.userVotes.set(userKey, 'yokum');
                     updatePollUI();
                 }
             }
@@ -3873,9 +3876,8 @@ function doOpenBox(box) {
     }
 
     const afterReveal = () => {
-        if (streamerMode.enabled && activeViewer) {
-            updateStatusMessage(t('streamerOpenBox', {name: activeViewer.name, count: boxesToOpenInRound}));
-        } else if (streamerMode.enabled) {
+        if (streamerMode.enabled) {
+            activeViewer = null; // Kutu açıldı, sıra bekleme kuyruğundaki sonraki yarışmacıya geçer
             tryNextViewer();
         } else {
             updateStatusMessage(t('boxesLeftMsg', {count: boxesToOpenInRound}), { highlight: false });
@@ -3883,6 +3885,9 @@ function doOpenBox(box) {
     };
 
     if (boxesToOpenInRound === 0) {
+        if (streamerMode.enabled) {
+            activeViewer = null; // Tur tamamlandı, bankacı araması başlar
+        }
         setTimeout(() => triggerBankerCall(), getDareRevealDuration());
     } else {
         setTimeout(afterReveal, getDareRevealDuration());
@@ -4037,10 +4042,8 @@ function declineBankerOffer() {
             triggerFinalChoice(unopenedGridBoxes[0]);
         } else {
             updateRoundIndicator(t('roundTitle', {n: currentRound}), "aktif");
-            if (streamerMode.enabled && activeViewer) {
-                updateStatusMessage(t('streamerOpenBox', {name: activeViewer.name, count: boxesToOpenInRound}));
-                streamerMode.addSystemMessage(`${activeViewer.name}, ${currentRound}. tur başladı! ${bankerName}'in aramasına son ${boxesToOpenInRound} kutu kaldı.`);
-            } else if (streamerMode.enabled) {
+            if (streamerMode.enabled) {
+                activeViewer = null;
                 tryNextViewer();
             } else {
                 updateStatusMessage(t('declineOfferMsg', {count: boxesToOpenInRound}));
@@ -4649,7 +4652,7 @@ function startBankerPoll() {
     currentPoll = {
         varim: 0,
         yokum: 0,
-        votedUsers: new Set()
+        userVotes: new Map()
     };
 
     updatePollUI();
@@ -4722,12 +4725,20 @@ function updatePollUI() {
     if (varimBar) {
         varimBar.style.width = `${varimPct}%`;
         const label = varimBar.querySelector('.poll-bar-label');
-        if (label) label.innerText = `${currentLang === 'tr' ? 'Varım' : 'Deal'} (%${varimPct})`;
+        if (label) {
+            label.innerText = totalVotes > 0
+                ? `${currentLang === 'tr' ? 'Varım' : 'Deal'} (%${varimPct}) [${currentPoll.varim}]`
+                : `${currentLang === 'tr' ? 'Varım' : 'Deal'} (%50)`;
+        }
     }
     if (yokumBar) {
         yokumBar.style.width = `${yokumPct}%`;
         const label = yokumBar.querySelector('.poll-bar-label');
-        if (label) label.innerText = `${currentLang === 'tr' ? 'Yokum' : 'No Deal'} (%${yokumPct})`;
+        if (label) {
+            label.innerText = totalVotes > 0
+                ? `${currentLang === 'tr' ? 'Yokum' : 'No Deal'} (%${yokumPct}) [${currentPoll.yokum}]`
+                : `${currentLang === 'tr' ? 'Yokum' : 'No Deal'} (%50)`;
+        }
     }
 }
 
