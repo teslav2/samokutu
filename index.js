@@ -760,6 +760,7 @@ const soundManager = new SoundManager();
 
 // GAME VARIABLES
 let musicStarted = false;
+let rawDaresList = [...DEFAULT_DARES];
 let daresList = [...DEFAULT_DARES];
 let gameBoxes = [];
 let playerBox = null;
@@ -2676,29 +2677,33 @@ function checkMenuBackground() {
 }
 
 // Load Dares from cezalar.txt (with CORS error handling and fallback)
+
+function shuffleDaresByTier() {
+    const base = (rawDaresList && rawDaresList.length >= 30) ? rawDaresList : DEFAULT_DARES;
+    const heavy = shuffleArray([...base.slice(0, 15)]);
+    const light = shuffleArray([...base.slice(15, 30)]);
+    daresList = [...heavy, ...light];
+}
+
 async function loadDares() {
     try {
         const response = await fetch('cezalar.txt');
         if (!response.ok) throw new Error("Dosya yüklenemedi");
         const text = await response.text();
         // Split by lines, trim, and filter out empty lines
-        daresList = text.split('\n')
+        const parsedDares = text.split('\n')
             .map(line => line.trim())
             .filter(line => line.length > 0);
             
-        // Ensure we have exactly 30 dares
-        if (daresList.length < 30) {
-            console.warn(`Cezalar dosyasında ${daresList.length} adet ceza bulundu. 30'a tamamlamak için varsayılanlar ekleniyor.`);
-            while (daresList.length < 30) {
-                daresList.push(DEFAULT_DARES[daresList.length]);
-            }
-        } else if (daresList.length > 30) {
-            console.warn(`Cezalar dosyasında ${daresList.length} adet ceza bulundu. İlk 30 ceza kullanılacak.`);
-            daresList = daresList.slice(0, 30);
+        while (parsedDares.length < 30) {
+            parsedDares.push(DEFAULT_DARES[parsedDares.length % DEFAULT_DARES.length]);
         }
+        rawDaresList = parsedDares.slice(0, 30);
+        shuffleDaresByTier();
     } catch (e) {
         console.warn("CORS kısıtlaması veya dosya eksikliği nedeniyle cezalar.txt yüklenemedi. Varsayılan liste yükleniyor.", e);
-        daresList = [...DEFAULT_DARES];
+        rawDaresList = [...DEFAULT_DARES];
+        shuffleDaresByTier();
     }
 }
 
@@ -3092,6 +3097,8 @@ function startGame(fade = true) {
         updateStatusMessage(t('chooseYourBoxDesc'));
     }
 
+    // Her oyunda cezalar kendi kategorisi (Ağır 1-15, Hafif 16-30) içinde rastgele karıştırılır
+    shuffleDaresByTier();
     // Setup reward sidebars
     setupSidebars();
 

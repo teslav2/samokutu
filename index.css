@@ -646,7 +646,7 @@ body {
     border-radius: 15px;
     display: flex;
     flex-direction: column;
-    padding: 8px 10px;
+    padding: 10px 12px;
     backdrop-filter: blur(10px);
     overflow: hidden;
     min-height: 0;
@@ -654,10 +654,10 @@ body {
 
 .sidebar-title {
     font-weight: 800;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     text-transform: uppercase;
-    padding-bottom: 6px;
-    margin-bottom: 6px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
     border-bottom: 2px solid var(--border-glass);
     text-align: center;
     letter-spacing: 1px;
@@ -677,12 +677,13 @@ body {
 .rewards-list {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    justify-content: space-between;
+    gap: 4px;
     overflow-y: auto;
     overflow-x: hidden;
     flex-grow: 1;
     min-height: 0;
-    padding-right: 2px;
+    padding-right: 3px;
 }
 
 .rewards-list::-webkit-scrollbar {
@@ -696,14 +697,14 @@ body {
 .reward-item {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 3px 6px;
-    border-radius: 7px;
-    font-size: 0.72rem;
+    padding: 5px 8px;
+    border-radius: 8px;
+    font-size: 0.77rem;
     display: flex;
     align-items: flex-start;
-    gap: 7px;
+    gap: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-height: 25px;
+    min-height: 32px;
     flex-shrink: 0;
     box-sizing: border-box;
     width: 100%;
@@ -711,11 +712,11 @@ body {
 
 .reward-item .reward-name {
     flex-grow: 1;
-    line-height: 1.18;
+    line-height: 1.22;
     word-break: break-word;
     white-space: normal;
     font-family: 'Outfit', sans-serif;
-    color: rgba(255, 255, 255, 0.88);
+    color: rgba(255, 255, 255, 0.9);
     text-align: left;
 }
 
@@ -729,13 +730,13 @@ body {
 
 .reward-item .reward-rank {
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     line-height: 1;
     margin-top: 1px;
 }
