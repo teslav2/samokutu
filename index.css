@@ -640,13 +640,13 @@ body {
 }
 
 .sidebar {
-    width: 325px;
+    width: 345px;
     background: var(--bg-card);
     border: 1px solid var(--border-glass);
     border-radius: 15px;
     display: flex;
     flex-direction: column;
-    padding: 12px;
+    padding: 8px 10px;
     backdrop-filter: blur(10px);
     overflow: hidden;
     min-height: 0;
@@ -654,10 +654,10 @@ body {
 
 .sidebar-title {
     font-weight: 800;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     text-transform: uppercase;
-    padding-bottom: 8px;
-    margin-bottom: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
     border-bottom: 2px solid var(--border-glass);
     text-align: center;
     letter-spacing: 1px;
@@ -677,12 +677,12 @@ body {
 .rewards-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 3px;
     overflow-y: auto;
     overflow-x: hidden;
     flex-grow: 1;
     min-height: 0;
-    padding-right: 4px;
+    padding-right: 2px;
 }
 
 .rewards-list::-webkit-scrollbar {
@@ -696,14 +696,14 @@ body {
 .reward-item {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 5px 8px;
-    border-radius: 8px;
-    font-size: 0.78rem;
+    padding: 3px 6px;
+    border-radius: 7px;
+    font-size: 0.72rem;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-start;
+    gap: 7px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-height: 34px;
+    min-height: 25px;
     flex-shrink: 0;
     box-sizing: border-box;
     width: 100%;
@@ -711,11 +711,12 @@ body {
 
 .reward-item .reward-name {
     flex-grow: 1;
-    line-height: 1.25;
+    line-height: 1.18;
     word-break: break-word;
     white-space: normal;
     font-family: 'Outfit', sans-serif;
     color: rgba(255, 255, 255, 0.88);
+    text-align: left;
 }
 
 .left-sidebar .reward-item .reward-name {
@@ -723,19 +724,20 @@ body {
 }
 
 .right-sidebar .reward-item .reward-name {
-    text-align: right;
+    text-align: left;
 }
 
 .reward-item .reward-rank {
     flex-shrink: 0;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     line-height: 1;
+    margin-top: 1px;
 }
 
 .left-sidebar .reward-item .reward-rank {
@@ -806,8 +808,8 @@ body {
 }
 
 .right-sidebar .reward-item {
-    background: linear-gradient(270deg, rgba(255, 50, 50, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
-    border-right: 3px solid var(--red-color);
+    background: linear-gradient(90deg, rgba(255, 50, 50, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border-left: 3px solid var(--red-color);
 }
 
 .reward-item:hover {

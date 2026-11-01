@@ -3153,8 +3153,8 @@ function setupSidebars() {
         item.className = 'reward-item';
         item.setAttribute('data-rank', i + 1);
         item.innerHTML = `
-            <span class="reward-name">${daresList[i] || ''}</span>
             <span class="reward-rank red-title">😈</span>
+            <span class="reward-name">${daresList[i] || ''}</span>
         `;
         rightRewardsList.appendChild(item);
     }
