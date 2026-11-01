@@ -44,7 +44,7 @@
     <link rel="preload" href="assets/fonts/Lilomon.woff" as="font" type="font/woff" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css?v=4.4.5">
+    <link rel="stylesheet" href="index.css?v=4.4.6">
 </head>
 <body oncontextmenu="return false;">
 
@@ -729,6 +729,13 @@
                         </div>
                         <div class="tv-photo-caption">
                             <div class="caption-name">TARIK (IOWF)</div>
+                            <div class="tv-video-audio-bar">
+                                <button id="tv-audio-mute-btn" class="tv-audio-btn" type="button" title="Sesi Aç/Kapat">
+                                    <i class="fas fa-volume-up" id="tv-audio-icon"></i>
+                                </button>
+                                <input type="range" id="tv-video-vol-slider" class="tv-vol-slider" min="0" max="100" step="10" value="100">
+                                <span id="tv-video-vol-label" class="tv-vol-label">100%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -842,8 +849,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=4.4.5"></script>
+    <script src="streamer.js?v=4.4.6"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=4.4.5"></script>
+    <script src="index.js?v=4.4.6"></script>
 </body>
 </html>
