@@ -438,7 +438,7 @@ class SoundManager {
 
             burstCount++;
             if (burstCount < totalBursts) {
-                this.phoneRingTimeout = setTimeout(playRingBurst, fast ? 950 : 1500);
+                this.phoneRingTimeout = setTimeout(playRingBurst, fast ? 600 : 900);
             } else {
                 this.phoneRingTimeout = setTimeout(() => {
                     this.stopPhoneRing();
@@ -1540,10 +1540,10 @@ const SETTINGS_TRANSLATIONS = {
         musicDesc: "Menü ve oyun içi arka plan müziğini ayarlar.",
         dialogueToggleLabel: "Kutu Diyalogları",
         dialogueToggleDesc: "Kutu açılırken sahiplerinin konuşma balonlarını gösterir veya gizler.",
-        voiceoverVolLabel: "Seslendirme Sesi",
-        voiceoverVolDesc: "Bankacı konuşmaları ve Ahmet Dayı replikleri ses düzeyini ayarlar.",
-        voiceoverToggleLabel: "Bankacı & Ahmet Dayı Seslendirmeleri",
-        voiceoverToggleDesc: "Bankacı ve Ahmet Dayı seslendirmelerini tamamen açar veya kapatır.",
+        voiceoverVolLabel: "Diyalog Sesi",
+        voiceoverVolDesc: "Bankacı ve kutu diyalogları ses düzeyini ayarlar.",
+        voiceoverToggleLabel: "Bankacı Seslendirmeleri",
+        voiceoverToggleDesc: "Bankacı seslendirmelerini tamamen açar veya kapatır.",
         soundTest: "Ses Testi",
         soundTestDesc: "Sentezleyici ses tonlarının düzgün çalışıp çalışmadığını test edin.",
         testToneBtn: "Tonu Test Et",
@@ -2818,6 +2818,7 @@ function setupEventListeners() {
 
     // Restart Button
     restartBtn.addEventListener('click', () => {
+        stopTvVideo();
         soundManager.playClick();
         closeModal(resultModal);
         startGame(false);
@@ -4286,12 +4287,13 @@ function applyTarikEmotion(emotion) {
         statusEl.remove();
     }
 
+    initTvAudioControls();
+
     const isAngry = (emotion === 'sinirli' || emotion === 'uzgun' || emotion === 'saskin');
     const videoSrc = isAngry ? 'assets/video/iowfsinirli.mp4' : 'assets/video/iowfmutlu.mp4';
     const posterSrc = isAngry ? 'assets/images/tarik_sinirli.png' : 'assets/images/tarik_mutlu.png';
 
     if (videoEl) {
-        // Arka plan rengini ve posteri container'a ekle (siyahlık görünmesin)
         const container = videoEl.parentElement;
         if (container) {
             container.style.backgroundImage = 'url("' + posterSrc + '")';
@@ -4299,41 +4301,23 @@ function applyTarikEmotion(emotion) {
             container.style.backgroundPosition = 'center';
         }
 
-        // Kesintisiz döngü: Video sonundaki olası siyah kareye varmadan anında başa sar
-        if (!videoEl._seamlessLoopReady) {
-            videoEl._seamlessLoopReady = true;
-            videoEl.addEventListener('timeupdate', () => {
-                if (videoEl.duration && videoEl.currentTime > 0) {
-                    if (videoEl.duration - videoEl.currentTime < 0.12) {
-                        videoEl.currentTime = 0;
-                        videoEl.play().catch(() => {});
-                    }
-                }
-            });
-            videoEl.addEventListener('ended', () => {
-                videoEl.currentTime = 0;
-                videoEl.play().catch(() => {});
-            });
-        }
-
-        // Video kaynağını ayarla
+        videoEl.loop = true;
         if (!videoEl.src.includes(videoSrc)) {
             videoEl.poster = posterSrc;
             videoEl.src = videoSrc;
             videoEl.load();
         }
 
-        // Ses ayarlarından tamamen bağımsız %100 ses seviyesi
-        videoEl.muted = false;
-        videoEl.volume = 1.0;
+        // Kullanıcının ayarladığı veya %100 varsayılan ses
+        videoEl.muted = tvVideoMuted;
+        videoEl.volume = tvVideoVolume;
 
         const playPromise = videoEl.play();
         if (playPromise !== undefined) {
             playPromise.then(() => {
-                videoEl.muted = false;
-                videoEl.volume = 1.0;
+                videoEl.muted = tvVideoMuted;
+                videoEl.volume = tvVideoVolume;
             }).catch(() => {
-                // Tarayıcı ilk autoplay engeli verirse sessiz dene
                 videoEl.muted = true;
                 videoEl.play().catch(() => {});
             });
@@ -4345,7 +4329,17 @@ function applyTarikEmotion(emotion) {
     }
 }
 
+function stopTvVideo() {
+    const videoEl = document.getElementById('tv-tarik-video');
+    if (videoEl) {
+        videoEl.pause();
+        videoEl.currentTime = 0;
+        try { videoEl.src = ''; } catch(e){}
+    }
+}
+
 function resetToMenu() {
+    stopTvVideo();
     const tvVid = document.getElementById('tv-tarik-video');
     if (tvVid) { tvVid.pause(); tvVid.currentTime = 0; }
     soundManager.stopPhoneRing();
@@ -4772,3 +4766,52 @@ document.addEventListener('keydown', e => {
         testTvNewsScreen();
     }
 });
+
+
+let tvVideoVolume = 1.0;
+let tvVideoMuted = false;
+
+function initTvAudioControls() {
+    const slider = document.getElementById('tv-video-vol-slider');
+    const label = document.getElementById('tv-video-vol-label');
+    const muteBtn = document.getElementById('tv-audio-mute-btn');
+    const icon = document.getElementById('tv-audio-icon');
+    const videoEl = document.getElementById('tv-tarik-video');
+
+    if (slider) {
+        slider.oninput = () => {
+            const val = parseInt(slider.value, 10);
+            tvVideoVolume = val / 100;
+            if (label) label.innerText = val + '%';
+            if (videoEl) {
+                videoEl.volume = tvVideoVolume;
+                videoEl.muted = (val === 0);
+            }
+            tvVideoMuted = (val === 0);
+            if (icon) {
+                icon.className = tvVideoMuted ? 'fas fa-volume-mute' : (val < 50 ? 'fas fa-volume-down' : 'fas fa-volume-up');
+            }
+        };
+    }
+
+    if (muteBtn) {
+        muteBtn.onclick = () => {
+            tvVideoMuted = !tvVideoMuted;
+            if (videoEl) videoEl.muted = tvVideoMuted;
+            if (icon) {
+                icon.className = tvVideoMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+            }
+            if (tvVideoMuted) {
+                if (slider) slider.value = 0;
+                if (label) label.innerText = '0%';
+            } else {
+                const restoreVal = tvVideoVolume > 0 ? Math.round(tvVideoVolume * 100) : 100;
+                tvVideoVolume = restoreVal / 100;
+                if (videoEl) videoEl.volume = tvVideoVolume;
+                if (slider) slider.value = restoreVal;
+                if (label) label.innerText = restoreVal + '%';
+            }
+        };
+    }
+}
+
