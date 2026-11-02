@@ -4302,130 +4302,40 @@ async function showTvNewsResult(viaDeal, resultDare, rank, hasSwapped = false) {
 }
 
 function applyTarikEmotion(emotion) {
-    const videoEl = document.getElementById('tv-tarik-video');
     const photoEl = document.getElementById('tv-tarik-photo');
     const statusEl = document.getElementById('tv-tarik-status');
-    const audioBar = document.querySelector('.tv-video-audio-bar');
 
     if (statusEl) {
         statusEl.style.display = 'none';
         statusEl.remove();
     }
 
-    initTvAudioControls();
-
     const isAngry = (emotion === 'sinirli' || emotion === 'uzgun' || emotion === 'saskin');
+    const gifSrc = isAngry ? 'assets/images/iowfsinirligif.webp' : 'assets/images/iowfmutlugif.webp';
+    const fallbackSrc = isAngry ? 'assets/images/iowfsinirligif.gif' : 'assets/images/iowfmutlugif.gif';
+    const posterSrc = isAngry ? 'assets/images/tarik_sinirli.webp' : 'assets/images/tarik_mutlu.webp';
 
-    if (isAngry) {
-        // GIF / Animated WebP modu (Masaüstündeki iowfsinirligif)
-        stopTvVideo();
-        if (videoEl) videoEl.style.display = 'none';
-        if (audioBar) audioBar.style.display = 'none';
-
-        if (photoEl) {
-            photoEl.style.display = 'block';
-            photoEl.classList.remove('tv-video-fade-out');
-            photoEl.onerror = () => { photoEl.src = 'assets/images/iowfsinirligif.gif'; };
-            photoEl.src = 'assets/images/iowfsinirligif.webp';
-        }
-        return;
-    }
-
-    // Mutlu modu: iowfmutlu.mp4 video oynatma
     if (photoEl) {
-        photoEl.style.display = 'none';
-        try { photoEl.removeAttribute('src'); } catch(e){}
-    }
-    if (audioBar) audioBar.style.display = 'flex';
+        photoEl.style.display = 'block';
+        photoEl.classList.remove('tv-video-fade-out');
+        photoEl.onerror = () => { photoEl.src = fallbackSrc; };
+        photoEl.src = gifSrc;
 
-    const videoSrc = 'assets/video/iowfmutlu.mp4';
-    const posterSrc = 'assets/images/tarik_mutlu.webp';
-
-    if (videoEl) {
-        videoEl.style.display = 'block';
-        const container = videoEl.parentElement;
+        const container = photoEl.parentElement;
         if (container) {
             container.style.backgroundImage = 'url("' + posterSrc + '")';
             container.style.backgroundSize = 'cover';
             container.style.backgroundPosition = 'center';
         }
-
-        videoEl.loop = false; // Fade-out ve fade-in geçişli döngü
-        videoEl.classList.remove('tv-video-fade-out');
-
-        let isLoopTransitioning = false;
-        videoEl.ontimeupdate = () => {
-            if (!videoEl.duration || isLoopTransitioning) return;
-            // Video bitimine 0.45 saniye kala yumuşak fade-out başlat
-            if (videoEl.duration - videoEl.currentTime <= 0.45) {
-                isLoopTransitioning = true;
-                videoEl.classList.add('tv-video-fade-out');
-            }
-        };
-
-        videoEl.onended = () => {
-            isLoopTransitioning = true;
-            videoEl.classList.add('tv-video-fade-out');
-            setTimeout(() => {
-                videoEl.currentTime = 0;
-                const p = videoEl.play();
-                if (p !== undefined) {
-                    p.then(() => {
-                        setTimeout(() => {
-                            videoEl.classList.remove('tv-video-fade-out');
-                            isLoopTransitioning = false;
-                        }, 50);
-                    }).catch(() => {
-                        videoEl.classList.remove('tv-video-fade-out');
-                        isLoopTransitioning = false;
-                    });
-                } else {
-                    videoEl.classList.remove('tv-video-fade-out');
-                    isLoopTransitioning = false;
-                }
-            }, 180);
-        };
-
-        if (!videoEl.src.includes(videoSrc)) {
-            videoEl.poster = posterSrc;
-            videoEl.src = videoSrc;
-            videoEl.load();
-        }
-
-        // Kullanıcının ayarladığı veya %100 varsayılan ses
-        videoEl.muted = tvVideoMuted;
-        videoEl.volume = tvVideoVolume;
-
-        const playPromise = videoEl.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                videoEl.muted = tvVideoMuted;
-                videoEl.volume = tvVideoVolume;
-                videoEl.classList.remove('tv-video-fade-out');
-            }).catch(() => {
-                videoEl.muted = true;
-                videoEl.play().catch(() => {});
-                videoEl.classList.remove('tv-video-fade-out');
-            });
-        }
     }
 }
 
 function stopTvVideo() {
-    const videoEl = document.getElementById('tv-tarik-video');
     const photoEl = document.getElementById('tv-tarik-photo');
     if (photoEl) {
         photoEl.style.display = 'none';
         photoEl.onerror = null;
         try { photoEl.removeAttribute('src'); } catch(e){}
-    }
-    if (videoEl) {
-        videoEl.ontimeupdate = null;
-        videoEl.onended = null;
-        videoEl.classList.remove('tv-video-fade-out');
-        videoEl.pause();
-        videoEl.currentTime = 0;
-        try { videoEl.pause(); videoEl.removeAttribute('src'); videoEl.load(); } catch(e){}
     }
 }
 

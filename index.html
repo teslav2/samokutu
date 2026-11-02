@@ -49,7 +49,7 @@
     <link rel="preload" as="image" href="assets/images/openingsamologo.webp" type="image/webp" fetchpriority="high">
     <link rel="preload" as="image" href="assets/images/openingbg.webp" type="image/webp" fetchpriority="high">
     <link rel="preload" as="image" href="assets/images/logo.webp" type="image/webp">
-    <link rel="stylesheet" href="index.css?v=4.6.1">
+    <link rel="stylesheet" href="index.css?v=4.6.2">
 </head>
 <body oncontextmenu="return false;">
 
@@ -722,10 +722,10 @@
                             <span class="feed-signal"><i class="fas fa-wifi"></i> HD</span>
                         </div>
                         <div class="tv-photo-container">
-                            <video id="tv-tarik-video" class="tv-tarik-photo" playsinline preload="none" poster="assets/images/tarik_mutlu.webp"></video>
 
 
-                            <img id="tv-tarik-photo" src="assets/images/tarik_mutlu.webp" alt="Tarık" class="tv-tarik-photo" loading="lazy" decoding="async" style="display:none;">
+
+                            <img id="tv-tarik-photo" src="assets/images/tarik_mutlu.webp" alt="Tarık" class="tv-tarik-photo" loading="lazy" decoding="async">
                             <div class="tv-photo-scanlines"></div>
                             <div class="tv-cam-corner top-left"></div>
                             <div class="tv-cam-corner top-right"></div>
@@ -734,7 +734,7 @@
                         </div>
                         <div class="tv-photo-caption">
                             <div class="caption-name">TARIK (IOWF)</div>
-                            <div class="tv-video-audio-bar">
+                            <div class="tv-video-audio-bar" style="display:none;">
                                 <button id="tv-audio-mute-btn" class="tv-audio-btn" type="button" title="Sesi Aç/Kapat">
                                     <i class="fas fa-volume-up" id="tv-audio-icon"></i>
                                 </button>
@@ -854,8 +854,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=4.6.1"></script>
+    <script src="streamer.js?v=4.6.2"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=4.6.1"></script>
+    <script src="index.js?v=4.6.2"></script>
 </body>
 </html>
