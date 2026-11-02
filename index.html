@@ -11,7 +11,8 @@
 
     <!-- Favicon & Touch Icons (Arka planı temizlenmiş şeffaf logo) -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=2">
+    <link rel="icon" type="image/webp" sizes="32x32" href="/favicon.webp?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=3">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png?v=2">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2">
 
@@ -44,7 +45,11 @@
     <link rel="preload" href="assets/fonts/kongo-regular.woff" as="font" type="font/woff" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css?v=4.5.5">
+    <!-- Critical Above-The-Fold Preload (Instant LCP) -->
+    <link rel="preload" as="image" href="assets/images/openingsamologo.webp" type="image/webp" fetchpriority="high">
+    <link rel="preload" as="image" href="assets/images/openingbg.webp" type="image/webp" fetchpriority="high">
+    <link rel="preload" as="image" href="assets/images/logo.webp" type="image/webp">
+    <link rel="stylesheet" href="index.css?v=4.6.0">
 </head>
 <body oncontextmenu="return false;">
 
@@ -62,7 +67,7 @@
         <div class="entrance-overlay"></div>
         <div class="entrance-interactive-container">
             <div class="entrance-logo-wrapper">
-                <img id="entrance-samo-logo" src="assets/images/openingsamologo.png" alt="SAMO" class="entrance-logo">
+                <img id="entrance-samo-logo" src="assets/images/openingsamologo.webp" alt="SAMO" class="entrance-logo" fetchpriority="high" width="320" height="180">
             </div>
             <div class="entrance-action-wrapper">
                 <!-- Loading State -->
@@ -91,7 +96,7 @@
         <div class="gta-menu-container">
             <!-- Separate Floating Logo from logo.png -->
             <div class="gta-logo-img-container">
-                <img id="gta-logo" src="assets/images/logo.png" alt="Oyun Logosu">
+                <img id="gta-logo" src="assets/images/logo.webp" alt="Oyun Logosu" fetchpriority="high">
             </div>
             
             <!-- Bottom Menu Bar, exactly like GTA 4 -->
@@ -717,10 +722,10 @@
                             <span class="feed-signal"><i class="fas fa-wifi"></i> HD</span>
                         </div>
                         <div class="tv-photo-container">
-                            <video id="tv-tarik-video" class="tv-tarik-photo" playsinline preload="none" poster="assets/images/tarik_mutlu.png"></video>
+                            <video id="tv-tarik-video" class="tv-tarik-photo" playsinline preload="none" poster="assets/images/tarik_mutlu.webp"></video>
 
 
-                            <img id="tv-tarik-photo" src="assets/images/tarik_mutlu.png" alt="Tarık" class="tv-tarik-photo" style="display:none;">
+                            <img id="tv-tarik-photo" src="assets/images/tarik_mutlu.webp" alt="Tarık" class="tv-tarik-photo" loading="lazy" decoding="async" style="display:none;">
                             <div class="tv-photo-scanlines"></div>
                             <div class="tv-cam-corner top-left"></div>
                             <div class="tv-cam-corner top-right"></div>
@@ -849,8 +854,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=4.5.5"></script>
+    <script src="streamer.js?v=4.6.0"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=4.5.5"></script>
+    <script src="index.js?v=4.6.0"></script>
 </body>
 </html>

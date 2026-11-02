@@ -2686,7 +2686,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // Check if menu.png and logo.png exist
 function checkMenuBackground() {
     const img = new Image();
-    img.src = 'assets/images/menu.png';
+    img.src = 'assets/images/menu.webp';
     img.onload = () => {
         document.body.classList.add('has-menu-bg');
     };
@@ -4315,7 +4315,7 @@ function applyTarikEmotion(emotion) {
 
     const isAngry = (emotion === 'sinirli' || emotion === 'uzgun' || emotion === 'saskin');
     const videoSrc = isAngry ? 'assets/video/iowfsinirli.mp4' : 'assets/video/iowfmutlu.mp4';
-    const posterSrc = isAngry ? 'assets/images/tarik_sinirli.png' : 'assets/images/tarik_mutlu.png';
+    const posterSrc = isAngry ? 'assets/images/tarik_sinirli.webp' : 'assets/images/tarik_mutlu.webp';
 
     if (videoEl) {
         const container = videoEl.parentElement;
