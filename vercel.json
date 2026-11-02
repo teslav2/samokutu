@@ -24,7 +24,7 @@
       ]
     },
     {
-      "source": "/(.*\\.(?:svg|jpg|jpeg|png|webp|avif|gif|ico|woff|woff2|otf|ttf|mp3|wav|mp4|webm))",
+      "source": "/assets/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -33,7 +33,7 @@
       ]
     },
     {
-      "source": "/assets/(.*)",
+      "source": "/(.*\\.(?:ico|png|jpg|jpeg|svg|webp|avif|gif|woff|woff2|otf|ttf|mp3|wav|mp4|webm))",
       "headers": [
         {
           "key": "Cache-Control",
@@ -47,27 +47,6 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
         }
       ]
     }

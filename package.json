@@ -4,8 +4,7 @@
   "description": "Samo Kutu Oyunu - Var misin Yok musun Kick Canli Yayin Entegrasyonu",
   "main": "index.js",
   "scripts": {
-    "start": "node -e \"console.log('Static game ready for Vercel')\"",
-    "build": "node -e \"console.log('Build validation passed: All static assets and routes verified successfully.')\""
+    "start": "node -e \"console.log('Static game ready for Vercel')\""
   },
   "keywords": [
     "game",
