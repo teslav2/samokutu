@@ -1366,6 +1366,20 @@ function setupStreamerCallbacks() {
         chatMessagesContainer.appendChild(msgDiv);
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
 
+        // !oyna mesajları 5 saniye sonra kaybolsun
+        if (isTrigger) {
+            setTimeout(() => {
+                if (msgDiv && msgDiv.parentNode) {
+                    msgDiv.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (msgDiv && msgDiv.parentNode) {
+                            msgDiv.remove();
+                        }
+                    }, 500);
+                }
+            }, 5000);
+        }
+
         // Banker Oylaması (!varım / !yokum) - Canlı oy değiştirme destekli
         if (currentPoll && !isSystem) {
             const userKey = (msg.name || '').toLowerCase().trim();

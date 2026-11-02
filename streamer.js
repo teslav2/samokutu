@@ -509,9 +509,9 @@ class StreamerMode {
         }
 
         this.viewerQueue.push(viewer);
-        const queuePos = this.viewerQueue.length;
 
-        this.addSystemMessage(`${viewer.name} !oyna yazarak sıraya girdi! (Sırada: ${queuePos}. kişi)`);
+
+
 
         if (this.onViewerJoinQueue) {
             this.onViewerJoinQueue(viewer);
