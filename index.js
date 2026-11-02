@@ -4305,6 +4305,7 @@ function applyTarikEmotion(emotion) {
     const videoEl = document.getElementById('tv-tarik-video');
     const photoEl = document.getElementById('tv-tarik-photo');
     const statusEl = document.getElementById('tv-tarik-status');
+    const audioBar = document.querySelector('.tv-video-audio-bar');
 
     if (statusEl) {
         statusEl.style.display = 'none';
@@ -4314,10 +4315,34 @@ function applyTarikEmotion(emotion) {
     initTvAudioControls();
 
     const isAngry = (emotion === 'sinirli' || emotion === 'uzgun' || emotion === 'saskin');
-    const videoSrc = isAngry ? 'assets/video/iowfsinirli.mp4' : 'assets/video/iowfmutlu.mp4';
-    const posterSrc = isAngry ? 'assets/images/tarik_sinirli.webp' : 'assets/images/tarik_mutlu.webp';
+
+    if (isAngry) {
+        // GIF / Animated WebP modu (Masaüstündeki iowfsinirligif)
+        stopTvVideo();
+        if (videoEl) videoEl.style.display = 'none';
+        if (audioBar) audioBar.style.display = 'none';
+
+        if (photoEl) {
+            photoEl.style.display = 'block';
+            photoEl.classList.remove('tv-video-fade-out');
+            photoEl.onerror = () => { photoEl.src = 'assets/images/iowfsinirligif.gif'; };
+            photoEl.src = 'assets/images/iowfsinirligif.webp';
+        }
+        return;
+    }
+
+    // Mutlu modu: iowfmutlu.mp4 video oynatma
+    if (photoEl) {
+        photoEl.style.display = 'none';
+        try { photoEl.removeAttribute('src'); } catch(e){}
+    }
+    if (audioBar) audioBar.style.display = 'flex';
+
+    const videoSrc = 'assets/video/iowfmutlu.mp4';
+    const posterSrc = 'assets/images/tarik_mutlu.webp';
 
     if (videoEl) {
+        videoEl.style.display = 'block';
         const container = videoEl.parentElement;
         if (container) {
             container.style.backgroundImage = 'url("' + posterSrc + '")';
@@ -4384,14 +4409,16 @@ function applyTarikEmotion(emotion) {
             });
         }
     }
-
-    if (photoEl) {
-        photoEl.src = posterSrc;
-    }
 }
 
 function stopTvVideo() {
     const videoEl = document.getElementById('tv-tarik-video');
+    const photoEl = document.getElementById('tv-tarik-photo');
+    if (photoEl) {
+        photoEl.style.display = 'none';
+        photoEl.onerror = null;
+        try { photoEl.removeAttribute('src'); } catch(e){}
+    }
     if (videoEl) {
         videoEl.ontimeupdate = null;
         videoEl.onended = null;
