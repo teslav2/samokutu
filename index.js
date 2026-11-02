@@ -1507,6 +1507,7 @@ function tryNextViewer() {
 
 // SPA Screen helper
 function showScreen(screenId) {
+    if (screenId !== 'end-screen' && typeof stopTvVideo === 'function') stopTvVideo();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
 }
@@ -2506,6 +2507,7 @@ function initSettingsControls() {
 window.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('contextmenu', e => e.preventDefault());
 
+    try { stopTvVideo(); } catch(e) {}
     try { applyConfig(); } catch(e) { console.error("applyConfig:", e); }
     try { checkMenuBackground(); } catch(e) { console.error("checkMenuBackground:", e); }
     try { loadDares(); } catch(e) { console.error("loadDares:", e); }
@@ -4382,7 +4384,7 @@ function stopTvVideo() {
         videoEl.classList.remove('tv-video-fade-out');
         videoEl.pause();
         videoEl.currentTime = 0;
-        try { videoEl.src = ''; } catch(e){}
+        try { videoEl.pause(); videoEl.removeAttribute('src'); videoEl.load(); } catch(e){}
     }
 }
 
