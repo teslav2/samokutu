@@ -5066,3 +5066,41 @@ body {
 }
 
 .header-player-box { flex-shrink: 0 !important; white-space: nowrap; }
+
+/* Skip Viewer Button & Shake */
+.btn-skip-viewer {
+    margin-left: auto;
+    background: rgba(255, 68, 68, 0.15);
+    border: 1px solid rgba(255, 68, 68, 0.45);
+    color: #ff5555;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.btn-skip-viewer:hover {
+    background: rgba(255, 68, 68, 0.35);
+    border-color: #ff5555;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+}
+
+.box.shake {
+    animation: boxShake 0.4s ease-in-out !important;
+}
+
+@keyframes boxShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}

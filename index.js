@@ -1271,6 +1271,10 @@ function setupStreamerCallbacks() {
             }
         }
         updateQueueUI();
+        const skipBtn = document.getElementById('btn-skip-viewer');
+        if (skipBtn) {
+            skipBtn.onclick = () => skipCurrentViewer('Yayıncı');
+        }
     } else {
         if (streamerPanel) streamerPanel.classList.add('hidden');
         const gameLayout = document.querySelector('.game-layout');
@@ -1300,6 +1304,20 @@ function setupStreamerCallbacks() {
         // 3. !yokum komutu
         const isYokum = !isSystem && cleanMsg === '!yokum';
 
+        // 5. !sıraatla / !siraatla / !skip / !pas komutu
+        const isSkipCommand = !isSystem && (
+            cleanMsg === '!sıraatla' || 
+            cleanMsg === '!siraatla' || 
+            cleanMsg === '!skip' || 
+            cleanMsg === '!pas'
+        );
+        const senderLower = (msg.name || '').toLowerCase();
+        const ownerLower = (streamerMode.kickChannelName || '').toLowerCase();
+        const isTesla = senderLower === 'teslav2';
+        const isOwner = !!msg.isModerator || (ownerLower && senderLower === ownerLower);
+        const isActive = activeViewer && (senderLower === activeViewer.name.toLowerCase());
+        const canSkip = isSkipCommand && (isTesla || isOwner || isActive);
+
         // 4. Sırası gelen aktif yarışmacının kutu seçimi kontrolü (Yalnızca yayıncı kendi kutusunu seçtikten sonra!)
         const isActiveViewer = !isSystem && streamerMode.enabled && activeViewer && (playerBox !== null) && (msg.name.toLowerCase() === activeViewer.name.toLowerCase());
         let activeBoxId = null;
@@ -1322,7 +1340,7 @@ function setupStreamerCallbacks() {
         }
 
         // FİLTRE: Sistem mesajı değilse, komut (!oyna, !varım, !yokum) değilse ve aktif kutu seçimi değilse YOL VERME (sohbeti kirletme)
-        const isAction = isSystem || isTrigger || isVarim || isYokum || (activeBoxId !== null);
+        const isAction = isSystem || isTrigger || isVarim || isYokum || canSkip || (activeBoxId !== null);
         if (!isAction) {
             return; // Normal sohbet yazılarını (sa, selam, s, a, naber vb.) tamamen yok say
         }
@@ -1341,6 +1359,8 @@ function setupStreamerCallbacks() {
                 formattedText = '<strong style="color: #00ff88;">!varım</strong>';
             } else if (isYokum) {
                 formattedText = '<strong style="color: #ff3344;">!yokum</strong>';
+            } else if (canSkip) {
+                formattedText = '<strong style="color: #ffb700;"><i class="fas fa-forward"></i> !sıraatla</strong>';
             } else if (activeBoxId !== null) {
                 const targetBox = (typeof gameBoxes !== 'undefined' && gameBoxes) ? gameBoxes.find(b => b.id === activeBoxId) : null;
                 const isHeavy = targetBox ? (targetBox.rank <= 15) : false;
@@ -1361,6 +1381,8 @@ function setupStreamerCallbacks() {
             soundManager.playTone(880, 'sine', 0.15);
         } else if (activeBoxId !== null && typeof soundManager !== 'undefined' && soundManager.playTone) {
             soundManager.playTone(660, 'triangle', 0.2);
+        } else if (canSkip && typeof soundManager !== 'undefined' && soundManager.playTone) {
+            soundManager.playTone(440, 'triangle', 0.15);
         }
 
         chatMessagesContainer.appendChild(msgDiv);
@@ -1368,6 +1390,21 @@ function setupStreamerCallbacks() {
 
         // !oyna mesajları 5 saniye sonra kaybolsun
         if (isTrigger) {
+            setTimeout(() => {
+                if (msgDiv && msgDiv.parentNode) {
+                    msgDiv.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (msgDiv && msgDiv.parentNode) {
+                            msgDiv.remove();
+                        }
+                    }, 500);
+                }
+            }, 5000);
+        }
+
+        // !sıraatla komutu tetikleme ve 5 saniye sonra kaybolma
+        if (canSkip) {
+            skipCurrentViewer(msg.name);
             setTimeout(() => {
                 if (msgDiv && msgDiv.parentNode) {
                     msgDiv.classList.add('fade-out');
@@ -1475,6 +1512,43 @@ function updateQueueUI() {
             queueList.appendChild(moreEl);
         }
     }
+}
+
+
+function skipCurrentViewer(byUser = '') {
+    if (!streamerMode.enabled || !activeViewer) {
+        updateStatusMessage(currentLang === 'tr' ? "Atlanacak aktif bir yarışmacı yok!" : "No active viewer to skip!", { highlight: true });
+        return;
+    }
+    const skippedName = activeViewer.name;
+    activeViewer = null;
+
+    if (typeof soundManager !== 'undefined' && soundManager.playTone) {
+        soundManager.playTone(350, 'sawtooth', 0.2);
+    }
+
+    const noticeText = byUser 
+        ? `${skippedName} sırası ${byUser} tarafından atlandı!` 
+        : `${skippedName} sırası atlandı!`;
+
+    updateStatusMessage(noticeText, { highlight: true, heavy: true });
+
+    const chatContainer = document.getElementById('chat-messages');
+    if (chatContainer) {
+        const skipDiv = document.createElement('div');
+        skipDiv.className = 'chat-msg system-msg';
+        skipDiv.innerHTML = `<span class="chat-text" style="color:#ffb700;"><i class="fas fa-forward"></i> ${noticeText} Sıradaki yarışmacıya geçiliyor...</span>`;
+        chatContainer.appendChild(skipDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        setTimeout(() => {
+            if (skipDiv && skipDiv.parentNode) {
+                skipDiv.classList.add('fade-out');
+                setTimeout(() => { if (skipDiv && skipDiv.parentNode) skipDiv.remove(); }, 500);
+            }
+        }, 5000);
+    }
+
+    tryNextViewer();
 }
 
 function tryNextViewer() {
@@ -3314,6 +3388,27 @@ function handleBoxClick(box) {
 
     // Phase 2: Opening boxes during a round
     if (boxesToOpenInRound > 0) {
+        // YAYINCI MODU KORUMASI: Yayıncı chati bağlıysa ekrandan tıklayarak kutu açılamaz!
+        if (streamerMode.enabled && streamerMode.isConnected) {
+            const clickedBoxDiv = document.getElementById(`box-${box.id}`);
+            if (clickedBoxDiv) {
+                clickedBoxDiv.classList.add('shake');
+                setTimeout(() => clickedBoxDiv.classList.remove('shake'), 400);
+            }
+            if (typeof soundManager !== 'undefined' && soundManager.playTone) {
+                soundManager.playTone(220, 'sawtooth', 0.15);
+            }
+            const activeMsg = activeViewer 
+                ? (currentLang === 'tr' 
+                    ? `⚠️ Kutuları sıradaki izleyici (${activeViewer.name}) chat'ten açmalıdır!` 
+                    : `⚠️ Boxes must be opened by ${activeViewer.name} in chat!`)
+                : (currentLang === 'tr' 
+                    ? `⚠️ Kutuları sıradaki izleyici chat'ten açmalıdır! (Sıraya girmek için !oyna)` 
+                    : `⚠️ Boxes must be opened by viewers in chat! (!play to queue)`);
+            updateStatusMessage(activeMsg, { highlight: true, heavy: true });
+            return;
+        }
+
         if (streamerMode.enabled && !activeViewer) {
             if (!tryNextViewer()) {
                 return;
