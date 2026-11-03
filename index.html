@@ -49,7 +49,7 @@
     <link rel="preload" as="image" href="assets/images/openingsamologo.webp" type="image/webp" fetchpriority="high">
     <link rel="preload" as="image" href="assets/images/openingbg.webp" type="image/webp" fetchpriority="high">
     <link rel="preload" as="image" href="assets/images/logo.webp" type="image/webp">
-    <link rel="stylesheet" href="index.css?v=4.6.3">
+    <link rel="stylesheet" href="index.css?v=4.6.4">
 </head>
 <body oncontextmenu="return false;">
 
@@ -547,20 +547,17 @@
                 <div id="round-indicator" class="badge">Hazırlık</div>
             </div>
             
-            <!-- HEADER SENIN KUTUN (1. Tur ile IOWF arasında) -->
-            <div id="header-player-box" class="header-player-box hidden">
-                <i class="fas fa-box-open" style="color: #00ff88; font-size: 0.95rem;"></i>
-                <span class="header-pb-label">SENİN KUTUN :</span>
-                <span id="header-player-box-num" class="header-pb-num">-</span>
-            </div>
             <div class="spacer"></div>
             <div id="player-badge" class="player-badge hidden">
                 <i class="fas fa-user-circle"></i>
                 <span id="player-badge-name">OYUNCU</span>
             </div>
-            <button id="game-log-btn" class="back-btn" style="margin-left: 10px;">
-                <i class="fas fa-list-alt"></i> <span id="game-log-btn-txt">Log</span>
-            </button>
+            <!-- HEADER SENIN KUTUN (En sağda, Ayarlar'ın hemen solunda) -->
+            <div id="header-player-box" class="header-player-box hidden">
+                <i class="fas fa-box-open" style="color: #00ff88; font-size: 0.95rem;"></i>
+                <span class="header-pb-label">SENİN KUTUN :</span>
+                <span id="header-player-box-num" class="header-pb-num">-</span>
+            </div>
             <button id="game-settings-btn" class="back-btn" style="margin-left: 10px;">
                 <i class="fas fa-cog"></i> <span id="game-settings-btn-txt">Ayarlar</span>
             </button>
@@ -855,8 +852,8 @@
     </div>
 
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=4.6.3"></script>
+    <script src="streamer.js?v=4.6.4"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=4.6.3"></script>
+    <script src="index.js?v=4.6.4"></script>
 </body>
 </html>

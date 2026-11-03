@@ -26,7 +26,8 @@
     box-shadow: 0 0 15px rgba(0, 255, 136, 0.25), inset 0 0 10px rgba(0, 255, 136, 0.08);
     padding: 6px 14px;
     border-radius: 20px;
-    margin-left: 20px;
+    margin-left: 10px;
+    margin-right: 4px;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     backdrop-filter: blur(8px);
 }
@@ -2038,7 +2039,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 440px;
+    max-width: none;
 }
 
 .game-header.streamer-active .badge {
