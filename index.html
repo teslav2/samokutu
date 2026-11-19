@@ -49,7 +49,7 @@
     <link rel="preload" as="image" href="assets/images/openingsamologo.webp" type="image/webp" fetchpriority="high">
     <link rel="preload" as="image" href="assets/images/openingbg.webp" type="image/webp" fetchpriority="high">
     <link rel="preload" as="image" href="assets/images/logo.webp" type="image/webp">
-    <link rel="stylesheet" href="index.css?v=4.6.4">
+    <link rel="stylesheet" href="index.css?v=4.6.5">
 </head>
 <body oncontextmenu="return false;">
 
@@ -574,6 +574,30 @@
 
             <!-- Central Game Board -->
             <div class="main-board">
+                <!-- Initial Box Selection Banner -->
+                <div id="select-own-box-banner" class="select-own-box-banner">
+                    <div class="sobb-content">
+                        <i class="fas fa-hand-pointer"></i>
+                        <span>LÜTFEN KENDİ KUTUNU SEÇ! (Oyun boyunca seninle kalacak kutu)</span>
+                    </div>
+                </div>
+
+                <!-- Final Choice Banner (Son 2 Kutu) -->
+                <div id="final-choice-banner" class="final-choice-banner hidden">
+                    <div class="fcb-header">
+                        <i class="fas fa-trophy"></i>
+                        <span>BÜYÜK FİNAL: SON 2 KUTU! KUTUNA MI GİDECEKSİN, DİĞER KUTUYU MU AÇACAKSIN?</span>
+                    </div>
+                    <div class="fcb-buttons">
+                        <button id="btn-final-own" class="fcb-btn own-btn">
+                            <i class="fas fa-box-open"></i> KENDİ KUTUM (<span id="fcb-own-num">-</span>)
+                        </button>
+                        <button id="btn-final-swap" class="fcb-btn swap-btn">
+                            <i class="fas fa-exchange-alt"></i> MASADAKİ KUTU (<span id="fcb-other-num">-</span>)
+                        </button>
+                    </div>
+                </div>
+
                 <div id="boxes-grid" class="boxes-grid">
                     <!-- 24 Boxes will be dynamically generated here -->
                 </div>
@@ -851,9 +875,23 @@
         </div>
     </div>
 
+    <!-- Fullscreen Active Viewer Announcement Overlay -->
+    <div id="viewer-announce-overlay" class="viewer-announce-overlay hidden">
+        <div class="viewer-announce-card">
+            <div class="viewer-announce-kicker">
+                <i class="fas fa-bullhorn"></i> SIRADAKİ YARIŞMACI
+            </div>
+            <div class="viewer-announce-avatar">
+                <i id="viewer-announce-platform-icon" class="fab fa-kickstarter-k"></i>
+            </div>
+            <div id="viewer-announce-name" class="viewer-announce-name">Yarışmacı</div>
+            <div class="viewer-announce-subtitle">Sıra sende! Kutunu seç...</div>
+        </div>
+    </div>
+
     <!-- Streamer Mode -->
-    <script src="streamer.js?v=4.6.4"></script>
+    <script src="streamer.js?v=4.6.5"></script>
     <!-- Custom JS -->
-    <script src="index.js?v=4.6.4"></script>
+    <script src="index.js?v=4.6.5"></script>
 </body>
 </html>

@@ -1448,6 +1448,10 @@ function setupStreamerCallbacks() {
 
         // Aktif yarışmacının kutusunu açma mantığı (Yayıncının kutusu chatten asla açılamaz!)
         if (activeBoxId !== null && playerBox !== null) {
+            // Son 2 kutu seçimi sadece yayıncı tarafından ekrandan yapılır! Chatten açılamaz!
+            if (isFinalChoice) {
+                return;
+            }
             const targetBox = gameBoxes.find(b => b.id === activeBoxId);
             if (targetBox && !targetBox.isOpened && boxesToOpenInRound > 0) {
                 doOpenBox(targetBox);
@@ -1551,6 +1555,67 @@ function skipCurrentViewer(byUser = '') {
     tryNextViewer();
 }
 
+
+// FULLSCREEN ACTIVE VIEWER ANNOUNCEMENT
+let viewerAnnounceTimeout = null;
+
+function showViewerAnnouncement(name, platform = 'kick') {
+    const overlay = document.getElementById('viewer-announce-overlay');
+    const nameEl = document.getElementById('viewer-announce-name');
+    const iconEl = document.getElementById('viewer-announce-platform-icon');
+    if (!overlay || !nameEl) return;
+
+    if (viewerAnnounceTimeout) {
+        clearTimeout(viewerAnnounceTimeout);
+        viewerAnnounceTimeout = null;
+    }
+
+    nameEl.innerText = name;
+    if (iconEl) {
+        if (platform === 'youtube') {
+            iconEl.className = 'fab fa-youtube';
+            iconEl.style.color = '#ff4444';
+            if (iconEl.parentElement) {
+                iconEl.parentElement.style.borderColor = '#ff4444';
+                iconEl.parentElement.style.background = 'rgba(255, 68, 68, 0.15)';
+            }
+        } else {
+            iconEl.className = 'fab fa-kickstarter-k';
+            iconEl.style.color = '#53fc18';
+            if (iconEl.parentElement) {
+                iconEl.parentElement.style.borderColor = '#53fc18';
+                iconEl.parentElement.style.background = 'rgba(83, 252, 24, 0.15)';
+            }
+        }
+    }
+
+    overlay.classList.remove('hidden');
+    void overlay.offsetWidth; // Force reflow
+    overlay.classList.add('active');
+
+    if (typeof soundManager !== 'undefined' && soundManager.playTone) {
+        soundManager.playTone(523.25, 'sine', 0.15);
+        setTimeout(() => soundManager.playTone(659.25, 'sine', 0.25), 100);
+    }
+
+    viewerAnnounceTimeout = setTimeout(() => {
+        dismissViewerAnnouncement();
+    }, 2500);
+
+    overlay.onclick = () => dismissViewerAnnouncement();
+}
+
+function dismissViewerAnnouncement() {
+    const overlay = document.getElementById('viewer-announce-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    setTimeout(() => {
+        if (!overlay.classList.contains('active')) {
+            overlay.classList.add('hidden');
+        }
+    }, 300);
+}
+
 function tryNextViewer() {
     if (!streamerMode.enabled) return true;
 
@@ -1577,6 +1642,7 @@ function tryNextViewer() {
             }
             updateQueueUI();
             updateStatusMessage(t('streamerOpenBox', {name: activeViewer.name, count: boxesToOpenInRound}));
+            showViewerAnnouncement(activeViewer.name, activeViewer.platform);
             return true;
         } else {
             if (activeViewerBanner) activeViewerBanner.classList.add('hidden');
@@ -2867,6 +2933,22 @@ function setupEventListeners() {
         });
     }
 
+    const btnFinalOwn = document.getElementById('btn-final-own');
+    if (btnFinalOwn) {
+        btnFinalOwn.addEventListener('click', () => {
+            soundManager.playClick();
+            chooseFinalBox(false);
+        });
+    }
+
+    const btnFinalSwap = document.getElementById('btn-final-swap');
+    if (btnFinalSwap) {
+        btnFinalSwap.addEventListener('click', () => {
+            soundManager.playClick();
+            chooseFinalBox(true);
+        });
+    }
+
     // initJokerControls removed
 
     // Fullscreen Toggle
@@ -3160,6 +3242,11 @@ function startGame(fade = true) {
     isFinalChoice = false;
     resetJokerState();
     playerBoxContainer.classList.add('hidden');
+
+    const selectBanner = document.getElementById('select-own-box-banner');
+    if (selectBanner) selectBanner.classList.remove('hidden');
+    const finalBanner = document.getElementById('final-choice-banner');
+    if (finalBanner) finalBanner.classList.add('hidden');
     
     bankerOfferHistory = [];
     currentPoll = null;
@@ -3317,31 +3404,12 @@ function handleBoxClick(box) {
 
     if (isFinalChoice) {
         const lastRemainingBox = gameBoxes.find(b => b.id !== playerBox.id && !b.isOpened);
-        if (box.id === playerBox.id || (lastRemainingBox && box.id === lastRemainingBox.id)) {
-            isFinalChoice = false;
-
-            const playerBoxDiv = document.getElementById(`box-${playerBox.id}`);
-            const lastBoxDiv = lastRemainingBox ? document.getElementById(`box-${lastRemainingBox.id}`) : null;
-            if (playerBoxDiv) playerBoxDiv.classList.remove('final-choice');
-            if (lastBoxDiv) lastBoxDiv.classList.remove('final-choice');
-
-            if (lastRemainingBox && box.id === lastRemainingBox.id) {
-                const oldId = playerBox.id;
-                playerBox = lastRemainingBox;
-                const headerPbNum = document.getElementById('header-player-box-num');
-                if (headerPbNum) headerPbNum.innerText = playerBox.id;
-                addGameLog('swap', currentLang === 'tr'
-                    ? `Kutu değiştirildi: Kutu ${oldId} yerine Kutu ${playerBox.id} seçildi ve açıldı`
-                    : `Box swapped: Selected Box ${playerBox.id} instead of Box ${oldId} and opened it`);
-                soundManager.playTone(587, 'sine', 0.2, 0, 0.1);
-            } else {
-                addGameLog('swap', currentLang === 'tr'
-                    ? `Kendi kutusu (Kutu ${playerBox.id}) seçildi ve açıldı`
-                    : `Own box (Box ${playerBox.id}) selected and opened`);
-            }
-
-            playerBox.isOpened = true;
-            endGame(false);
+        if (box.id === playerBox.id) {
+            chooseFinalBox(false);
+            return;
+        } else if (lastRemainingBox && box.id === lastRemainingBox.id) {
+            chooseFinalBox(true);
+            return;
         }
         return;
     }
@@ -3353,6 +3421,9 @@ function handleBoxClick(box) {
         playerBox = box;
         box.isOpened = true; // Mark as selected/opened so they can't open it during game
         
+        const selectBanner = document.getElementById('select-own-box-banner');
+        if (selectBanner) selectBanner.classList.add('hidden');
+
         const boxDiv = document.getElementById(`box-${box.id}`);
         boxDiv.className = 'box player-selected';
         
@@ -4138,17 +4209,22 @@ function declineBankerOffer() {
     if (streamerMode.enabled && activeViewer) {
         streamerMode.addSystemMessage(`${activeViewer.name} "!yokum" dedi ve teklifi REDDETTİ! Kutusuna güvenmeye devam ediyor.`);
     }
+
+    // Masadaki henüz açılmamış kutular (kendi kutumuz hariç)
+    const unopenedGridBoxes = gameBoxes.filter(b => b.id !== playerBox.id && !b.isOpened);
+
+    // Eğer masada sadece 1 kutu kaldıysa (toplamda 2 kutu: senin kutun + son kutu) -> Büyük Final!
+    if (unopenedGridBoxes.length === 1) {
+        triggerFinalChoice(unopenedGridBoxes[0]);
+        return;
+    }
+
     // Check if we have more rounds
     if (currentRound < roundConfig.length) {
         currentRound++;
         boxesToOpenInRound = roundConfig[currentRound - 1];
         
-        // If we only have 1 unopened box left on the grid (besides the player's box),
-        // we've reached the final swap phase instead of opening!
-        const unopenedGridBoxes = gameBoxes.filter(b => b.id !== playerBox.id && !b.isOpened);
-        
         if (unopenedGridBoxes.length === 1) {
-            // Trigger final round (swap choice)
             triggerFinalChoice(unopenedGridBoxes[0]);
         } else {
             updateRoundIndicator(t('roundTitle', {n: currentRound}), "aktif");
@@ -4160,8 +4236,11 @@ function declineBankerOffer() {
             }
         }
     } else {
-        // Safe check: if somehow out of rounds, end game
-        endGame(false);
+        if (unopenedGridBoxes.length >= 1) {
+            triggerFinalChoice(unopenedGridBoxes[0]);
+        } else {
+            endGame(false);
+        }
     }
 }
 
@@ -4169,7 +4248,7 @@ function declineBankerOffer() {
 function triggerFinalChoice(lastRemainingBox) {
     updateRoundIndicator(t('finalIndicator'), "final");
     
-    const delay = settingsConfig.fastAnimations ? 300 : 1000;
+    const delay = settingsConfig.fastAnimations ? 300 : 700;
     
     setTimeout(() => {
         isFinalChoice = true;
@@ -4180,15 +4259,72 @@ function triggerFinalChoice(lastRemainingBox) {
         if (playerBoxDiv) playerBoxDiv.classList.add('final-choice');
         if (lastBoxDiv) lastBoxDiv.classList.add('final-choice');
 
+        // Show the prominent final choice banner above boxes
+        const finalBanner = document.getElementById('final-choice-banner');
+        const ownNumEl = document.getElementById('fcb-own-num');
+        const otherNumEl = document.getElementById('fcb-other-num');
+        if (ownNumEl) ownNumEl.innerText = playerBox.id;
+        if (otherNumEl) otherNumEl.innerText = lastRemainingBox.id;
+        if (finalBanner) finalBanner.classList.remove('hidden');
+
         const msg = currentLang === 'tr'
-            ? `Son 2 kutu kaldı! Kendi kutunu (Kutu ${playerBox.id}) açmak için kendi kutuna, diğer kutuyu (Kutu ${lastRemainingBox.id}) açmak için diğer kutuya tıkla!`
-            : `Only 2 boxes left! Click your box (Box ${playerBox.id}) to open it, or click the other box (Box ${lastRemainingBox.id}) to swap & open it!`;
+            ? `🔥 BÜYÜK FİNAL: Kendi kutun (${playerBox.id}) ile mi devam edeceksin, masadaki kutuyu (${lastRemainingBox.id}) mu açacaksın?`
+            : `🔥 GRAND FINALE: Keep your box (${playerBox.id}) or open the other box (${lastRemainingBox.id})?`;
         updateStatusMessage(msg, { highlight: true });
-        if (streamerMode.enabled && activeViewer) {
-            streamerMode.addSystemMessage(`SON AŞAMA! Sadece kendi kutun (Kutu ${playerBox.id}) ve Kutu ${lastRemainingBox.id} kaldı!`);
-            streamerMode.addSystemMessage(`${activeViewer.name}, kendi kutunu açmak için sohbete ${playerBox.id}, diğer kutuyu seçmek için ${lastRemainingBox.id} yaz!`);
+
+        if (streamerMode.enabled) {
+            streamerMode.addSystemMessage(`BÜYÜK FİNAL! Masada sadece Kutu ${playerBox.id} (Kendi Kutun) ve Kutu ${lastRemainingBox.id} kaldı!`);
+            streamerMode.addSystemMessage(`Yayıncı ekrandan son kutu seçimini yapıyor...`);
         }
     }, delay);
+}
+
+function chooseFinalBox(isSwapped) {
+    if (!isFinalChoice) return;
+    isFinalChoice = false;
+
+    const lastRemainingBox = gameBoxes.find(b => b.id !== playerBox.id && !b.isOpened);
+    const chosenBox = isSwapped ? lastRemainingBox : playerBox;
+    if (!chosenBox) return;
+
+    const finalBanner = document.getElementById('final-choice-banner');
+    if (finalBanner) finalBanner.classList.add('hidden');
+
+    const playerBoxDiv = document.getElementById(`box-${playerBox.id}`);
+    const lastBoxDiv = lastRemainingBox ? document.getElementById(`box-${lastRemainingBox.id}`) : null;
+    if (playerBoxDiv) playerBoxDiv.classList.remove('final-choice');
+    if (lastBoxDiv) lastBoxDiv.classList.remove('final-choice');
+
+    hasSwappedAtFinal = isSwapped;
+
+    if (isSwapped && lastRemainingBox) {
+        const oldId = playerBox.id;
+        playerBox = lastRemainingBox;
+        const headerPbNum = document.getElementById('header-player-box-num');
+        if (headerPbNum) headerPbNum.innerText = playerBox.id;
+        addGameLog('swap', currentLang === 'tr'
+            ? `Kutu değiştirildi: Kutu ${oldId} yerine Kutu ${playerBox.id} seçildi ve açıldı`
+            : `Box swapped: Selected Box ${playerBox.id} instead of Box ${oldId} and opened it`);
+        if (streamerMode.enabled) {
+            streamerMode.addSystemMessage(`Yayıncı son anda KUTUSUNU DEĞİŞTİRDİ! Masadaki Kutu ${playerBox.id} açılıyor!`);
+        }
+    } else {
+        addGameLog('swap', currentLang === 'tr'
+            ? `Kendi kutusu (Kutu ${playerBox.id}) seçildi ve açıldı`
+            : `Own box (Box ${playerBox.id}) selected and opened`);
+        if (streamerMode.enabled) {
+            streamerMode.addSystemMessage(`Yayıncı KENDİ KUTUSUNA GÜVENDİ! Kutu ${playerBox.id} açılıyor!`);
+        }
+    }
+
+    // Play reveal and end game
+    soundManager.playOpenBox(playerBox.rank <= 15);
+    showDareReveal(playerBox, false);
+    playerBox.isOpened = true;
+
+    setTimeout(() => {
+        endGame(false);
+    }, getDareRevealDuration() + 500);
 }
 
 // END GAME / RESULT DISPLAY
@@ -4923,3 +5059,17 @@ function initTvAudioControls() {
     }
 }
 
+
+
+// 4K & Ultra-High Resolution Auto-Scaling
+function applyAuto4KScaling() {
+    if (window.innerWidth >= 3600) {
+        document.documentElement.style.zoom = '1.85';
+    } else if (window.innerWidth >= 3000) {
+        document.documentElement.style.zoom = '1.65';
+    } else {
+        document.documentElement.style.zoom = '';
+    }
+}
+window.addEventListener('resize', applyAuto4KScaling);
+window.addEventListener('DOMContentLoaded', applyAuto4KScaling);
