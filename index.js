@@ -26,31 +26,31 @@ document.addEventListener('keydown', e => {
 
 // FALLBACK DARES (CORS hatası veya dosya eksikliği durumunda yüklenecek varsayılan cezalar)
 const DEFAULT_DARES = [
-    // 1-15: Ağır Cezalar (Heavy Dares)
-    "Welcome to the Game 3 Başla",
-    "chat'ten rastgele birinin geçmişine atla",
+    // 1-15: Ağır Cezalar (Kırmızı)
+    "IOWF discorddunda 5 dakika boyunca genel sohbette kendini öv",
+    "3 dakika aralıksız nah çek",
     "ekipten 3 kişiyi arayıp 'acil bir durum var kardeşim, PC gitti' diyerek tepkilerini ölç",
-    "ekipte en çok vakit geçirdiğin kişiyi ara, 'Tarık bey Panama'da tatile gidiyor, bir süre ortalıkta olmayacak' de",
+    "Telefon rehberini rastgele kaydır ve parmağının durduğu kişiyi arayıp 1 dakika boyunca sadece futbol taktiği anlat.",
     "ekipten en son kime yazdıysan Discord'da ismini 'KUTUSUNDA BÜYÜK HİSSEDEN ADAM' olarak değiştir, öyle kalsın",
     "instagram'a 'hamdi bey çay içmeye bekliyorum' olarak story at",
-    "yapay zekaya 'IOWF yaşlı mı?' diye sor, yaşlı derse yapay zekanın geçmişine atlayamazsın",
-    "20 dakika popüler kültür kölesi ol: herkesin sevdiği şeyleri öv, niş şeyleri yerin dibine sok",
-    "20 dakika boyunca futbol konusu açıldığında 'Ben futbolun ta kendisiyim' diyerek konuyu kapat",
-    "bağış atan herkesi öptüğünü söyle ve öp",
+    "Kick veya Discord profil fotoğrafını 1 saat boyunca chatin seçtiği en kötü fotoğrafla değiştir.",
+    "10 dakika kekeme taklidi yap",
+    "3 dakika boyunca her gelen mesaja 'haklısın' de",
+    "5 dakika boyunca chatten gelen her soruya sadece yeni bir soru sorarak karşılık ver.",
     "galerideki en son fotoğrafı göster",
     "çocukluk fotoğrafı varsa göster",
     "Bandananı aç",
     "SAMO'nun bir şarkısını kötüle",
-    "Futbolda herkesin hemfikir olduğu bir konuda ters bir şey söyle",
-    // 16-30: Hafif Cezalar (Light Dares)
-    "10 dakika kekeme taklidi yap",
+    "5 dakika boyunca Karadeniz şivesiyle konuş",
+    // 16-30: Hafif Cezalar (Mavi)
+    "Kelime Cezası:5 dakika boyunca 'aynen', 'kanka', 'evet' kelimelerinden birini kullanma, her kullandığında 5 kere nah çek",
     "5 dakika kadın taklidi yap",
     "3 dakika sessiz kal, sadece beden diliyle konuş",
     "albion günlerini özlediğini söyle ve öv",
     "15 dakika İstanbul beyefendisi gibi konuş",
-    "3 dakika aralıksız nah çek",
+    "3 dakika boyunca mikrofona çok yaklaşıp her şeyi fısıldayarak anlat.",
     "10 dakika boyunca haber spikeri gibi konuş",
-    "5 dakika boyunca Karadeniz şivesiyle konuş",
+    "2 dakika boyunca gözlerini hiç kırpmadan (veya gülmeden) kameraya dik dik bak.",
     "chatin seçtiği şarkıyı mırıldan",
     "3 dakika boyunca her gelen mesaja 'haklısın' de",
     "5 dakika NPC ol, sadece 'Evet, Hayır, Belki, Devlet sırrı' diyebilirsin",
@@ -4133,59 +4133,53 @@ function triggerBankerCall() {
 }
 
 function calculateBankerOffer() {
-    // Get all remaining unopened dares (including player's own box)
+    // Kalan açılmamış kutular (oyuncunun kutusu dahil)
     const remainingBoxes = gameBoxes.filter(b => b.id === playerBox.id || !b.isOpened);
     
-    // Count heavy dares (ranks 1-12) and light dares (ranks 13-24)
-    const heavyRemaining = remainingBoxes.filter(b => b.rank <= 15).length;
-    const lightRemaining = remainingBoxes.filter(b => b.rank > 15).length;
-    const totalRemaining = remainingBoxes.length;
+    // Ağır (Kırmızı: rank 1-15) ve Hafif (Mavi: rank 16-30) kalan cezalar
+    const heavyRemaining = remainingBoxes.filter(b => b.rank <= 15);
+    const lightRemaining = remainingBoxes.filter(b => b.rank > 15);
 
-    // Calculate average rank of remaining boxes
-    const sumRanks = remainingBoxes.reduce((sum, b) => sum + b.rank, 0);
-    const averageRank = sumRanks / totalRemaining;
+    // Bu oyunda daha önce sunulmuş tekliflerin seti (aynı teklif bir daha gelmez)
+    const pastOfferedDares = new Set(bankerOfferHistory.map(h => h.dare));
 
-    // Base offer starts near average rank
-    let offerRank = Math.round(averageRank);
-
-    // Dynamic Psychological AI:
-    // If board is dangerous (heavy dares dominate):
-    // Player is anxious. Hamdi Bey smells fear and offers an escape route (mid-tier penalty)
-    if (heavyRemaining > lightRemaining) {
-        const fearBonus = Math.floor(Math.random() * 3) - 1; // -1 to +1
-        offerRank = Math.min(15, Math.max(8, offerRank + fearBonus));
-    } else if (lightRemaining > heavyRemaining * 1.5) {
-        // Player is cruising safely! Mostly light dares remain!
-        // Hamdi Bey tries to lowball or give an annoying punishment to break their confidence.
-        offerRank = Math.max(2, offerRank - 3 - Math.floor(Math.random() * 2));
+    // Teklif rengi seçimi:
+    // 1) Kırmızı fazlaysa -> Kırmızı teklif
+    // 2) Mavi fazlaysa -> Mavi teklif
+    // 3) Eşitse -> Kullanıcı kuralı: genelde kırmızı teklif gelsin (%75 kırmızı)
+    let chooseRed = true;
+    if (heavyRemaining.length > lightRemaining.length) {
+        chooseRed = true;
+    } else if (lightRemaining.length > heavyRemaining.length) {
+        chooseRed = false;
     } else {
-        // Balanced board: psychological tension
-        const jitter = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 2) + 1);
-        offerRank = offerRank + jitter;
+        chooseRed = Math.random() < 0.75;
     }
 
-    // Personality adjustment from settings
-    const personality = settingsConfig.bankerPersonality || 'balanced';
-    if (personality === 'generous') {
-        offerRank += 3;
-    } else if (personality === 'stingy') {
-        offerRank -= 3;
+    // Aday kutular: seçilen renkteki ve daha önce SUNULMAMIŞ kutular
+    let primaryCandidates = (chooseRed ? heavyRemaining : lightRemaining)
+        .filter(b => !pastOfferedDares.has(b.dare));
+
+    // Eğer o renkte sunulmamış ceza kalmadıysa, diğer renkten sunulmamışlara bak
+    if (primaryCandidates.length === 0) {
+        primaryCandidates = remainingBoxes.filter(b => !pastOfferedDares.has(b.dare));
     }
 
-    // Bound check (1 to 24)
-    offerRank = Math.max(1, Math.min(24, offerRank));
-
-    // Ensure we don't repeat the exact same dare consecutively
-    const lastOffer = bankerOfferHistory[bankerOfferHistory.length - 1];
-    if (lastOffer && lastOffer.rank === offerRank) {
-        offerRank = offerRank < 24 ? offerRank + 1 : offerRank - 1;
+    let selectedBox = null;
+    if (primaryCandidates.length > 0) {
+        selectedBox = primaryCandidates[Math.floor(Math.random() * primaryCandidates.length)];
+    } else {
+        // Tüm kalan kutular en az bir kere sunulmuşsa, kalan kutulardan son tekliften farklı olanı seç
+        const lastOffer = bankerOfferHistory[bankerOfferHistory.length - 1];
+        const altBoxes = remainingBoxes.filter(b => !lastOffer || b.dare !== lastOffer.dare);
+        selectedBox = altBoxes.length > 0
+            ? altBoxes[Math.floor(Math.random() * altBoxes.length)]
+            : remainingBoxes[Math.floor(Math.random() * remainingBoxes.length)];
     }
-
-    const offerIndex = offerRank - 1;
 
     return {
-        dare: daresList[offerIndex] || DEFAULT_DARES[offerIndex],
-        rank: offerRank
+        dare: selectedBox.dare,
+        rank: selectedBox.rank
     };
 }
 
